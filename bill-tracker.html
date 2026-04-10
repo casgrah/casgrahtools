@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bill Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1A2744;
+  --navy-mid: #243358;
+  --blue: #2E75B6;
+  --blue-light: #5B9BD5;
+  --teal: #1D9E75;
+  --teal-light: #E2F5EE;
+  --gold: #F0A500;
+  --gold-light: #FFF8E6;
+  --red: #C0392B;
+  --red-light: #FDEDEC;
+  --surface: #F7F8FC;
+  --card: #FFFFFF;
+  --border: #E4E8F0;
+  --border-strong: #C8D0E0;
+  --text: #1A2744;
+  --text-mid: #4A5568;
+  --text-muted: #8896B0;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(26,39,68,.07);
+  --shadow-md: 0 4px 24px rgba(26,39,68,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* ── Auth overlay ── */
+#auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px}
+#auth-overlay h1{color:#fff;font-size:28px;font-weight:600;letter-spacing:-.5px}
+#auth-overlay p{color:rgba(255,255,255,.6);font-size:14px;text-align:center;max-width:320px}
+#sign-in-btn{display:flex;align-items:center;gap:10px;background:#fff;color:#1A2744;border:none;border-radius:10px;padding:12px 24px;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:transform .15s,box-shadow .15s}
+#sign-in-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+#sign-in-btn svg{width:20px;height:20px}
+
+/* ── App shell ── */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* ── Header ── */
+header{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:20px}
+.logo{color:#fff;font-size:16px;font-weight:600;letter-spacing:-.3px;white-space:nowrap}
+.logo span{color:var(--blue-light)}
+nav{display:flex;gap:2px}
+nav button{background:none;border:none;color:rgba(255,255,255,.55);font-family:var(--sans);font-size:13px;font-weight:400;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .15s}
+nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav button.active{color:#fff;background:rgba(255,255,255,.12);font-weight:500}
+.header-right{display:flex;align-items:center;gap:10px}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-nav button{background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.month-nav button:hover{background:rgba(255,255,255,.2)}
+#current-month-label{color:#fff;font-size:14px;font-weight:500;min-width:110px;text-align:center}
+.reconcile-btn{background:var(--teal);border:none;color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s}
+.reconcile-btn:hover{opacity:.85}
+.user-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-family:var(--sans);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer}
+
+/* ── Main layout ── */
+main{flex:1;padding:20px 24px;max-width:1100px;margin:0 auto;width:100%}
+
+/* ── Summary cards ── */
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.stat-card .label{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-card .value{font-size:20px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:-.5px}
+.stat-card.highlight .value{color:var(--blue)}
+.stat-card.danger .value{color:var(--red)}
+.stat-card.success .value{color:var(--teal)}
+
+/* ── Two-column layout ── */
+.cols{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+
+/* ── Bills panel ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-header h2{font-size:14px;font-weight:600;color:var(--text)}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar{width:100px;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:var(--teal);border-radius:99px;transition:width .4s}
+.progress-label{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+
+.bill-table{width:100%;border-collapse:collapse}
+.bill-table thead tr{background:var(--surface)}
+.bill-table thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:8px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.bill-table thead th.right{text-align:right}
+.bill-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+.bill-table tbody tr:last-child{border-bottom:none}
+.bill-table tbody tr:hover{background:#F0F4FF}
+.bill-table tbody tr.paid-row{opacity:.6}
+.bill-table td{padding:10px 16px;font-size:13px;vertical-align:middle}
+.bill-table td.right{text-align:right}
+.bill-name-cell{font-weight:500;color:var(--text)}
+.bill-due-cell{color:var(--text-muted);font-size:12px}
+.mono{font-family:var(--mono);font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;letter-spacing:.03em}
+.badge.paid{background:var(--teal-light);color:#0F6E56}
+.badge.unpaid{background:var(--red-light);color:var(--red)}
+.badge.auto{background:#EEF2FF;color:#4338CA}
+.badge.pending{background:var(--gold-light);color:#B07800}
+
+/* ── Right panel (income + quick add) ── */
+.right-col{display:flex;flex-direction:column;gap:16px}
+.income-row-item{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.income-row-item:last-child{border-bottom:none}
+.income-row-item .idesc{color:var(--text);flex:1}
+.income-row-item .iexp{color:var(--text-muted);font-family:var(--mono);font-size:12px;margin-right:12px}
+.income-row-item .iact{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);min-width:70px;text-align:right}
+.income-total-row{background:var(--surface);display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-weight:600;font-size:13px}
+.balance-display{background:var(--navy);border-radius:var(--radius);padding:16px 20px;color:#fff}
+.balance-display .bl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.balance-display .bv{font-size:28px;font-weight:600;font-family:var(--mono);letter-spacing:-1px;color:#fff}
+.balance-display .bs{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.45);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:var(--radius);padding:24px;width:380px;max-width:90vw;transform:translateY(8px);transition:transform .2s}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:8px 12px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--blue)}
+.modal-actions{display:flex;gap:8px;margin-top:20px}
+.btn{padding:9px 18px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--navy)}
+.btn-secondary{background:var(--surface);color:var(--text-mid);border:1px solid var(--border-strong)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #FBBCB8}
+.btn-danger:hover{background:#FDDDD9}
+
+/* ── Annual view ── */
+.annual-grid{overflow-x:auto}
+.annual-table{width:100%;border-collapse:collapse;font-size:12px}
+.annual-table th{padding:8px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+.annual-table th:first-child{text-align:left}
+.annual-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;text-align:right;color:var(--text)}
+.annual-table td:first-child{font-family:var(--sans);font-weight:500;text-align:left;color:var(--text-mid)}
+.annual-table tr.section-header td{background:var(--surface);font-family:var(--sans);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);padding:10px 12px}
+.annual-table tr.total-row td{font-weight:600;color:var(--blue);background:#F0F4FF}
+.annual-table .dim{color:var(--text-muted)}
+
+/* ── Loading ── */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none}
+.loading .spinner{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:all .25s;z-index:999;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+
+/* ── Bill Master ── */
+.master-section{margin-bottom:24px}
+.master-section h3{font-size:13px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;padding:0 4px}
+.master-bill-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px}
+.master-bill-item .mname{flex:1;font-weight:500;font-size:13px}
+.master-bill-item .mdue{font-size:12px;color:var(--text-muted);min-width:60px}
+.master-bill-item .mmin{font-family:var(--mono);font-size:12px;min-width:70px;text-align:right}
+.add-bill-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:10px 16px;width:100%;cursor:pointer;color:var(--text-muted);font-family:var(--sans);font-size:13px;margin-top:6px;transition:all .15s}
+.add-bill-btn:hover{border-color:var(--blue);color:var(--blue);background:#F0F4FF}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .summary-row{grid-template-columns:repeat(2,1fr)}
+  .cols{grid-template-columns:1fr}
+  header{padding:0 14px}
+  main{padding:14px}
+  .logo{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- Auth overlay -->
+<div id="auth-overlay">
+  <h1>Bill Tracker</h1>
+  <p>Sign in with Google to sync your bills across all devices</p>
+  <button id="sign-in-btn">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+    Sign in with Google
+  </button>
+</div>
+
+<!-- Main app -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="logo">bill<span>track</span></div>
+      <nav>
+        <button class="active" onclick="setView('monthly')">Monthly</button>
+        <button onclick="setView('annual')">Annual</button>
+        <button onclick="setView('master')">Bill master</button>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="month-nav" id="month-nav">
+        <button onclick="changeMonth(-1)">&#8249;</button>
+        <span id="current-month-label">April 2026</span>
+        <button onclick="changeMonth(1)">&#8250;</button>
+      </div>
+      <button class="reconcile-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
+      <button class="user-btn" onclick="signOut()" id="user-btn">Sign out</button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Monthly view -->
+    <div id="view-monthly">
+      <!-- Account tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="btn btn-primary" id="tab-house" onclick="setAccount('house')" style="font-size:12px;padding:7px 16px">House account</button>
+        <button class="btn btn-secondary" id="tab-my" onclick="setAccount('my')" style="font-size:12px;padding:7px 16px">My bills</button>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="summary-row">
+        <div class="stat-card"><div class="label">Min. due</div><div class="value" id="s-min-due">—</div></div>
+        <div class="stat-card danger"><div class="label">Unpaid</div><div class="value" id="s-unpaid">—</div></div>
+        <div class="stat-card success"><div class="label">Paid</div><div class="value" id="s-paid">—</div></div>
+        <div class="stat-card"><div class="label">Income actual</div><div class="value" id="s-income">—</div></div>
+        <div class="stat-card highlight"><div class="label">Balance</div><div class="value" id="s-balance">—</div></div>
+      </div>
+
+      <!-- Bills + sidebar -->
+      <div class="cols">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 id="bills-panel-title">House bills</h2>
+            <div class="progress-wrap">
+              <div class="progress-bar"><div class="progress-fill" id="bills-progress" style="width:0%"></div></div>
+              <span class="progress-label" id="bills-progress-label">0 / 0</span>
+            </div>
+          </div>
+          <table class="bill-table">
+            <thead>
+              <tr>
+                <th>Bill</th>
+                <th class="right">Min due</th>
+                <th class="right">Date paid</th>
+                <th class="right">Amount paid</th>
+                <th class="right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="bills-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="right-col">
+          <!-- Balance display -->
+          <div class="balance-display">
+            <div class="bl" id="balance-account-label">House account</div>
+            <div class="bv" id="balance-value">$0.00</div>
+            <div class="bs" id="balance-sub">Remaining after all bills paid</div>
+          </div>
+
+          <!-- Income panel -->
+          <div class="panel">
+            <div class="panel-header"><h2 id="income-panel-title">Income</h2></div>
+            <div id="income-rows"></div>
+            <div class="income-total-row">
+              <span>Total actual</span>
+              <span style="font-family:var(--mono);font-size:13px" id="income-total-actual">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annual view -->
+    <div id="view-annual" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2>Annual overview — 2026</h2></div>
+        <div class="annual-grid">
+          <table class="annual-table" id="annual-table">
+            <thead><tr id="annual-header-row"></tr></thead>
+            <tbody id="annual-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill master view -->
+    <div id="view-master" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div class="master-section">
+            <h3>House account bills</h3>
+            <div id="master-house-list"></div>
+            <button class="add-bill-btn" onclick="openAddBill('house')">+ Add bill</button>
+          </div>
+        </div>
+        <div>
+          <div class="master-section">
+            <h3>My bills account</h3>
+            <div id="master-my-list"></div>
+            <button class="add-bill-btn" onclick="openAddBill('my')">+ Add bill</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Pay bill modal -->
+<div class="modal-bg" id="pay-modal">
+  <div class="modal">
+    <h3 id="modal-bill-name">Mark as paid</h3>
+    <div class="sub" id="modal-bill-sub">Enter payment details</div>
+    <div class="field">
+      <label>Date paid</label>
+      <input type="date" id="modal-date" />
+    </div>
+    <div class="field">
+      <label>Amount paid</label>
+      <input type="number" id="modal-amount" placeholder="0.00" step="0.01" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="savePay()">Save payment</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="clearPay()" style="margin-left:auto">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add bill modal -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <h3>Add bill to master list</h3>
+    <div class="sub">This adds the bill to your recurring list</div>
+    <div class="field"><label>Bill name / payee</label><input type="text" id="add-name" placeholder="e.g. Netflix" /></div>
+    <div class="field"><label>Due day of month</label><input type="number" id="add-due" placeholder="e.g. 15" min="1" max="31" /></div>
+    <div class="field"><label>Min. payment</label><input type="number" id="add-min" placeholder="0.00" step="0.01" /></div>
+    <div class="field"><label>Notes</label><input type="text" id="add-notes" placeholder="e.g. auto-pay" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNewBill()">Add bill</button>
+      <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const CLIENT_ID   = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
+const SHEET_ID    = '1sDhXuYD9udlmzXi4UzGfqJ2QDFihCcJMRXBne2bFZpI';
+const SCOPES      = 'https://www.googleapis.com/auth/spreadsheets';
+const MONTHS      = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let accessToken  = null;
+let currentMonth = 3;   // 0-indexed, April = 3
+let currentYear  = 2026;
+let currentAcct  = 'house';
+let currentView  = 'monthly';
+let masterHouse  = [];
+let masterMy     = [];
+let monthData    = {};  // cache: key = "house-2026-4" => {bills:[], income:[]}
+let editingRow   = null;
+let addingAcct   = null;
+
+// ── Google Auth ───────────────────────────────────────────────────────────────
+function loadGoogleAPI() {
+  return new Promise(resolve => {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = resolve;
+    document.head.appendChild(s);
+  });
+}
+
+async function initAuth() {
+  await loadGoogleAPI();
+  // Try to restore token from sessionStorage
+  const stored = sessionStorage.getItem('bt_token');
+  if (stored) {
+    accessToken = stored;
+    showApp();
+    return;
+  }
+  document.getElementById('sign-in-btn').onclick = startOAuth;
+}
+
+function startOAuth() {
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.access_token) {
+        accessToken = resp.access_token;
+        sessionStorage.setItem('bt_token', accessToken);
+        showApp();
+      }
+    }
+  });
+  client.requestAccessToken();
+}
+
+function signOut() {
+  accessToken = null;
+  sessionStorage.removeItem('bt_token');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-overlay').style.display = 'flex';
+  monthData = {};
+}
+
+// ── App init ──────────────────────────────────────────────────────────────────
+async function showApp() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  await ensureSheetsExist();
+  await loadMasterList();
+  renderMonthly();
+}
+
+// ── Sheets API helpers ────────────────────────────────────────────────────────
+async function sheetsGet(range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`;
+  const r = await fetch(url, {headers: {Authorization: `Bearer ${accessToken}`}});
+  if (!r.ok) throw new Error(`Sheets GET failed: ${r.status}`);
+  const d = await r.json();
+  return d.values || [];
+}
+
+async function sheetsUpdate(range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: {Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json'},
+    body: JSON.stringify({range, majorDimension:'ROWS', values})
+  });
+  if (!r.ok) throw new Error(`Sheets UPDATE failed: ${r.status}`);
+  return r.json();
+}
+
+async function sheetsAppend(range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: {Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json'},
+    body: JSON.stringify({range, majorDimension:'ROWS', values})
+  });
+  if (!r.ok) throw new Error(`Sheets APPEND failed: ${r.status}`);
+  return r.json();
+}
+
+async function getBatchValues(ranges) {
+  const params = ranges.map(r => `ranges=${encodeURIComponent(r)}`).join('&');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values:batchGet?${params}`;
+  const r = await fetch(url, {headers: {Authorization: `Bearer ${accessToken}`}});
+  if (!r.ok) return null;
+  const d = await r.json();
+  return d.valueRanges || [];
+}
+
+async function getSheetsList() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`;
+  const r = await fetch(url, {headers: {Authorization: `Bearer ${accessToken}`}});
+  const d = await r.json();
+  return (d.sheets || []).map(s => s.properties.title);
+}
+
+async function addSheet(title) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`;
+  await fetch(url, {
+    method: 'POST',
+    headers: {Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json'},
+    body: JSON.stringify({requests:[{addSheet:{properties:{title}}}]})
+  });
+}
+
+// ── Sheet structure ───────────────────────────────────────────────────────────
+// Sheet names:
+//   "BillMaster"          — master list of recurring bills
+//   "House 2026-04"       — monthly house bills
+//   "MyBills 2026-04"     — monthly my bills
+//   "Income House 2026-04"— monthly income for house
+//   "Income My 2026-04"   — monthly income for my bills
+
+function houseSheetName(y, m)    { return `House ${y}-${String(m).padStart(2,'0')}` }
+function mySheetName(y, m)       { return `MyBills ${y}-${String(m).padStart(2,'0')}` }
+function incHouseSheetName(y, m) { return `IncHouse ${y}-${String(m).padStart(2,'0')}` }
+function incMySheetName(y, m)    { return `IncMy ${y}-${String(m).padStart(2,'0')}` }
+
+async function ensureSheetsExist() {
+  const existing = await getSheetsList();
+
+  const needed = ['BillMaster'];
+  // Create sheets for current month + next 2
+  for (let i = 0; i < 3; i++) {
+    let m = currentMonth + 1 + i;
+    let y = currentYear;
+    if (m > 12) { m -= 12; y++; }
+    needed.push(houseSheetName(y,m), mySheetName(y,m),
+                incHouseSheetName(y,m), incMySheetName(y,m));
+  }
+
+  for (const name of needed) {
+    if (!existing.includes(name)) {
+      await addSheet(name);
+      // If it's a BillMaster, write headers
+      if (name === 'BillMaster') {
+        await sheetsUpdate('BillMaster!A1:G1',
+          [['Account','Name','DueDay','MinPayment','Notes','Active','FullBalance']]);
+        await seedMasterData();
+      }
+    }
+  }
+}
+
+async function seedMasterData() {
+  const house = [
+    ['house','Carrington Mortgage',1,2507.34,'',true,''],
+    ['house','Essex Mortgage 2',1,125.25,'',true,''],
+    ['house','Xfinity - Internet',2,95.74,'auto',true,''],
+    ['house','ADT',2,68.38,'auto',true,''],
+    ['house','Dominion',2,197.94,'auto',true,''],
+    ["house","Sam's Club CC",2,200,'',true,428.88],
+    ['house','Aqua Finance',6,310.65,'',true,''],
+    ['house','Amex',6,200,'',true,1302.59],
+    ['house','Lowes',7,100,'',true,624.52],
+    ['house','Wells Fargo',8,100,'',true,4822.95],
+    ['house','Waste',9,44.44,'',true,''],
+    ['house','Water',14,22.59,'',true,''],
+    ['house','Langley',15,557.96,'7 day grace, 3 skips left',true,''],
+    ['house','IRS',15,80,'auto',true,''],
+    ['house','Rooms To Go',16,150,'',true,2203.66],
+    ['house','Echelon',21,39.99,'auto',true,''],
+    ['house','AT&T',22,220.39,'auto',true,''],
+    ['house','Progressive',23,120.19,'auto',true,''],
+  ];
+  const my = [
+    ['my','Paypal MC',2,139.92,'',true,''],
+    ['my','SoFi',5,688.59,'',true,''],
+    ['my','Amazon',5,100,'',true,2759.94],
+    ['my','PayPal Credit',6,100,'',true,1314.63],
+    ['my','M&T Bank',17,392.40,'',true,392.40],
+    ['my','Care Credit',19,100,'',true,1500.14],
+    ['my','VACU',23,200,'',true,619.65],
+    ['my','Cronometer',null,8,'',true,''],
+    ['my','Best Buy',null,'','',true,''],
+    ['my','Capital One',null,'','',true,''],
+    ['my','Stitch Fix',null,20,'',true,''],
+  ];
+  await sheetsAppend('BillMaster!A2:G', [...house, ...my]);
+}
+
+// ── Master list ───────────────────────────────────────────────────────────────
+async function loadMasterList() {
+  try {
+    const rows = await sheetsGet('BillMaster!A2:G1000');
+    masterHouse = rows.filter(r => r[0] === 'house').map(parseMasterRow);
+    masterMy    = rows.filter(r => r[0] === 'my').map(parseMasterRow);
+  } catch(e) { console.error('loadMasterList', e); }
+}
+
+function parseMasterRow(r) {
+  return {
+    account: r[0]||'',
+    name:    r[1]||'',
+    dueDay:  r[2] ? parseInt(r[2]) : null,
+    minPay:  r[3] ? parseFloat(r[3]) : null,
+    notes:   r[4]||'',
+    active:  r[5] !== 'false',
+    fullBal: r[6] ? parseFloat(r[6]) : null,
+  };
+}
+
+// ── Monthly data ──────────────────────────────────────────────────────────────
+function monthKey(acct, y, m) { return `${acct}-${y}-${m}`; }
+
+async function loadMonthData(acct, y, m) {
+  const key = monthKey(acct, y, m);
+  if (monthData[key]) return monthData[key];
+
+  const billSheet = acct === 'house' ? houseSheetName(y,m) : mySheetName(y,m);
+  const incSheet  = acct === 'house' ? incHouseSheetName(y,m) : incMySheetName(y,m);
+
+  let bills = [], income = [];
+  try {
+    const bRows = await sheetsGet(`${billSheet}!A2:H1000`);
+    bills = bRows.map((r,i) => ({
+      rowIdx:   i + 2,
+      sheet:    billSheet,
+      name:     r[0]||'',
+      dueDay:   r[1] ? parseInt(r[1]) : null,
+      minPay:   r[2] ? parseFloat(r[2]) : null,
+      notes:    r[3]||'',
+      datePaid: r[4]||'',
+      amtPaid:  r[5] ? parseFloat(r[5]) : null,
+      auto:     (r[3]||'').toLowerCase().includes('auto'),
+    })).filter(b => b.name);
+  } catch(e) {}
+
+  // If no bills yet, seed from master
+  if (bills.length === 0) {
+    const master = acct === 'house' ? masterHouse : masterMy;
+    bills = master.filter(b=>b.active).map((b,i) => ({
+      rowIdx: i+2, sheet: billSheet,
+      name: b.name, dueDay: b.dueDay,
+      minPay: b.minPay, notes: b.notes,
+      datePaid:'', amtPaid:null,
+      auto: (b.notes||'').toLowerCase().includes('auto'),
+    }));
+    // Write to sheet
+    if (bills.length > 0) {
+      const rows = bills.map(b => [b.name, b.dueDay||'', b.minPay||'', b.notes, '', '']);
+      await sheetsUpdate(`${billSheet}!A2:F${bills.length+1}`, rows);
+      // Write header
+      await sheetsUpdate(`${billSheet}!A1:H1`,
+        [['Name','DueDay','MinPayment','Notes','DatePaid','AmountPaid','','']]);
+    }
+  }
+
+  try {
+    const iRows = await sheetsGet(`${incSheet}!A2:D1000`);
+    income = iRows.map((r,i) => ({
+      rowIdx: i+2, sheet: incSheet,
+      date:   r[0]||'', desc: r[1]||'',
+      expected: r[2] ? parseFloat(r[2]) : null,
+      actual:   r[3] ? parseFloat(r[3]) : null,
+    })).filter(r => r.desc);
+  } catch(e) {}
+
+  // Seed income if empty
+  if (income.length === 0) {
+    const incData = acct === 'house' ? [
+      ['','Previous month balance','',0],
+      ['','My Check',1334.00,''],
+      ["","Ron's Check",317.30,''],
+      ["","Ron's Check",317.30,''],
+      ['','My Check',1334.00,''],
+      ["","Ron's Check",317.30,''],
+      ["","Ron's Check",317.30,''],
+      ["","Ron's Check",317.30,''],
+      ['','From Ron for groceries',150.00,''],
+    ] : [
+      ['','Previous month balance','',0],
+      ['','Skypoint',667.00,''],
+      ['','Skypoint',667.00,''],
+    ];
+    await sheetsUpdate(`${incSheet}!A1:D1`, [['Date','Description','Expected','Actual']]);
+    await sheetsUpdate(`${incSheet}!A2:D${incData.length+1}`, incData);
+    income = incData.map((r,i) => ({
+      rowIdx: i+2, sheet: incSheet,
+      date: r[0], desc: r[1],
+      expected: r[2]||null, actual: r[3]||null,
+    })).filter(r=>r.desc);
+  }
+
+  monthData[key] = {bills, income};
+  return monthData[key];
+}
+
+// ── Render monthly view ────────────────────────────────────────────────────────
+async function renderMonthly() {
+  const m = currentMonth + 1;
+  const y = currentYear;
+  document.getElementById('current-month-label').textContent =
+    `${MONTHS[currentMonth]} ${y}`;
+
+  document.getElementById('bills-panel-title').textContent =
+    currentAcct === 'house' ? 'House bills' : 'My bills';
+  document.getElementById('income-panel-title').textContent =
+    `Income — ${MONTHS[currentMonth]}`;
+  document.getElementById('balance-account-label').textContent =
+    currentAcct === 'house' ? 'House account' : 'My bills account';
+
+  document.getElementById('bills-tbody').innerHTML =
+    '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
+
+  try {
+    const data = await loadMonthData(currentAcct, y, m);
+    renderBillsTable(data.bills);
+    renderIncome(data.income);
+    renderStats(data.bills, data.income);
+  } catch(e) {
+    console.error(e);
+    toast('Error loading data — check console');
+  }
+}
+
+function renderBillsTable(bills) {
+  const paid   = bills.filter(b => b.amtPaid != null).length;
+  const pct    = bills.length ? Math.round(paid/bills.length*100) : 0;
+  document.getElementById('bills-progress').style.width = pct+'%';
+  document.getElementById('bills-progress-label').textContent = `${paid} / ${bills.length}`;
+
+  const tbody = document.getElementById('bills-tbody');
+  if (!bills.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No bills yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = bills.map((b, idx) => {
+    const isPaid = b.amtPaid != null;
+    const dueStr = b.dueDay ? `${currentMonth+1}/${b.dueDay}` : '—';
+    let badge = '';
+    if (isPaid)       badge = '<span class="badge paid">&#10003; Paid</span>';
+    else if (b.auto)  badge = '<span class="badge auto">Auto</span>';
+    else              badge = '<span class="badge unpaid">Unpaid</span>';
+
+    return `<tr class="${isPaid?'paid-row':''}" onclick="openPayModal(${idx})">
+      <td><div class="bill-name-cell">${b.name}</div><div class="bill-due-cell">Due ${dueStr}${b.notes?' · '+b.notes:''}</div></td>
+      <td class="right mono">${b.minPay != null ? fmt(b.minPay) : '—'}</td>
+      <td class="right mono">${b.datePaid || '—'}</td>
+      <td class="right mono">${b.amtPaid != null ? fmt(b.amtPaid) : '—'}</td>
+      <td class="right">${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderIncome(income) {
+  const container = document.getElementById('income-rows');
+  container.innerHTML = income.map((r,i) => {
+    const isTotal = r.desc === 'Total';
+    return `<div class="income-row-item">
+      <span class="idesc">${r.desc}</span>
+      <span class="iexp">${r.expected != null ? fmt(r.expected) : '—'}</span>
+      <span class="iact" style="cursor:pointer" onclick="editIncome(${i})" title="Click to edit">${r.actual != null ? fmt(r.actual) : '<span style="color:var(--text-muted)">tap to add</span>'}</span>
+    </div>`;
+  }).join('');
+
+  const totalActual = income.reduce((s,r) => s + (r.actual||0), 0);
+  document.getElementById('income-total-actual').textContent = fmt(totalActual);
+}
+
+function renderStats(bills, income) {
+  const minDue    = bills.reduce((s,b) => s + (b.minPay||0), 0);
+  const totalPaid = bills.reduce((s,b) => s + (b.amtPaid||0), 0);
+  const unpaid    = minDue - totalPaid;
+  const incActual = income.reduce((s,r) => s + (r.actual||0), 0);
+  const balance   = incActual - totalPaid;
+
+  document.getElementById('s-min-due').textContent  = fmt(minDue);
+  document.getElementById('s-unpaid').textContent   = fmt(Math.max(0, unpaid));
+  document.getElementById('s-paid').textContent     = fmt(totalPaid);
+  document.getElementById('s-income').textContent   = fmt(incActual);
+  document.getElementById('s-balance').textContent  = fmt(balance);
+  document.getElementById('balance-value').textContent = fmt(balance);
+  document.getElementById('balance-sub').textContent =
+    `${MONTHS[currentMonth]} ${currentYear} · ${currentAcct === 'house' ? 'House' : 'My bills'}`;
+}
+
+// ── Pay modal ─────────────────────────────────────────────────────────────────
+function openPayModal(idx) {
+  const key  = monthKey(currentAcct, currentYear, currentMonth+1);
+  const bill = monthData[key].bills[idx];
+  editingRow = {idx, key};
+
+  document.getElementById('modal-bill-name').textContent = bill.name;
+  document.getElementById('modal-bill-sub').textContent =
+    `Min. payment: ${bill.minPay != null ? fmt(bill.minPay) : '—'}`;
+  document.getElementById('modal-date').value   = bill.datePaid || today();
+  document.getElementById('modal-amount').value = bill.amtPaid  || bill.minPay || '';
+  document.getElementById('pay-modal').classList.add('open');
+}
+
+async function savePay() {
+  if (!editingRow) return;
+  const {idx, key} = editingRow;
+  const data = monthData[key];
+  const bill = data.bills[idx];
+  const date = document.getElementById('modal-date').value;
+  const amt  = parseFloat(document.getElementById('modal-amount').value);
+
+  if (!date || isNaN(amt)) { toast('Enter a date and amount'); return; }
+
+  bill.datePaid = date;
+  bill.amtPaid  = amt;
+
+  try {
+    await sheetsUpdate(`${bill.sheet}!E${bill.rowIdx}:F${bill.rowIdx}`, [[date, amt]]);
+    toast(`${bill.name} marked as paid`);
+    closeModal();
+    renderBillsTable(data.bills);
+    renderStats(data.bills, data.income);
+  } catch(e) {
+    toast('Save failed — check connection');
+  }
+}
+
+async function clearPay() {
+  if (!editingRow) return;
+  const {idx, key} = editingRow;
+  const data = monthData[key];
+  const bill = data.bills[idx];
+  bill.datePaid = '';
+  bill.amtPaid  = null;
+  try {
+    await sheetsUpdate(`${bill.sheet}!E${bill.rowIdx}:F${bill.rowIdx}`, [['','']]);
+    toast(`${bill.name} cleared`);
+    closeModal();
+    renderBillsTable(data.bills);
+    renderStats(data.bills, data.income);
+  } catch(e) { toast('Clear failed'); }
+}
+
+function closeModal() {
+  document.getElementById('pay-modal').classList.remove('open');
+  editingRow = null;
+}
+
+// ── Income editing ────────────────────────────────────────────────────────────
+async function editIncome(idx) {
+  const key  = monthKey(currentAcct, currentYear, currentMonth+1);
+  const row  = monthData[key].income[idx];
+  const val  = prompt(`Actual amount for "${row.desc}":`, row.actual||'');
+  if (val === null) return;
+  const num = parseFloat(val);
+  if (isNaN(num)) { toast('Invalid amount'); return; }
+  row.actual = num;
+  try {
+    await sheetsUpdate(`${row.sheet}!D${row.rowIdx}`, [[num]]);
+    toast('Income updated');
+    renderIncome(monthData[key].income);
+    renderStats(monthData[key].bills, monthData[key].income);
+  } catch(e) { toast('Save failed'); }
+}
+
+// ── Reconcile ─────────────────────────────────────────────────────────────────
+function reconcileMonth() {
+  const mName = `${MONTHS[currentMonth]} ${currentYear}`;
+  if (!confirm(`Mark ${mName} as reconciled?\n\nThis records it as done. The data stays in your Google Sheet.`)) return;
+  toast(`${mName} reconciled!`);
+  // Move to next month
+  changeMonth(1);
+}
+
+// ── Annual view ───────────────────────────────────────────────────────────────
+async function renderAnnual() {
+  document.getElementById('view-monthly').style.display = 'none';
+  document.getElementById('view-master').style.display  = 'none';
+  document.getElementById('view-annual').style.display  = 'block';
+  document.getElementById('month-nav').style.visibility = 'hidden';
+
+  const hdr = document.getElementById('annual-header-row');
+  hdr.innerHTML = '<th>Category</th>' +
+    MONTH_SHORT.map(m=>`<th>${m}</th>`).join('') + '<th>YTD</th>';
+
+  const tbody = document.getElementById('annual-tbody');
+  tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--text-muted)">Loading annual data...</td></tr>';
+
+  // Load all available months
+  const allData = {};
+  for (let m = 1; m <= 12; m++) {
+    try {
+      const hd = await loadMonthData('house', currentYear, m);
+      const md = await loadMonthData('my',    currentYear, m);
+      allData[m] = {house: hd, my: md};
+    } catch(e) { allData[m] = null; }
+  }
+
+  function monthVal(acct, m, fn) {
+    if (!allData[m]) return null;
+    const d = allData[m][acct];
+    return d ? fn(d) : null;
+  }
+
+  function row(label, fn, isTotal) {
+    const vals = MONTH_SHORT.map((_,i) => {
+      const v = fn(i+1);
+      return v != null ? `<td>${fmt(v)}</td>` : `<td class="dim">—</td>`;
+    });
+    const ytd = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m) => s + (fn(m)||0), 0);
+    return `<tr${isTotal?' class="total-row"':''}><td>${label}</td>${vals.join('')}<td>${fmt(ytd)}</td></tr>`;
+  }
+
+  tbody.innerHTML = `
+    <tr class="section-header"><td colspan="14">House account</td></tr>
+    ${row('Min. due',  m => monthVal('house',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid',m => monthVal('house',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',    m => monthVal('house',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',   m => {
+      const d = allData[m] && allData[m].house;
+      if(!d) return null;
+      const inc  = d.income.reduce((s,r)=>s+(r.actual||0),0);
+      const paid = d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);
+      return inc - paid;
+    }, true)}
+    <tr class="section-header"><td colspan="14">My bills account</td></tr>
+    ${row('Min. due',  m => monthVal('my',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid',m => monthVal('my',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',    m => monthVal('my',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',   m => {
+      const d = allData[m] && allData[m].my;
+      if(!d) return null;
+      const inc  = d.income.reduce((s,r)=>s+(r.actual||0),0);
+      const paid = d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);
+      return inc - paid;
+    }, true)}
+  `;
+}
+
+// ── Bill master view ──────────────────────────────────────────────────────────
+function renderMasterView() {
+  document.getElementById('view-monthly').style.display = 'none';
+  document.getElementById('view-annual').style.display  = 'none';
+  document.getElementById('view-master').style.display  = 'block';
+  document.getElementById('month-nav').style.visibility = 'hidden';
+
+  renderMasterList('house', masterHouse, 'master-house-list');
+  renderMasterList('my',    masterMy,    'master-my-list');
+}
+
+function renderMasterList(acct, list, containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = list.map((b,i) => `
+    <div class="master-bill-item">
+      <span class="mname">${b.name}</span>
+      <span class="mdue">${b.dueDay ? 'Day '+b.dueDay : 'No date'}</span>
+      <span class="mmin">${b.minPay != null ? fmt(b.minPay) : '—'}</span>
+      <span style="font-size:11px;color:var(--text-muted);margin-left:4px">${b.notes||''}</span>
+    </div>`).join('');
+}
+
+function openAddBill(acct) {
+  addingAcct = acct;
+  document.getElementById('add-name').value  = '';
+  document.getElementById('add-due').value   = '';
+  document.getElementById('add-min').value   = '';
+  document.getElementById('add-notes').value = '';
+  document.getElementById('add-modal').classList.add('open');
+}
+
+async function saveNewBill() {
+  const name  = document.getElementById('add-name').value.trim();
+  const due   = document.getElementById('add-due').value;
+  const min   = document.getElementById('add-min').value;
+  const notes = document.getElementById('add-notes').value.trim();
+  if (!name) { toast('Enter a bill name'); return; }
+  const newBill = {account:addingAcct, name, dueDay:due?parseInt(due):null,
+                   minPay:min?parseFloat(min):null, notes, active:true, fullBal:null};
+  try {
+    await sheetsAppend('BillMaster!A2:G', [[addingAcct,name,due||'',min||'',notes,true,'']]);
+    if (addingAcct === 'house') masterHouse.push(newBill);
+    else masterMy.push(newBill);
+    closeAddModal();
+    renderMasterList(addingAcct, addingAcct==='house'?masterHouse:masterMy,
+      addingAcct==='house'?'master-house-list':'master-my-list');
+    // Clear month cache so it regenerates with new bill
+    monthData = {};
+    toast(`${name} added to master list`);
+  } catch(e) { toast('Save failed'); }
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  addingAcct = null;
+}
+
+// ── View / nav helpers ────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('nav button').forEach((b,i) =>
+    b.classList.toggle('active', ['monthly','annual','master'][i] === v));
+  document.getElementById('month-nav').style.visibility = v === 'monthly' ? 'visible' : 'hidden';
+
+  if (v === 'monthly') {
+    document.getElementById('view-monthly').style.display = '';
+    document.getElementById('view-annual').style.display  = 'none';
+    document.getElementById('view-master').style.display  = 'none';
+    renderMonthly();
+  } else if (v === 'annual') {
+    renderAnnual();
+  } else {
+    renderMasterView();
+  }
+}
+
+function setAccount(a) {
+  currentAcct = a;
+  document.getElementById('tab-house').className = 'btn ' + (a==='house'?'btn-primary':'btn-secondary');
+  document.getElementById('tab-my').className    = 'btn ' + (a==='my'?'btn-primary':'btn-secondary');
+  renderMonthly();
+}
+
+function changeMonth(d) {
+  currentMonth += d;
+  if (currentMonth > 11) { currentMonth = 0;  currentYear++; }
+  if (currentMonth <  0) { currentMonth = 11; currentYear--; }
+  renderMonthly();
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n == null || isNaN(n)) return '—';
+  return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// Close modals on bg click
+document.getElementById('pay-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('add-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeAddModal();
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+initAuth();
+</script>
+</body>
+</html>
