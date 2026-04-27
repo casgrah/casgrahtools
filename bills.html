@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bills Tracker · casgrahtools</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0f1e20;--blue:#2d6b73;--blue-light:#3d8a94;
+  --teal:#b85c38;--teal-light:#faf0eb;
+  --red:#b85c38;--red-light:#faf0eb;
+  --surface:#f5f0eb;--card:#FFFFFF;
+  --border:#d8cfc6;--border-strong:#c4b8ac;
+  --text:#1e2e30;--text-mid:#4A5568;--text-muted:#7a8a8c;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 2px 12px rgba(15,30,32,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+#auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px}
+#auth-overlay h1{color:#fff;font-size:28px;font-weight:600;font-family:'Caveat',cursive;}
+#auth-overlay p{color:rgba(255,255,255,.6);font-size:14px;text-align:center;max-width:320px}
+#sign-in-btn{display:flex;align-items:center;gap:10px;background:#fff;color:#1e2e30;border:none;border-radius:10px;padding:12px 24px;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:transform .15s,box-shadow .15s}
+#sign-in-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+#sign-in-btn svg{width:20px;height:20px}
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.visible{display:flex}
+header{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--teal)}
+.header-left{display:flex;align-items:center;gap:20px}
+.logo{color:#fff;font-size:18px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;font-family:'Caveat',cursive;}
+nav{display:flex;gap:2px}
+nav button{background:none;border:none;color:rgba(255,255,255,.55);font-family:var(--sans);font-size:13px;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .15s}
+nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav button.active{color:#fff;background:rgba(255,255,255,.12);font-weight:500}
+.header-right{display:flex;align-items:center;gap:10px}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-nav button{background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.month-nav button:hover{background:rgba(255,255,255,.2)}
+#current-month-label{color:#fff;font-size:14px;font-weight:500;min-width:110px;text-align:center}
+.reconcile-btn{background:var(--teal);border:none;color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;transition:opacity .15s}
+.reconcile-btn:hover{opacity:.85}
+.user-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-family:var(--sans);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer}
+.hub-btn{background:rgba(255,255,255,.06);border:none;color:rgba(255,255,255,.45);font-family:var(--sans);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;}
+.hub-btn:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.1);}
+main{flex:1;padding:20px 24px;max-width:1200px;margin:0 auto;width:100%}
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.stat-card .label{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-card .value{font-size:20px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:-.5px}
+.stat-card.highlight .value{color:var(--blue)}
+.stat-card.danger .value{color:var(--red)}
+.stat-card.success .value{color:#2d7a4f}
+.cols{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-header h2{font-size:14px;font-weight:600;color:var(--text)}
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar{width:100px;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:var(--teal);border-radius:99px;transition:width .4s}
+.progress-label{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+.bill-table{width:100%;border-collapse:collapse}
+.bill-table thead tr{background:var(--surface)}
+.bill-table thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:8px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.bill-table thead th.right{text-align:right}
+.bill-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+.bill-table tbody tr:last-child{border-bottom:none}
+.bill-table tbody tr:hover{background:#f0ebe4}
+.bill-table tbody tr.paid-row{opacity:.55}
+.bill-table td{padding:9px 16px;font-size:13px;vertical-align:middle}
+.bill-table td.right{text-align:right}
+.bill-table td.clk{cursor:pointer}
+.bill-name-cell{font-weight:500;color:var(--text)}
+.bill-due-cell{color:var(--text-muted);font-size:12px}
+.mono{font-family:var(--mono);font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px}
+.badge.paid{background:#e8f5ee;color:#2d7a4f}
+.badge.unpaid{background:var(--teal-light);color:var(--teal)}
+.badge.auto{background:#e8f4f5;color:#2d6b73}
+.right-col{display:flex;flex-direction:column;gap:16px}
+.income-table{width:100%;border-collapse:collapse;font-size:12px}
+.income-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)}
+.income-table th.right{text-align:right}
+.income-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.income-table tr:last-child td{border-bottom:none}
+.income-table tr:hover{background:#f0ebe4}
+.editable{cursor:pointer;color:var(--blue);text-decoration:underline;text-underline-offset:2px;text-decoration-style:dotted;font-family:var(--mono)}
+.empty-val{color:var(--text-muted);cursor:pointer;font-style:italic;font-size:11px}
+.del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 3px;line-height:1;transition:color .1s}
+.del-btn:hover{color:var(--red)}
+.income-total-row{background:var(--surface);display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-weight:600;font-size:13px;border-top:1px solid var(--border)}
+.add-income-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--blue);font-family:var(--sans);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-align:left;border-top:1px solid var(--border);transition:background .1s}
+.add-income-btn:hover{background:#f0ebe4}
+.balance-display{background:var(--navy);border-radius:var(--radius);padding:16px 20px;color:#fff;border-left:3px solid var(--teal);}
+.balance-display .bl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.balance-display .bv{font-size:28px;font-weight:600;font-family:var(--mono);letter-spacing:-1px}
+.balance-display .bs{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px}
+.modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.45);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:var(--radius);padding:24px;width:400px;max-width:90vw;transform:translateY(8px);transition:transform .2s}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:8px 12px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;background:var(--card)}
+.field input:focus{border-color:var(--blue)}
+.modal-actions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.btn{padding:9px 18px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--navy)}
+.btn-secondary{background:var(--surface);color:var(--text-mid);border:1px solid var(--border-strong)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--teal-light);color:var(--teal);border:1px solid #e8cfc0}
+.btn-danger:hover{background:#f0ddd0}
+.annual-grid{overflow-x:auto}
+.annual-table{width:100%;border-collapse:collapse;font-size:12px}
+.annual-table th{padding:8px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
+.annual-table th:first-child{text-align:left}
+.annual-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;text-align:right;color:var(--text)}
+.annual-table td:first-child{font-family:var(--sans);font-weight:500;text-align:left;color:var(--text-mid)}
+.annual-table tr.section-header td{background:var(--surface);font-family:var(--sans);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);padding:10px 12px}
+.annual-table tr.total-row td{font-weight:600;color:var(--blue);background:#e8f4f5}
+.annual-table .dim{color:var(--text-muted)}
+.master-bill-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px}
+.master-bill-item .mname{flex:1;font-weight:500;font-size:13px}
+.master-bill-item .mdue{font-size:12px;color:var(--text-muted);min-width:55px}
+.master-bill-item .mmin{font-family:var(--mono);font-size:12px;min-width:65px;text-align:right}
+.add-bill-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:9px 14px;width:100%;cursor:pointer;color:var(--text-muted);font-family:var(--sans);font-size:13px;margin-top:6px;transition:all .15s}
+.add-bill-btn:hover{border-color:var(--blue);color:var(--blue);background:#e8f4f5}
+.rm-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:0 3px;transition:color .1s;line-height:1}
+.rm-btn:hover{color:var(--red)}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:all .25s;z-index:999;pointer-events:none}
+#toast.show{transform:translateY(0);opacity:1}
+@media(max-width:800px){
+  .summary-row{grid-template-columns:repeat(2,1fr)}
+  .cols{grid-template-columns:1fr}
+  header{padding:0 12px}
+  main{padding:12px}
+  nav button{font-size:11px;padding:5px 10px}
+}
+</style>
+</head>
+<body>
+
+<div id="auth-overlay">
+  <h1>🦕 Bills Tracker</h1>
+  <p>Sign in with Google to sync your bills across all devices</p>
+  <button id="sign-in-btn">
+    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+    Sign in with Google
+  </button>
+</div>
+
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="logo">🦕 bills</div>
+      <nav>
+        <button class="active" onclick="setView('monthly')">Monthly</button>
+        <button onclick="setView('annual')">Annual</button>
+        <button onclick="setView('master')">Bill master</button>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="month-nav" id="month-nav">
+        <button onclick="changeMonth(-1)">&#8249;</button>
+        <span id="current-month-label">April 2026</span>
+        <button onclick="changeMonth(1)">&#8250;</button>
+      </div>
+      <button class="reconcile-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
+      <a class="hub-btn" href="index.html">← Hub</a>
+      <button class="user-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="view-monthly">
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="btn btn-primary" id="tab-house" onclick="setAccount('house')" style="font-size:12px;padding:7px 16px">House account</button>
+        <button class="btn btn-secondary" id="tab-my" onclick="setAccount('my')" style="font-size:12px;padding:7px 16px">My bills</button>
+      </div>
+      <div class="summary-row">
+        <div class="stat-card"><div class="label">Min. due</div><div class="value" id="s-min-due">—</div></div>
+        <div class="stat-card danger"><div class="label">Unpaid</div><div class="value" id="s-unpaid">—</div></div>
+        <div class="stat-card success"><div class="label">Paid</div><div class="value" id="s-paid">—</div></div>
+        <div class="stat-card"><div class="label">Income actual</div><div class="value" id="s-income">—</div></div>
+        <div class="stat-card highlight"><div class="label">Balance</div><div class="value" id="s-balance">—</div></div>
+      </div>
+      <div class="cols">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 id="bills-panel-title">House bills</h2>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button onclick="openAddBillThisMonth()" style="background:none;border:1px solid var(--border-strong);border-radius:6px;padding:4px 10px;font-family:var(--sans);font-size:11px;color:var(--text-mid);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-mid)'">+ One-time bill</button>
+              <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="bills-progress" style="width:0%"></div></div>
+                <span class="progress-label" id="bills-progress-label">0 / 0</span>
+              </div>
+            </div>
+          </div>
+          <table class="bill-table">
+            <thead><tr>
+              <th>Bill</th>
+              <th class="right">Min due</th>
+              <th class="right">Date paid</th>
+              <th class="right">Amt paid</th>
+              <th class="right">Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="bills-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="right-col">
+          <div class="balance-display">
+            <div class="bl" id="balance-account-label">House account</div>
+            <div class="bv" id="balance-value">$0.00</div>
+            <div class="bs" id="balance-sub">Remaining after bills paid</div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><h2 id="income-panel-title">Income</h2></div>
+            <table class="income-table">
+              <thead><tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th class="right">Expected</th>
+                <th class="right">Actual</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="income-tbody"></tbody>
+            </table>
+            <button class="add-income-btn" onclick="openAddIncome()">+ Add income line</button>
+            <div class="income-total-row">
+              <span>Total income</span>
+              <span style="font-family:var(--mono);font-size:13px" id="income-total-actual">$0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-annual" style="display:none">
+      <div class="panel">
+        <div class="panel-header"><h2 id="annual-title">Annual overview — 2026</h2></div>
+        <div class="annual-grid">
+          <table class="annual-table">
+            <thead><tr id="annual-header-row"></tr></thead>
+            <tbody id="annual-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-master" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">House account bills</div>
+          <div id="master-house-list"></div>
+          <button class="add-bill-btn" onclick="openAddBill('house')">+ Add recurring bill</button>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">My bills account</div>
+          <div id="master-my-list"></div>
+          <button class="add-bill-btn" onclick="openAddBill('my')">+ Add recurring bill</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Pay modal -->
+<div class="modal-bg" id="pay-modal">
+  <div class="modal">
+    <h3 id="modal-bill-name">Mark as paid</h3>
+    <div class="sub" id="modal-bill-sub">Enter payment details</div>
+    <div class="field"><label>Date paid</label><input type="date" id="modal-date"/></div>
+    <div class="field"><label>Amount paid</label><input type="number" id="modal-amount" placeholder="0.00" step="0.01"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="savePay()">Save payment</button>
+      <button class="btn btn-secondary" onclick="closeModal('pay-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="clearPay()" style="margin-left:auto">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Income modal -->
+<div class="modal-bg" id="income-modal">
+  <div class="modal">
+    <h3 id="income-modal-title">Add income line</h3>
+    <div class="sub">Fill in what you know — you can edit anything later by clicking it</div>
+    <div class="field"><label>Date</label><input type="date" id="inc-date"/></div>
+    <div class="field"><label>Description</label><input type="text" id="inc-desc" placeholder="e.g. My check, Ron's check"/></div>
+    <div class="field"><label>Expected amount</label><input type="number" id="inc-expected" placeholder="0.00" step="0.01"/></div>
+    <div class="field"><label>Actual amount (leave blank if not received yet)</label><input type="number" id="inc-actual" placeholder="0.00" step="0.01"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveIncomeLine()">Save</button>
+      <button class="btn btn-secondary" onclick="closeModal('income-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add bill modal -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <h3>Add recurring bill</h3>
+    <div class="sub">Adds to master list and pre-populates future months</div>
+    <div class="field"><label>Bill name / payee</label><input type="text" id="add-name" placeholder="e.g. Netflix"/></div>
+    <div class="field"><label>Due day of month</label><input type="number" id="add-due" placeholder="e.g. 15" min="1" max="31"/></div>
+    <div class="field"><label>Min. payment</label><input type="number" id="add-min" placeholder="0.00" step="0.01"/></div>
+    <div class="field"><label>Notes (e.g. auto)</label><input type="text" id="add-notes" placeholder="optional"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNewBill()">Add bill</button>
+      <button class="btn btn-secondary" onclick="closeModal('add-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- One-time bill modal -->
+<div class="modal-bg" id="onetime-modal">
+  <div class="modal">
+    <h3>Add one-time bill</h3>
+    <div class="sub" id="onetime-modal-sub">Adds to this month only — not the master list</div>
+    <div class="field"><label>Bill name / payee</label><input type="text" id="ot-name" placeholder="e.g. Car repair"/></div>
+    <div class="field"><label>Due day (optional)</label><input type="number" id="ot-due" placeholder="e.g. 15" min="1" max="31"/></div>
+    <div class="field"><label>Amount due</label><input type="number" id="ot-min" placeholder="0.00" step="0.01"/></div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="ot-notes" placeholder="optional"/></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveOnetimeBill()">Add to this month</button>
+      <button class="btn btn-secondary" onclick="closeModal('onetime-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CLIENT_ID   = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
+const SHEET_ID    = '1sDhXuYD9udlmzXi4UzGfqJ2QDFihCcJMRXBne2bFZpI';
+const SCOPES      = 'https://www.googleapis.com/auth/spreadsheets';
+const MONTHS      = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const CAITLIN_ANCHOR = new Date('2026-04-10T00:00:00');
+
+function getFridaysInMonth(year, month) {
+  const fridays = [];
+  const d = new Date(year, month - 1, 1);
+  while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
+  while (d.getMonth() === month - 1) { fridays.push(new Date(d)); d.setDate(d.getDate() + 7); }
+  return fridays;
+}
+function isCaitlinPayday(date) {
+  const diffDays = Math.round((date - CAITLIN_ANCHOR) / (24*60*60*1000));
+  return diffDays % 14 === 0;
+}
+function toISO(d) { return d.toISOString().slice(0,10); }
+function parseAnyDate(str) {
+  if (!str) return null; str = str.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return new Date(str + 'T00:00:00');
+  const p = str.split('/');
+  if (p.length >= 2) { const mo=parseInt(p[0]),dy=parseInt(p[1]); let yr=p[2]?parseInt(p[2]):new Date().getFullYear(); if(yr<100)yr+=2000; if(!isNaN(mo)&&!isNaN(dy)&&!isNaN(yr))return new Date(yr,mo-1,dy); }
+  const d = new Date(str); return isNaN(d) ? null : d;
+}
+function normalizeDate(str) { if(!str)return''; const d=parseAnyDate(str); if(!d)return str; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtDisp(str) { if(!str)return'—'; const d=parseAnyDate(str); if(!d||isNaN(d))return str; return(d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(-2); }
+
+function buildIncomeTemplate(acct, year, month) {
+  const rows = [{date:'', desc:'Previous month balance', expected:'', actual:''}];
+  const fridays = getFridaysInMonth(year, month);
+  if (acct === 'house') {
+    const entries = [];
+    fridays.forEach(f => {
+      if (isCaitlinPayday(f)) entries.push({date:toISO(f), desc:"My Check", expected:1334.00, actual:''});
+      entries.push({date:toISO(f), desc:"Ron's Check", expected:317.30, actual:''});
+    });
+    entries.sort((a,b)=>a.date.localeCompare(b.date));
+    rows.push(...entries);
+    rows.push({date:'', desc:'From Ron for groceries', expected:150.00, actual:''});
+  } else {
+    fridays.forEach(f => { if(isCaitlinPayday(f)) rows.push({date:toISO(f), desc:'Skypoint', expected:667.00, actual:''}); });
+  }
+  return rows;
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let accessToken = null;
+let currentMonth = new Date().getMonth();
+let currentYear  = new Date().getFullYear();
+let currentAcct  = 'house';
+let currentView  = 'monthly';
+let masterHouse  = [];
+let masterMy     = [];
+let monthData    = {};
+let editingBill  = null;
+let addingAcct   = null;
+
+// ── Month persistence (fixes reconcile navigation bug) ────────────────────────
+function saveCurrentMonth() {
+  localStorage.setItem('bt_month', JSON.stringify({m: currentMonth, y: currentYear}));
+}
+function loadSavedMonth() {
+  try {
+    const s = localStorage.getItem('bt_month');
+    if (s) { const p = JSON.parse(s); currentMonth = p.m; currentYear = p.y; }
+  } catch(e) {}
+}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function initAuth() {
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  document.head.appendChild(s);
+  await new Promise(r => s.onload = r);
+  const stored = sessionStorage.getItem('bt_token');
+  if (stored) { accessToken = stored; showApp(); return; }
+  document.getElementById('sign-in-btn').onclick = () => {
+    google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID, scope: SCOPES,
+      callback: resp => { if(resp.access_token){accessToken=resp.access_token;sessionStorage.setItem('bt_token',accessToken);showApp();} }
+    }).requestAccessToken();
+  };
+}
+function signOut() {
+  accessToken=null; sessionStorage.removeItem('bt_token');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-overlay').style.display='flex';
+  monthData={};
+}
+async function showApp() {
+  document.getElementById('auth-overlay').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  await ensureSheetsExist();
+  await loadMasterList();
+  renderMonthly();
+}
+
+// ── Sheets API ────────────────────────────────────────────────────────────────
+async function api(path,method='GET',body=null){
+  const opts={headers:{Authorization:`Bearer ${accessToken}`}};
+  if(body){opts.method=method;opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body);}
+  else opts.method=method;
+  const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`,opts);
+  if(!r.ok)throw new Error(`${method} ${path}: ${r.status}`);
+  return r.json();
+}
+async function sheetsGet(range){const d=await api(`/values/${encodeURIComponent(range)}`);return d.values||[];}
+async function sheetsUpdate(range,values){return api(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,'PUT',{range,majorDimension:'ROWS',values});}
+async function sheetsAppend(range,values){return api(`/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,'POST',{range,majorDimension:'ROWS',values});}
+async function sheetsClear(range){return api(`/values/${encodeURIComponent(range)}:clear`,'POST');}
+async function getSheetsList(){const d=await api('');return(d.sheets||[]).map(s=>s.properties.title);}
+async function addSheet(title){return api(':batchUpdate','POST',{requests:[{addSheet:{properties:{title}}}]});}
+
+const sn  = (a,y,m) => `${a==='house'?'House':'MyBills'} ${y}-${String(m).padStart(2,'0')}`;
+const isn = (a,y,m) => `Inc${a==='house'?'House':'My'} ${y}-${String(m).padStart(2,'0')}`;
+
+async function ensureSheetsExist(){
+  const existing=await getSheetsList();
+  const needed=['BillMaster'];
+  for(let i=0;i<3;i++){let m=currentMonth+1+i,y=currentYear;if(m>12){m-=12;y++;}needed.push(sn('house',y,m),sn('my',y,m),isn('house',y,m),isn('my',y,m));}
+  for(const name of needed){
+    if(!existing.includes(name)){
+      await addSheet(name);
+      if(name==='BillMaster'){await sheetsUpdate('BillMaster!A1:G1',[['Account','Name','DueDay','MinPayment','Notes','Active','FullBalance']]);await seedMaster();}
+    }
+  }
+}
+async function seedMaster(){
+  const rows=[
+    ['house','Carrington Mortgage',1,2507.34,'',true,''],['house','Essex Mortgage 2',1,125.25,'',true,''],
+    ['house','Xfinity - Internet',2,95.74,'auto',true,''],['house','ADT',2,68.38,'auto',true,''],
+    ['house','Dominion',2,197.94,'auto',true,''],["house","Sam's Club CC",2,200,'',true,428.88],
+    ['house','Aqua Finance',6,310.65,'',true,''],['house','Amex',6,200,'',true,1302.59],
+    ['house','Lowes',7,100,'',true,624.52],['house','Wells Fargo',8,100,'',true,4822.95],
+    ['house','Waste',9,44.44,'',true,''],['house','Water',14,22.59,'',true,''],
+    ['house','Langley',15,557.96,'7 day grace, 3 skips left',true,''],['house','IRS',15,80,'auto',true,''],
+    ['house','Rooms To Go',16,150,'',true,2203.66],['house','Echelon',21,39.99,'auto',true,''],
+    ['house','AT&T',22,220.39,'auto',true,''],['house','Progressive',23,120.19,'auto',true,''],
+    ['my','Paypal MC',2,139.92,'',true,''],['my','SoFi',5,688.59,'',true,''],
+    ['my','Amazon',5,100,'',true,2759.94],['my','PayPal Credit',6,100,'',true,1314.63],
+    ['my','M&T Bank',17,392.40,'',true,392.40],['my','Care Credit',19,100,'',true,1500.14],
+    ['my','VACU',23,200,'',true,619.65],['my','Cronometer',null,8,'',true,''],
+    ['my','Best Buy',null,'','',true,''],['my','Capital One',null,'','',true,''],
+    ['my','Stitch Fix',null,20,'',true,''],
+  ];
+  await sheetsAppend('BillMaster!A2:G',rows);
+}
+async function loadMasterList(){
+  try{
+    const rows=await sheetsGet('BillMaster!A2:G1000');
+    const pm=r=>({account:r[0]||'',name:r[1]||'',dueDay:r[2]?parseInt(r[2]):null,minPay:r[3]?parseFloat(r[3]):null,notes:r[4]||'',active:r[5]!=='false',fullBal:r[6]?parseFloat(r[6]):null});
+    masterHouse=rows.filter(r=>r[0]==='house').map(pm);
+    masterMy=rows.filter(r=>r[0]==='my').map(pm);
+  }catch(e){console.error(e);}
+}
+
+// ── Month data ────────────────────────────────────────────────────────────────
+function mKey(a,y,m){return`${a}-${y}-${m}`;}
+async function loadMonthData(acct,y,m){
+  const key=mKey(acct,y,m);
+  if(monthData[key])return monthData[key];
+  const bs=sn(acct,y,m),is=isn(acct,y,m);
+  let bills=[],income=[];
+  try{
+    const r=await sheetsGet(`${bs}!A2:F1000`);
+    bills=r.map((row,i)=>({rowIdx:i+2,sheet:bs,name:row[0]||'',dueDay:row[1]?parseInt(row[1]):null,minPay:row[2]?parseFloat(row[2]):null,notes:row[3]||'',datePaid:row[4]||'',amtPaid:row[5]?parseFloat(row[5]):null,auto:(row[3]||'').toLowerCase().includes('auto')})).filter(b=>b.name);
+  }catch(e){}
+  if(!bills.length){
+    let seeded=false;
+    try{const hdr=await sheetsGet(`${bs}!A1:F1`);seeded=hdr.length>0&&hdr[0][0]==='Name';}catch(e){}
+    if(!seeded){
+      const master=acct==='house'?masterHouse:masterMy;
+      bills=master.filter(b=>b.active).map((b,i)=>({rowIdx:i+2,sheet:bs,name:b.name,dueDay:b.dueDay,minPay:b.minPay,notes:b.notes,datePaid:'',amtPaid:null,auto:(b.notes||'').toLowerCase().includes('auto')}));
+      if(bills.length){await sheetsUpdate(`${bs}!A1:F1`,[['Name','DueDay','MinPayment','Notes','DatePaid','AmountPaid']]);await sheetsUpdate(`${bs}!A2:F${bills.length+1}`,bills.map(b=>[b.name,b.dueDay||'',b.minPay||'',b.notes,'','']));}
+    }
+  }
+  let incomeSeeded=false;
+  try{const hdr=await sheetsGet(`${is}!A1:D1`);incomeSeeded=hdr.length>0&&hdr[0][0]==='Date';}catch(e){}
+  if(incomeSeeded){
+    try{const r=await sheetsGet(`${is}!A2:D1000`);income=r.map((row,i)=>({rowIdx:i+2,sheet:is,date:row[0]||'',desc:row[1]||'',expected:row[2]?parseFloat(row[2]):null,actual:row[3]?parseFloat(row[3]):null})).filter(r=>r.desc);}catch(e){}
+  }else{
+    const tmpl=buildIncomeTemplate(acct,y,m);
+    await sheetsUpdate(`${is}!A1:D1`,[['Date','Description','Expected','Actual']]);
+    if(tmpl.length)await sheetsUpdate(`${is}!A2:D${tmpl.length+1}`,tmpl.map(r=>[r.date||'',r.desc,r.expected||'',r.actual||'']));
+    income=tmpl.map((r,i)=>({rowIdx:i+2,sheet:is,date:r.date||'',desc:r.desc,expected:r.expected||null,actual:r.actual||null}));
+  }
+  monthData[key]={bills,income};
+  return monthData[key];
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+async function renderMonthly(){
+  const m=currentMonth+1,y=currentYear;
+  document.getElementById('current-month-label').textContent=`${MONTHS[currentMonth]} ${y}`;
+  document.getElementById('bills-panel-title').textContent=currentAcct==='house'?'House bills':'My bills';
+  document.getElementById('income-panel-title').textContent=`Income — ${MONTHS[currentMonth]}`;
+  document.getElementById('balance-account-label').textContent=currentAcct==='house'?'House account':'My bills account';
+  document.getElementById('bills-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
+  try{const data=await loadMonthData(currentAcct,y,m);renderBills(data.bills);renderIncome(data.income);renderStats(data.bills,data.income);}
+  catch(e){console.error(e);toast('Error loading data');}
+}
+function renderBills(bills){
+  const paid=bills.filter(b=>b.amtPaid!=null).length;
+  const pct=bills.length?Math.round(paid/bills.length*100):0;
+  document.getElementById('bills-progress').style.width=pct+'%';
+  document.getElementById('bills-progress-label').textContent=`${paid} / ${bills.length}`;
+  const tbody=document.getElementById('bills-tbody');
+  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No bills this month</td></tr>';return;}
+  tbody.innerHTML=bills.map((b,i)=>{
+    const isPaid=b.amtPaid!=null;
+    const badge=isPaid?'<span class="badge paid">&#10003; Paid</span>':b.auto?'<span class="badge auto">Auto</span>':'<span class="badge unpaid">Unpaid</span>';
+    return`<tr class="${isPaid?'paid-row':''}">
+      <td class="clk" onclick="openPay(${i})"><div class="bill-name-cell">${b.name}</div><div class="bill-due-cell">Due ${b.dueDay?`${currentMonth+1}/${b.dueDay}`:'—'}${b.notes?' · '+b.notes:''}</div></td>
+      <td class="right mono clk" onclick="openPay(${i})">${b.minPay!=null?fmt(b.minPay):'—'}</td>
+      <td class="right mono clk" onclick="openPay(${i})">${b.datePaid||'—'}</td>
+      <td class="right mono clk" onclick="openPay(${i})">${b.amtPaid!=null?fmt(b.amtPaid):'—'}</td>
+      <td class="right clk" onclick="openPay(${i})">${badge}</td>
+      <td class="right"><button class="rm-btn" onclick="removeBill(${i})" title="Remove from this month">&#215;</button></td>
+    </tr>`;
+  }).join('');
+}
+function renderIncome(income){
+  const tbody=document.getElementById('income-tbody');
+  tbody.innerHTML=income.map((r,i)=>`<tr>
+    <td><span class="editable" onclick="editInc(${i},'date')">${fmtDisp(r.date)}</span></td>
+    <td><span class="editable" onclick="editInc(${i},'desc')">${r.desc}</span></td>
+    <td class="right">${r.expected!=null?`<span class="editable" onclick="editInc(${i},'expected')">${fmt(r.expected)}</span>`:`<span class="empty-val" onclick="editInc(${i},'expected')">add</span>`}</td>
+    <td class="right">${r.actual!=null?`<span class="editable" onclick="editInc(${i},'actual')">${fmt(r.actual)}</span>`:`<span class="empty-val" onclick="editInc(${i},'actual')">tap to enter</span>`}</td>
+    <td><button class="del-btn" onclick="removeIncome(${i})" title="Remove line">&#215;</button></td>
+  </tr>`).join('');
+  document.getElementById('income-total-actual').textContent=fmt(income.reduce((s,r)=>s+(r.actual||0),0));
+}
+function renderStats(bills,income){
+  const minDue=bills.reduce((s,b)=>s+(b.minPay||0),0);
+  const paid=bills.reduce((s,b)=>s+(b.amtPaid||0),0);
+  const inc=income.reduce((s,r)=>s+(r.actual||0),0);
+  const bal=inc-paid;
+  document.getElementById('s-min-due').textContent=fmt(minDue);
+  document.getElementById('s-unpaid').textContent=fmt(Math.max(0,minDue-paid));
+  document.getElementById('s-paid').textContent=fmt(paid);
+  document.getElementById('s-income').textContent=fmt(inc);
+  document.getElementById('s-balance').textContent=fmt(bal);
+  document.getElementById('balance-value').textContent=fmt(bal);
+  document.getElementById('balance-sub').textContent=`${MONTHS[currentMonth]} ${currentYear} · ${currentAcct==='house'?'House':'My bills'}`;
+}
+
+// ── Pay modal ─────────────────────────────────────────────────────────────────
+function openPay(idx){
+  const key=mKey(currentAcct,currentYear,currentMonth+1),b=monthData[key].bills[idx];
+  editingBill={idx,key};
+  document.getElementById('modal-bill-name').textContent=b.name;
+  document.getElementById('modal-bill-sub').textContent=`Min. payment: ${b.minPay!=null?fmt(b.minPay):'—'}`;
+  document.getElementById('modal-date').value=b.datePaid||today();
+  document.getElementById('modal-amount').value=b.amtPaid||b.minPay||'';
+  document.getElementById('pay-modal').classList.add('open');
+}
+async function savePay(){
+  if(!editingBill)return;
+  const{idx,key}=editingBill,data=monthData[key],b=data.bills[idx];
+  const date=document.getElementById('modal-date').value,amt=parseFloat(document.getElementById('modal-amount').value);
+  if(!date||isNaN(amt)){toast('Enter a date and amount');return;}
+  const normDate=normalizeDate(date);b.datePaid=normDate;b.amtPaid=amt;
+  try{await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`,[[normDate,amt]]);toast(`${b.name} marked paid`);closeModal('pay-modal');renderBills(data.bills);renderStats(data.bills,data.income);}
+  catch(e){toast('Save failed');}
+}
+async function clearPay(){
+  if(!editingBill)return;
+  const{idx,key}=editingBill,data=monthData[key],b=data.bills[idx];
+  b.datePaid='';b.amtPaid=null;
+  try{await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`,[['','']]);toast('Payment cleared');closeModal('pay-modal');renderBills(data.bills);renderStats(data.bills,data.income);}
+  catch(e){toast('Clear failed');}
+}
+async function removeBill(idx){
+  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],b=data.bills[idx];
+  if(!confirm(`Remove "${b.name}" from ${MONTHS[currentMonth]} only?\n\nThis does not affect other months or the master list.`))return;
+  try{await sheetsClear(`${b.sheet}!A${b.rowIdx}:F${b.rowIdx}`);data.bills.splice(idx,1);data.bills.forEach((b,i)=>b.rowIdx=i+2);renderBills(data.bills);renderStats(data.bills,data.income);toast(`${b.name} removed from ${MONTHS[currentMonth]}`);}
+  catch(e){toast('Remove failed');}
+}
+
+// ── Income editing ────────────────────────────────────────────────────────────
+async function editInc(idx,field){
+  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],r=data.income[idx];
+  const labels={date:'Date (YYYY-MM-DD):',desc:'Description:',expected:'Expected amount:',actual:'Actual amount:'};
+  const current={date:r.date,desc:r.desc,expected:r.expected!=null?r.expected:'',actual:r.actual!=null?r.actual:''};
+  const val=window.prompt(labels[field],current[field]);
+  if(val===null)return;
+  const colMap={date:'A',desc:'B',expected:'C',actual:'D'};
+  let storeVal=val;
+  if(field==='expected'||field==='actual'){const n=parseFloat(val);r[field]=val?n:null;storeVal=val;}
+  else if(field==='date'){storeVal=normalizeDate(val);r[field]=storeVal;}
+  else r[field]=val;
+  try{await sheetsUpdate(`${r.sheet}!${colMap[field]}${r.rowIdx}`,[[storeVal]]);renderIncome(data.income);renderStats(data.bills,data.income);toast('Updated');}
+  catch(e){toast('Save failed');}
+}
+function openAddIncome(){
+  ['inc-date','inc-desc','inc-expected','inc-actual'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('income-modal-title').textContent='Add income line';
+  document.getElementById('income-modal').classList.add('open');
+}
+async function saveIncomeLine(){
+  const date=document.getElementById('inc-date').value,desc=document.getElementById('inc-desc').value.trim(),exp=document.getElementById('inc-expected').value,act=document.getElementById('inc-actual').value;
+  if(!desc){toast('Enter a description');return;}
+  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],is=isn(currentAcct,currentYear,currentMonth+1);
+  try{
+    const normIncDate=normalizeDate(date);
+    const res=await sheetsAppend(`${is}!A2:D`,[[normIncDate||'',desc,exp||'',act||'']]);
+    const m=res.updates&&res.updates.updatedRange&&res.updates.updatedRange.match(/(\d+)$/);
+    const newRow={rowIdx:m?parseInt(m[1]):data.income.length+2,sheet:is,date:date||'',desc,expected:exp?parseFloat(exp):null,actual:act?parseFloat(act):null};
+    data.income.push(newRow);closeModal('income-modal');renderIncome(data.income);renderStats(data.bills,data.income);toast('Income line added');
+  }catch(e){toast('Save failed');}
+}
+async function removeIncome(idx){
+  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],r=data.income[idx];
+  if(!confirm(`Remove "${r.desc}" income line?`))return;
+  try{await sheetsClear(`${r.sheet}!A${r.rowIdx}:D${r.rowIdx}`);data.income.splice(idx,1);renderIncome(data.income);renderStats(data.bills,data.income);toast('Income line removed');}
+  catch(e){toast('Remove failed');}
+}
+
+// ── Reconcile (now saves month so page remembers where you are) ───────────────
+function reconcileMonth(){
+  if(!confirm(`Mark ${MONTHS[currentMonth]} ${currentYear} as reconciled and move to next month?`))return;
+  toast(`${MONTHS[currentMonth]} reconciled!`);
+  changeMonth(1);
+}
+
+// ── Annual ────────────────────────────────────────────────────────────────────
+async function renderAnnual(){
+  document.getElementById('view-monthly').style.display='none';document.getElementById('view-master').style.display='none';document.getElementById('view-annual').style.display='block';document.getElementById('month-nav').style.visibility='hidden';
+  document.getElementById('annual-title').textContent=`Annual overview — ${currentYear}`;
+  document.getElementById('annual-header-row').innerHTML='<th>Category</th>'+MONTH_SHORT.map(m=>`<th>${m}</th>`).join('')+'<th>YTD</th>';
+  const tbody=document.getElementById('annual-tbody');
+  tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
+  const allData={};
+  for(let m=1;m<=12;m++){try{allData[m]={house:await loadMonthData('house',currentYear,m),my:await loadMonthData('my',currentYear,m)};}catch(e){allData[m]=null;}}
+  const val=(acct,m,fn)=>{if(!allData[m])return null;const d=allData[m][acct];return d?fn(d):null;};
+  const row=(label,fn,isTot)=>{
+    const cells=MONTH_SHORT.map((_,i)=>{const v=fn(i+1);return v!=null?`<td>${fmt(v)}</td>`:`<td class="dim">—</td>`;});
+    const ytd=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(fn(m)||0),0);
+    return`<tr${isTot?' class="total-row"':''}><td>${label}</td>${cells.join('')}<td>${fmt(ytd)}</td></tr>`;
+  };
+  tbody.innerHTML=`
+    <tr class="section-header"><td colspan="14">House account</td></tr>
+    ${row('Min. due',m=>val('house',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid',m=>val('house',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',m=>val('house',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',m=>{const d=allData[m]&&allData[m].house;if(!d)return null;return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);},true)}
+    <tr class="section-header"><td colspan="14">My bills account</td></tr>
+    ${row('Min. due',m=>val('my',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid',m=>val('my',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',m=>val('my',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',m=>{const d=allData[m]&&allData[m].my;if(!d)return null;return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);},true)}`;
+}
+
+// ── Master ────────────────────────────────────────────────────────────────────
+function renderMasterView(){
+  document.getElementById('view-monthly').style.display='none';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='block';document.getElementById('month-nav').style.visibility='hidden';
+  renderMasterList('house',masterHouse,'master-house-list');renderMasterList('my',masterMy,'master-my-list');
+}
+function renderMasterList(acct,list,id){
+  document.getElementById(id).innerHTML=list.map((b,i)=>`
+    <div class="master-bill-item">
+      <span class="mname">${b.name}</span><span class="mdue">${b.dueDay?'Day '+b.dueDay:'No date'}</span>
+      <span class="mmin">${b.minPay!=null?fmt(b.minPay):'—'}</span>
+      <span style="font-size:11px;color:var(--text-muted);flex:1;margin-left:6px">${b.notes||''}</span>
+      <button class="rm-btn" onclick="removeMaster('${acct}',${i})" title="Remove from master">&#215;</button>
+    </div>`).join('');
+}
+function openAddBill(acct){addingAcct=acct;['add-name','add-due','add-min','add-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('add-modal').classList.add('open');}
+async function saveNewBill(){
+  const name=document.getElementById('add-name').value.trim(),due=document.getElementById('add-due').value,min=document.getElementById('add-min').value,notes=document.getElementById('add-notes').value.trim();
+  if(!name){toast('Enter a bill name');return;}
+  try{
+    await sheetsAppend('BillMaster!A2:G',[[addingAcct,name,due||'',min||'',notes,true,'']]);
+    const nb={account:addingAcct,name,dueDay:due?parseInt(due):null,minPay:min?parseFloat(min):null,notes,active:true,fullBal:null};
+    if(addingAcct==='house')masterHouse.push(nb);else masterMy.push(nb);
+    closeModal('add-modal');renderMasterList(addingAcct,addingAcct==='house'?masterHouse:masterMy,`master-${addingAcct==='house'?'house':'my'}-list`);monthData={};toast(`${name} added to master list`);
+  }catch(e){toast('Save failed');}
+}
+async function removeMaster(acct,idx){
+  const list=acct==='house'?masterHouse:masterMy,bill=list[idx];
+  if(!confirm(`Remove "${bill.name}" from master list?\n\nWon't appear in new months going forward. Existing months unchanged.`))return;
+  try{
+    const rows=await sheetsGet('BillMaster!A2:G1000');let sheetRow=-1,acctCount=0;
+    for(let i=0;i<rows.length;i++){if(rows[i][0]===acct){if(acctCount===idx){sheetRow=i+2;break;}acctCount++;}}
+    if(sheetRow>0)await sheetsClear(`BillMaster!A${sheetRow}:G${sheetRow}`);
+    list.splice(idx,1);renderMasterList(acct,list,`master-${acct==='house'?'house':'my'}-list`);monthData={};toast(`${bill.name} removed from master`);
+  }catch(e){toast('Remove failed');}
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+function setView(v){
+  currentView=v;
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',['monthly','annual','master'][i]===v));
+  document.getElementById('month-nav').style.visibility=v==='monthly'?'visible':'hidden';
+  if(v==='monthly'){document.getElementById('view-monthly').style.display='';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='none';renderMonthly();}
+  else if(v==='annual')renderAnnual();
+  else renderMasterView();
+}
+function setAccount(a){
+  currentAcct=a;
+  document.getElementById('tab-house').className='btn '+(a==='house'?'btn-primary':'btn-secondary');
+  document.getElementById('tab-my').className='btn '+(a==='my'?'btn-primary':'btn-secondary');
+  renderMonthly();
+}
+function changeMonth(d){
+  currentMonth+=d;
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  saveCurrentMonth();
+  renderMonthly();
+}
+
+// ── One-time bill ─────────────────────────────────────────────────────────────
+function openAddBillThisMonth(){
+  ['ot-name','ot-due','ot-min','ot-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('onetime-modal-sub').textContent=`Adds to ${MONTHS[currentMonth]} ${currentYear} only — not the master list`;
+  document.getElementById('onetime-modal').classList.add('open');
+}
+async function saveOnetimeBill(){
+  const name=document.getElementById('ot-name').value.trim(),due=document.getElementById('ot-due').value,min=document.getElementById('ot-min').value,notes=document.getElementById('ot-notes').value.trim();
+  if(!name){toast('Enter a bill name');return;}
+  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],bs=sn(currentAcct,currentYear,currentMonth+1);
+  const newBill={rowIdx:data.bills.length+2,sheet:bs,name,dueDay:due?parseInt(due):null,minPay:min?parseFloat(min):null,notes,datePaid:'',amtPaid:null,auto:notes.toLowerCase().includes('auto')};
+  try{await sheetsAppend(`${bs}!A2:F`,[[name,due||'',min||'',notes,'','']]);data.bills.push(newBill);closeModal('onetime-modal');renderBills(data.bills);renderStats(data.bills,data.income);toast(`${name} added to ${MONTHS[currentMonth]}`);}
+  catch(e){toast('Save failed');}
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function fmt(n){if(n==null||isNaN(n))return'—';const neg=n<0;return(neg?'-':'')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function today(){return new Date().toISOString().slice(0,10);}
+function closeModal(id){document.getElementById(id).classList.remove('open');editingBill=null;}
+let toastTimer;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
+['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal(id);}));
+
+loadSavedMonth();
+initAuth();
+</script>
+</body>
+</html>
