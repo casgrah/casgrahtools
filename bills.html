@@ -414,17 +414,17 @@ async function initAuth() {
   s.src = 'https://accounts.google.com/gsi/client';
   document.head.appendChild(s);
   await new Promise(r => s.onload = r);
-  const stored = sessionStorage.getItem('bt_token');
+  const stored = localStorage.getItem('bt_token');
   if (stored) { accessToken = stored; showApp(); return; }
   document.getElementById('sign-in-btn').onclick = () => {
     google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID, scope: SCOPES,
-      callback: resp => { if(resp.access_token){accessToken=resp.access_token;sessionStorage.setItem('bt_token',accessToken);showApp();} }
+      callback: resp => { if(resp.access_token){accessToken=resp.access_token;localStorage.setItem('bt_token',accessToken);showApp();} }
     }).requestAccessToken();
   };
 }
 function signOut() {
-  accessToken=null; sessionStorage.removeItem('bt_token');
+  accessToken=null; localStorage.removeItem('bt_token');
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-overlay').style.display='flex';
   monthData={};
