@@ -1,0 +1,23 @@
+{
+  "name": "casgrahtools",
+  "short_name": "casgrah",
+  "description": "Caitlin's personal toolkit",
+  "start_url": "/casgrahtools/",
+  "scope": "/casgrahtools/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1e20",
+  "theme_color": "#2d6b73",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
+  ]
+}

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1416">
+<title>Plants · casgrahtools</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --teal:#2d8a94;--teal-light:#3da8b5;--teal-dim:#1e5f66;--teal-pale:rgba(45,138,148,0.13);
+  --terra:#c4673f;--terra-light:#e07a4f;--terra-dim:#7a3820;--terra-pale:rgba(196,103,63,0.13);
+  --navy:#0a1416;--surface:#0f1e20;--card:#152224;--card2:#1a2b2e;
+  --border:#1e3538;--border2:#254043;
+  --ink:#ddeef0;--muted:#5a8a90;--muted2:#3d6a70;
+  --success:#2d9a5f;--success-pale:rgba(45,154,95,0.13);
+  --purple:#8b6fd4;--purple-pale:rgba(139,111,212,0.13);
+  --warn:#d4900a;--warn-pale:rgba(212,144,10,0.13);
+  --nav-h:64px;--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
+.app-bar{background:var(--navy);padding:48px 20px 14px;border-bottom:3px solid var(--success);display:flex;align-items:center;justify-content:space-between;}
+.app-bar h1{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);font-weight:700;}
+.app-bar .subtitle{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.notif-btn{background:var(--card);border:1px solid var(--border2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.notif-btn.on{background:var(--success-pale);border-color:rgba(45,154,95,0.4);color:var(--success);}
+.scroll-area{padding:16px 16px calc(var(--nav-h) + var(--safe-bottom) + 16px);}
+.alert-banner{background:var(--warn-pale);border:1px solid rgba(212,144,10,0.4);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.alert-banner.hidden{display:none;}
+.alert-text{flex:1;font-size:13px;color:var(--warn);font-weight:500;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+.stat-pill-val{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--success);}
+.stat-pill-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:10px;}
+.plant-card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+.plant-card.needs-water{border-color:rgba(212,144,10,0.5);background:rgba(212,144,10,0.04);}
+.plant-card.overdue{border-color:rgba(196,103,63,0.5);background:rgba(196,103,63,0.04);}
+.plant-emoji{width:52px;height:52px;border-radius:12px;background:var(--success-pale);border:1px solid rgba(45,154,95,0.2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.plant-info{flex:1;min-width:0;}
+.plant-name{font-weight:700;font-size:15px;color:var(--ink);}
+.plant-species{font-size:12px;color:var(--muted);margin-top:1px;font-style:italic;}
+.plant-location{font-size:11px;color:var(--muted2);margin-top:2px;}
+.plant-schedule{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.schedule-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--success-pale);color:var(--success);}
+.schedule-badge.warn{background:var(--warn-pale);color:var(--warn);}
+.schedule-badge.overdue{background:var(--terra-pale);color:var(--terra);}
+.last-watered{font-size:11px;color:var(--muted2);}
+.plant-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;}
+.water-btn{background:var(--teal);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;}
+.water-btn:active{opacity:.8;}
+.icon-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px;}
+.empty-state{text-align:center;padding:44px 20px;color:var(--muted);}
+.fab{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);right:20px;width:56px;height:56px;border-radius:50%;background:var(--success);border:none;color:white;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(45,154,95,0.3);z-index:90;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.fab:active{transform:scale(0.92);}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(5,10,12,.75);display:flex;align-items:flex-end;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:20px 20px calc(var(--safe-bottom) + 20px);width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s;border-top:1px solid var(--border2);}
+.modal-bg.open .modal{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-family:'Caveat',cursive;font-size:22px;font-weight:700;margin-bottom:16px;color:var(--ink);}
+.field{margin-bottom:12px;}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
+.field input:focus,.field select:focus{border-color:var(--success);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.name-row{display:flex;gap:8px;align-items:flex-end;}
+.name-row input{flex:1;}
+.surprise-btn{background:var(--teal-pale);border:1px solid var(--teal-dim);color:var(--teal);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:10px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.surprise-btn:active{opacity:.8;}
+.emoji-picker{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0;}
+.emoji-opt{font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;transition:all .15s;}
+.emoji-opt.selected{border-color:var(--success);background:var(--success-pale);}
+.submit-btn{width:100%;padding:14px;background:var(--success);color:white;border:none;border-radius:12px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;cursor:pointer;margin-top:8px;}
+.submit-btn:active{opacity:.85;}
+.cancel-link{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;display:block;text-align:center;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-bottom));background:var(--navy);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:8px;z-index:100;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;padding:4px 0;}
+.nav-icon{font-size:22px;line-height:1;}
+.nav-label{font-size:10px;font-weight:500;color:var(--muted2);}
+.nav-item.active .nav-label{color:var(--teal);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 5px rgba(45,138,148,0.5));}
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+</style>
+</head>
+<body>
+<div class="app-bar">
+  <div><h1>🌱 Plants</h1><div class="subtitle">watering tracker</div></div>
+  <button class="notif-btn" onclick="requestNotifications()" id="notifBtn">Enable Reminders 🔔</button>
+</div>
+<div class="scroll-area">
+  <div class="alert-banner hidden" id="alertBanner">
+    <span style="font-size:20px">💧</span>
+    <div class="alert-text" id="alertText">Some plants need water!</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="stat-pill-val" id="statTotal">0</div><div class="stat-pill-label">Total</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="statOk">0</div><div class="stat-pill-label">Happy 💚</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="statNeed" style="color:var(--terra)">0</div><div class="stat-pill-label">Need Water</div></div>
+  </div>
+  <div id="needsWaterSection" style="display:none">
+    <div class="section-label">💧 Needs Water</div>
+    <div id="needsWaterList"></div>
+  </div>
+  <div class="section-label">All Plants</div>
+  <div id="plantList"></div>
+  <div class="empty-state hidden" id="emptyState">
+    <div style="font-size:56px;margin-bottom:12px">🪴</div>
+    <div>No plants yet — add your first one!</div>
+  </div>
+</div>
+<button class="fab" onclick="openAdd()">+</button>
+
+<nav class="bottom-nav">
+  <a class="nav-item " href="index.html"><span class="nav-icon">🏡</span><span class="nav-label">Home</span></a>
+  <a class="nav-item " href="bills.html"><span class="nav-icon">💰</span><span class="nav-label">Bills</span></a>
+  <a class="nav-item " href="cxc.html"><span class="nav-icon">🦕</span><span class="nav-label">CXC</span></a>
+  <a class="nav-item " href="books.html"><span class="nav-icon">🎧</span><span class="nav-label">Books</span></a>
+  <a class="nav-item active" href="plants.html"><span class="nav-icon">🌱</span><span class="nav-label">Plants</span></a>
+</nav>
+
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Add Plant</div>
+    <div class="field">
+      <label>Pick an Emoji</label>
+      <div class="emoji-picker" id="emojiPicker"></div>
+    </div>
+    <div class="field">
+      <label>Plant Name</label>
+      <div class="name-row">
+        <input type="text" id="plantName" placeholder="e.g. Big Bessy">
+        <button class="surprise-btn" onclick="randomName()">🎲 Surprise Me</button>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Species (optional)</label><input type="text" id="plantSpecies" placeholder="e.g. Pothos"></div>
+      <div class="field"><label>Location</label><input type="text" id="plantLocation" placeholder="e.g. Bedroom"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Water Every (days)</label><input type="number" id="waterEvery" placeholder="7" min="1" max="60"></div>
+      <div class="field"><label>Last Watered</label><input type="date" id="lastWatered"></div>
+    </div>
+    <div class="field"><label>Notes</label><input type="text" id="plantNotes" placeholder="e.g. Indirect light only"></div>
+    <input type="hidden" id="plantId">
+    <input type="hidden" id="selectedEmoji" value="🌱">
+    <button class="submit-btn" onclick="savePlant()">Save Plant 🌱</button>
+    <button class="cancel-link" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+const PLANT_NAMES = ["Spike","Fluffy","Professor Green","Señor Leafy","Duchess","Barnaby","Wellington","Clementine","Reginald","Beatrice","Sir Droops-a-Lot","Countess Fern","Mortimer","Priscilla","Archibald","Lavinia","Captain Photon","Theodora","Biscuit","Mildred","Horatio","Zelda","Montgomery","Seraphina","Cornelius","Petunia","Bartholomew","Ingrid","Ptolemy","Gertrude","Maximilian","Eugenia","Thaddeus","Millicent","Prickles McGee","Lady Fernsworth","General Chlorophyll","Baroness Bloom","Sir Tangles","Madame Frond","Duke of Droop","Princess Petal","Count Chloro","The Magnificent Leafington","Empress Spiky","Reverend Roots","Admiral Aloe","Queen Verdant","Lord Snoot","Madam Wilts-No-More"];
+let plants=JSON.parse(localStorage.getItem('cgt_plants')||'[]');
+let notifEnabled=localStorage.getItem('notif_enabled')==='true';
+function save(){localStorage.setItem('cgt_plants',JSON.stringify(plants));}
+function today(){return new Date().toISOString().split('T')[0];}
+function addDays(d,n){const dt=new Date(d+'T00:00:00');dt.setDate(dt.getDate()+n);return dt.toISOString().split('T')[0];}
+function daysDiff(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/(864e5));}
+function getStatus(p){
+  if(!p.lastWatered||!p.waterEvery)return'unknown';
+  const diff=daysDiff(today(),addDays(p.lastWatered,parseInt(p.waterEvery)));
+  if(diff<0)return'overdue';if(diff===0)return'today';if(diff<=2)return'soon';return'ok';
+}
+function getLabel(p){
+  if(!p.lastWatered||!p.waterEvery)return{text:'No schedule',cls:''};
+  const next=addDays(p.lastWatered,parseInt(p.waterEvery));
+  const diff=daysDiff(today(),next);
+  if(diff<0)return{text:`${Math.abs(diff)}d overdue 🚨`,cls:'overdue'};
+  if(diff===0)return{text:'Water today! 💧',cls:'warn'};
+  if(diff<=2)return{text:`Water in ${diff}d`,cls:'warn'};
+  return{text:`Next: ${next}`,cls:''};
+}
+function plantCardHTML(p){
+  const s=getStatus(p),lbl=getLabel(p);
+  const cls=s==='overdue'?'overdue':(s==='today'||s==='soon')?'needs-water':'';
+  return`<div class="plant-card ${cls}">
+    <div class="plant-emoji">${p.emoji||'🌱'}</div>
+    <div class="plant-info">
+      <div class="plant-name">${p.name}</div>
+      ${p.species?`<div class="plant-species">${p.species}</div>`:''}
+      ${p.location?`<div class="plant-location">📍 ${p.location}</div>`:''}
+      <div class="plant-schedule">
+        ${lbl.text?`<span class="schedule-badge ${lbl.cls}">${lbl.text}</span>`:''}
+        ${p.lastWatered?`<span class="last-watered">Last: ${p.lastWatered}</span>`:''}
+      </div>
+      ${p.notes?`<div style="font-size:11px;color:var(--muted2);margin-top:4px;">${p.notes}</div>`:''}
+    </div>
+    <div class="plant-actions">
+      <button class="water-btn" onclick="waterPlant('${p.id}')">💧 Water</button>
+      <button class="icon-btn" onclick="editPlant('${p.id}')">✏️</button>
+      <button class="icon-btn" onclick="deletePlant('${p.id}')">🗑️</button>
+    </div>
+  </div>`;
+}
+function render(){
+  const needsWater=plants.filter(p=>['overdue','today','soon'].includes(getStatus(p)));
+  const ok=plants.filter(p=>getStatus(p)==='ok');
+  document.getElementById('statTotal').textContent=plants.length;
+  document.getElementById('statOk').textContent=ok.length;
+  document.getElementById('statNeed').textContent=needsWater.length;
+  if(needsWater.length){
+    document.getElementById('alertBanner').classList.remove('hidden');
+    document.getElementById('alertText').textContent=needsWater.length===1?`${needsWater[0].name} needs water!`:`${needsWater.length} plants need water!`;
+  }else document.getElementById('alertBanner').classList.add('hidden');
+  const nws=document.getElementById('needsWaterSection');
+  if(needsWater.length){nws.style.display='';document.getElementById('needsWaterList').innerHTML=needsWater.map(plantCardHTML).join('');}
+  else nws.style.display='none';
+  const list=document.getElementById('plantList');
+  if(!plants.length){list.innerHTML='';document.getElementById('emptyState').classList.remove('hidden');}
+  else{document.getElementById('emptyState').classList.add('hidden');list.innerHTML=plants.map(plantCardHTML).join('');}
+  const nb=document.getElementById('notifBtn');
+  nb.textContent=notifEnabled?'🔔 Reminders On':'Enable Reminders 🔔';
+  nb.className='notif-btn'+(notifEnabled?' on':'');
+  if(notifEnabled)scheduleReminders();
+}
+function waterPlant(id){const p=plants.find(x=>x.id===id);if(!p)return;p.lastWatered=today();save();render();toast('💧 '+p.name+' watered!');}
+function deletePlant(id){if(!confirm('Remove this plant?'))return;plants=plants.filter(p=>p.id!==id);save();render();toast('Plant removed');}
+function randomName(){
+  const name=PLANT_NAMES[Math.floor(Math.random()*PLANT_NAMES.length)];
+  document.getElementById('plantName').value=name;
+  toast('🎲 '+name+'!');
+}
+function initEmojiPicker(current){
+  const emojis=['🌱','🪴','🌿','🍀','☘️','🌵','🌾','🌺','🌸','🌻','🌹','🪷','🍃','🌳','🌴','🪸','🎋','🎍','🍄','🌊'];
+  document.getElementById('emojiPicker').innerHTML=emojis.map(e=>`<span class="emoji-opt ${e===current?'selected':''}" onclick="selectEmoji('${e}')">${e}</span>`).join('');
+}
+function selectEmoji(e){document.getElementById('selectedEmoji').value=e;document.querySelectorAll('.emoji-opt').forEach(el=>el.classList.toggle('selected',el.textContent===e));}
+function openAdd(){
+  document.getElementById('modalTitle').textContent='Add Plant';
+  document.getElementById('plantId').value='';
+  ['plantName','plantSpecies','plantLocation','waterEvery','plantNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lastWatered').value=today();
+  document.getElementById('selectedEmoji').value='🌱';
+  initEmojiPicker('🌱');
+  document.getElementById('addModal').classList.add('open');
+}
+function editPlant(id){
+  const p=plants.find(x=>x.id===id);if(!p)return;
+  document.getElementById('modalTitle').textContent='Edit Plant';
+  document.getElementById('plantId').value=p.id;
+  document.getElementById('plantName').value=p.name||'';
+  document.getElementById('plantSpecies').value=p.species||'';
+  document.getElementById('plantLocation').value=p.location||'';
+  document.getElementById('waterEvery').value=p.waterEvery||'';
+  document.getElementById('lastWatered').value=p.lastWatered||today();
+  document.getElementById('plantNotes').value=p.notes||'';
+  document.getElementById('selectedEmoji').value=p.emoji||'🌱';
+  initEmojiPicker(p.emoji||'🌱');
+  document.getElementById('addModal').classList.add('open');
+}
+function closeModal(){document.getElementById('addModal').classList.remove('open');}
+function savePlant(){
+  const name=document.getElementById('plantName').value.trim();
+  if(!name){toast('Please enter a plant name');return;}
+  const id=document.getElementById('plantId').value||Date.now().toString();
+  const idx=plants.findIndex(p=>p.id===id);
+  const entry={id,name,emoji:document.getElementById('selectedEmoji').value,species:document.getElementById('plantSpecies').value.trim(),location:document.getElementById('plantLocation').value.trim(),waterEvery:parseInt(document.getElementById('waterEvery').value)||null,lastWatered:document.getElementById('lastWatered').value||null,notes:document.getElementById('plantNotes').value.trim()};
+  if(idx>=0)plants[idx]=entry;else plants.push(entry);
+  save();closeModal();render();toast(idx>=0?'Updated!':entry.emoji+' '+name+' added!');
+}
+async function requestNotifications(){
+  if(!('Notification'in window)){toast('Notifications not supported');return;}
+  if(Notification.permission==='granted'){notifEnabled=true;localStorage.setItem('notif_enabled','true');scheduleReminders();toast('🔔 Reminders enabled!');render();return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){notifEnabled=true;localStorage.setItem('notif_enabled','true');scheduleReminders();toast('🔔 Reminders enabled!');render();}
+  else toast('Notifications blocked — check browser settings');
+}
+function scheduleReminders(){
+  checkAndNotify();
+  const now=new Date(),check=new Date(now);
+  check.setHours(8,0,0,0);
+  if(check<=now)check.setDate(check.getDate()+1);
+  setTimeout(()=>{checkAndNotify();setInterval(checkAndNotify,864e5);},check-now);
+}
+function checkAndNotify(){
+  if(!notifEnabled||Notification.permission!=='granted')return;
+  const need=plants.filter(p=>['overdue','today'].includes(getStatus(p)));
+  if(!need.length)return;
+  const last=localStorage.getItem('last_plant_notif');
+  if(last===today())return;
+  localStorage.setItem('last_plant_notif',today());
+  new Notification('💧 Time to water!',{body:need.map(p=>p.emoji+' '+p.name).join(', '),icon:'/casgrahtools/icon.svg',tag:'plant-reminder'});
+}
+document.getElementById('addModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+let toastTimer;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2500);}
+if(Notification.permission==='granted'&&notifEnabled)scheduleReminders();
+render();
+</script>
+</body>
+</html>
