@@ -936,13 +936,6 @@ if(Notification.permission==='granted')scheduleBillCheck();
 
 // Override showApp to init auth properly
 const _origShowApp = showApp;
-async function showApp() {
-  document.getElementById('auth-overlay').style.display='none';
-  document.getElementById('app').classList.add('visible');
-  await ensureSheetsExist();
-  await loadMasterList();
-  renderMonthly();
-}
 
 loadSavedMonth();
 initAuth('bt_token');

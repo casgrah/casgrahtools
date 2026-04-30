@@ -755,15 +755,6 @@ function setSyncStatus(state, msg) {
   d.className='sdot '+state; t.textContent=msg;
 }
 
-async function showApp() {
-  document.getElementById('auth-overlay').style.display='none';
-  document.getElementById('app').classList.add('visible');
-  setSyncStatus('busy','Loading orders...');
-  await ensureSheet();
-  await loadOrders();
-  resetForm();
-  render();
-}
 
 initAuth('cxc_token');
 </script></body></html>
