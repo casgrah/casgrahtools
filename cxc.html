@@ -307,29 +307,40 @@ function loadGoogleIdentity() {
 
 async function initAuth(tokenKey) {
   const btn = document.getElementById('sign-in-btn');
-  btn.onclick = async () => {
-    try {
-      await loadGoogleIdentity();
-      if (!tokenClient) {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: r => {
-            if (r.access_token) {
-              accessToken = r.access_token;
-              localStorage.setItem(tokenKey, r.access_token);
-              showApp();
-            }
-          }
-        });
+  const initTokenClient = () => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      error_callback: e => {
+        toast('Google sign-in was blocked. Allow pop-ups for this page, then try again.');
+        console.error(e);
+      },
+      callback: r => {
+        if (r.access_token) {
+          accessToken = r.access_token;
+          localStorage.setItem(tokenKey, r.access_token);
+          showApp();
+        }
       }
+    });
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  };
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  btn.onclick = () => {
+    if (tokenClient) {
       tokenClient.requestAccessToken({prompt:'consent'});
-    } catch (e) {
-      toast('Google sign-in could not load. Check your connection and try again.');
-      console.error(e);
+    } else {
+      toast('Google sign-in is still loading. Try again in a moment.');
     }
   };
-  loadGoogleIdentity().catch(e => console.error(e));
+  loadGoogleIdentity().then(initTokenClient).catch(e => {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    toast('Google sign-in could not load. Check your connection and try again.');
+    console.error(e);
+  });
   const stored = localStorage.getItem(tokenKey);
   if (stored) { accessToken = stored; showApp(); }
 }
