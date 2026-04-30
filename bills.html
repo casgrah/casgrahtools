@@ -263,7 +263,7 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
         <button onclick="changeMonth(1)">&#8250;</button>
       </div>
       <button class="rec-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
-      <button class="ubtn" onclick="signOut('bt_token')">Sign out</button>
+      <button class="ubtn" onclick="signOut('cgt_token')">Sign out</button>
     </div>
   </header>
   <main>
@@ -513,35 +513,11 @@ function loadSavedMonth() {
 }
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-async function initAuth() {
-  const s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client';
-  document.head.appendChild(s);
-  await new Promise(r => s.onload = r);
-  const stored = localStorage.getItem('bt_token');
-  if (stored) { accessToken = stored; showApp(); return; }
-  document.getElementById('sign-in-btn').onclick = () => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID, scope: SCOPES,
-      callback: resp => {
-        if (resp.access_token) {
-          accessToken = resp.access_token;
-          localStorage.setItem('bt_token', accessToken);
-          showApp();
-        }
-      }
-    }).requestAccessToken({prompt: ''});
-  };
-}
+
 
  — refreshes token if close to expiry
 
-function signOut() {
-  accessToken=null; localStorage.removeItem('bt_token');
-  document.getElementById('app').classList.remove('visible');
-  document.getElementById('auth-overlay').style.display='flex';
-  monthData={};
-}
+
 async function showApp() {
   document.getElementById('auth-overlay').style.display='none';
   document.getElementById('app').classList.add('visible');
@@ -938,5 +914,5 @@ if(Notification.permission==='granted')scheduleBillCheck();
 const _origShowApp = showApp;
 
 loadSavedMonth();
-initAuth('bt_token');
+initAuth('cgt_token');
 </script></body></html>
