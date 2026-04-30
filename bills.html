@@ -2,191 +2,253 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1416">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Bills Tracker · casgrahtools</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+
 :root {
-  --navy:#0a1416;--blue:#2d8a94;--blue-light:#3da8b5;
-  --teal:#c4673f;--teal-light:#e07a4f;
-  --red:#c4673f;--red-light:rgba(196,103,63,0.13);
-  --surface:#0f1e20;--card:#152224;
-  --border:#1e3538;--border-strong:#254043;
-  --text:#ddeef0;--text-mid:#8ab0b5;--text-muted:#5a8a90;
-  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
-  --radius:12px;--radius-sm:8px;
-  --shadow:0 2px 16px rgba(0,0,0,0.3);
+  --navy:#0a1416; --surface:#0f1e20; --card:#152224; --card2:#1a2b2e;
+  --border:#1e3538; --border2:#254043;
+  --ink:#ddeef0; --muted:#5a8a90; --muted2:#3d6a70;
+  --teal:#2d8a94; --teal-light:#3da8b5; --teal-dim:#1e5f66; --teal-pale:rgba(45,138,148,0.12);
+  --terra:#c4673f; --terra-light:#e07a4f; --terra-dim:#7a3820; --terra-pale:rgba(196,103,63,0.12);
+  --success:#2d9a5f; --success-pale:rgba(45,154,95,0.12);
+  --warn:#d4900a; --warn-pale:rgba(212,144,10,0.12);
+  --purple:#8b6fd4; --purple-pale:rgba(139,111,212,0.12);
+  --nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
-#auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px}
-#auth-overlay h1{color:#fff;font-size:28px;font-weight:600;font-family:'Caveat',cursive;}
-#auth-overlay p{color:rgba(255,255,255,.6);font-size:14px;text-align:center;max-width:320px}
-#sign-in-btn{display:flex;align-items:center;gap:10px;background:#fff;color:#1e2e30;border:none;border-radius:10px;padding:12px 24px;font-family:var(--sans);font-size:15px;font-weight:500;cursor:pointer;transition:transform .15s,box-shadow .15s}
-#sign-in-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
-#sign-in-btn svg{width:20px;height:20px}
-#app{display:none;min-height:100vh;flex-direction:column}
-#app.visible{display:flex}
-header{background:var(--navy);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--teal)}
-.header-left{display:flex;align-items:center;gap:20px}
-.logo{color:#fff;font-size:18px;font-weight:700;letter-spacing:-.3px;white-space:nowrap;font-family:'Caveat',cursive;}
-nav{display:flex;gap:2px}
-nav button{background:none;border:none;color:rgba(255,255,255,.55);font-family:var(--sans);font-size:13px;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .15s}
-nav button:hover{color:#fff;background:rgba(255,255,255,.08)}
-nav button.active{color:#fff;background:rgba(255,255,255,.12);font-weight:500}
-.header-right{display:flex;align-items:center;gap:10px}
-.month-nav{display:flex;align-items:center;gap:6px}
-.month-nav button{background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.month-nav button:hover{background:rgba(255,255,255,.2)}
-#current-month-label{color:#fff;font-size:14px;font-weight:500;min-width:110px;text-align:center}
-.reconcile-btn{background:var(--teal);border:none;color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;transition:opacity .15s}
-.reconcile-btn:hover{opacity:.85}
-.user-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-family:var(--sans);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer}
-.hub-btn{background:rgba(255,255,255,.06);border:none;color:rgba(255,255,255,.45);font-family:var(--sans);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;}
-.hub-btn:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.1);}
-main{flex:1;padding:20px 24px;max-width:1200px;margin:0 auto;width:100%}
-.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
-.stat-card .label{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.stat-card .value{font-size:20px;font-weight:600;color:var(--text);font-family:var(--mono);letter-spacing:-.5px}
-.stat-card.highlight .value{color:var(--blue)}
-.stat-card.danger .value{color:var(--red)}
-.stat-card.success .value{color:#2d7a4f}
-.cols{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.panel-header h2{font-size:14px;font-weight:600;color:var(--text)}
-.progress-wrap{display:flex;align-items:center;gap:8px}
-.progress-bar{width:100px;height:5px;background:var(--border);border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;background:var(--teal);border-radius:99px;transition:width .4s}
-.progress-label{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
-.bill-table{width:100%;border-collapse:collapse}
-.bill-table thead tr{background:var(--surface)}
-.bill-table thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:8px 16px;text-align:left;border-bottom:1px solid var(--border)}
-.bill-table thead th.right{text-align:right}
-.bill-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
-.bill-table tbody tr:last-child{border-bottom:none}
-.bill-table tbody tr:hover{background:#f0ebe4}
-.bill-table tbody tr.paid-row{opacity:.55}
-.bill-table td{padding:9px 16px;font-size:13px;vertical-align:middle}
-.bill-table td.right{text-align:right}
-.bill-table td.clk{cursor:pointer}
-.bill-name-cell{font-weight:500;color:var(--text)}
-.bill-due-cell{color:var(--text-muted);font-size:12px}
-.mono{font-family:var(--mono);font-size:12px}
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px}
-.badge.paid{background:#e8f5ee;color:#2d7a4f}
-.badge.unpaid{background:var(--teal-light);color:var(--teal)}
-.badge.auto{background:#e8f4f5;color:#2d6b73}
-.right-col{display:flex;flex-direction:column;gap:16px}
-.income-table{width:100%;border-collapse:collapse;font-size:12px}
-.income-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface)}
-.income-table th.right{text-align:right}
-.income-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-.income-table tr:last-child td{border-bottom:none}
-.income-table tr:hover{background:#f0ebe4}
-.editable{cursor:pointer;color:var(--blue);text-decoration:underline;text-underline-offset:2px;text-decoration-style:dotted;font-family:var(--mono)}
-.empty-val{color:var(--text-muted);cursor:pointer;font-style:italic;font-size:11px}
-.del-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 3px;line-height:1;transition:color .1s}
-.del-btn:hover{color:var(--red)}
-.income-total-row{background:var(--surface);display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-weight:600;font-size:13px;border-top:1px solid var(--border)}
-.add-income-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--blue);font-family:var(--sans);font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-align:left;border-top:1px solid var(--border);transition:background .1s}
-.add-income-btn:hover{background:#f0ebe4}
-.balance-display{background:var(--navy);border-radius:var(--radius);padding:16px 20px;color:#fff;border-left:3px solid var(--teal);}
-.balance-display .bl{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.balance-display .bv{font-size:28px;font-weight:600;font-family:var(--mono);letter-spacing:-1px}
-.balance-display .bs{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px}
-.modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.45);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-bg.open{opacity:1;pointer-events:all}
-.modal{background:var(--card);border-radius:var(--radius);padding:24px;width:400px;max-width:90vw;transform:translateY(8px);transition:transform .2s}
-.modal-bg.open .modal{transform:translateY(0)}
-.modal h3{font-size:16px;font-weight:600;margin-bottom:4px}
-.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;font-weight:500;color:var(--text-mid);margin-bottom:5px}
-.field input{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:8px 12px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color .15s;background:var(--card)}
-.field input:focus{border-color:var(--blue)}
-.modal-actions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
-.btn{padding:9px 18px;border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
-.btn-primary{background:var(--blue);color:#fff}
-.btn-primary:hover{background:var(--navy)}
-.btn-secondary{background:var(--surface);color:var(--text-mid);border:1px solid var(--border-strong)}
-.btn-secondary:hover{background:var(--border)}
-.btn-danger{background:var(--teal-light);color:var(--teal);border:1px solid #e8cfc0}
-.btn-danger:hover{background:#f0ddd0}
-.annual-grid{overflow-x:auto}
-.annual-table{width:100%;border-collapse:collapse;font-size:12px}
-.annual-table th{padding:8px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
-.annual-table th:first-child{text-align:left}
-.annual-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;text-align:right;color:var(--text)}
-.annual-table td:first-child{font-family:var(--sans);font-weight:500;text-align:left;color:var(--text-mid)}
-.annual-table tr.section-header td{background:var(--surface);font-family:var(--sans);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);padding:10px 12px}
-.annual-table tr.total-row td{font-weight:600;color:var(--blue);background:#e8f4f5}
-.annual-table .dim{color:var(--text-muted)}
-.master-bill-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px}
-.master-bill-item .mname{flex:1;font-weight:500;font-size:13px}
-.master-bill-item .mdue{font-size:12px;color:var(--text-muted);min-width:55px}
-.master-bill-item .mmin{font-family:var(--mono);font-size:12px;min-width:65px;text-align:right}
-.add-bill-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed var(--border-strong);border-radius:var(--radius-sm);padding:9px 14px;width:100%;cursor:pointer;color:var(--text-muted);font-family:var(--sans);font-size:13px;margin-top:6px;transition:all .15s}
-.add-bill-btn:hover{border-color:var(--blue);color:var(--blue);background:#e8f4f5}
-.rm-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;padding:0 3px;transition:color .1s;line-height:1}
-.rm-btn:hover{color:var(--red)}
-#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:all .25s;z-index:999;pointer-events:none}
-#toast.show{transform:translateY(0);opacity:1}
-@media(max-width:800px){
-  .summary-row{grid-template-columns:repeat(2,1fr)}
-  .cols{grid-template-columns:1fr}
-  header{padding:0 12px}
-  main{padding:12px}
-  nav button{font-size:11px;padding:5px 10px}
-}
-
-/* Dark mode overrides */
-body{background:var(--surface);color:var(--text);}
-.bill-table tbody tr:hover{background:rgba(45,138,148,0.08);}
-.income-table tr:hover{background:rgba(45,138,148,0.08);}
-.add-income-btn:hover{background:rgba(45,138,148,0.08);}
-.annual-table tr.total-row td{background:rgba(45,138,148,0.1);color:var(--blue);}
-.annual-table tr.section-header td{background:rgba(45,138,148,0.06);color:var(--text);}
-.master-bill-item{background:var(--card);border-color:var(--border);}
-.add-bill-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(45,138,148,0.08);}
-.modal{background:var(--card);}
-.field input{background:var(--surface);color:var(--text);border-color:var(--border-strong);}
-.btn-secondary{background:var(--surface);color:var(--text-mid);border-color:var(--border-strong);}
-.btn-secondary:hover{background:var(--border);}
-.bill-table thead tr{background:var(--surface);}
-.income-table th{background:var(--surface);}
-.stat-card{background:var(--card);border-color:var(--border);}
-#toast{background:var(--card);color:var(--text);border:1px solid var(--border-strong);}
-
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
+a{color:inherit;text-decoration:none;}
 /* Bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + env(safe-area-inset-bottom,0px));background:#0a1416;border-top:1px solid #1e3538;display:flex;align-items:flex-start;padding-top:8px;z-index:100;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;padding:4px 0;}
-.nav-icon{font-size:22px;line-height:1;}
-.nav-label{font-size:10px;font-weight:500;color:#3d6a70;}
-.nav-item.active .nav-label{color:#2d8a94;}
-.nav-item.active .nav-icon{filter:drop-shadow(0 0 5px rgba(45,138,148,0.5));}
+.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:var(--navy);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:10px;z-index:200;}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;}
+.bnav .ni{font-size:22px;line-height:1;}
+.bnav .nl{font-size:10px;font-weight:500;color:var(--muted2);letter-spacing:0.2px;}
+.bnav a.active .nl{color:var(--teal);}
+.bnav a.active .ni{filter:drop-shadow(0 0 6px rgba(45,138,148,0.6));}
+/* Scroll area */
+.scroll{padding:16px 16px calc(var(--nav-h) + var(--safe-b) + 20px);}
+/* App bar */
+.abar{background:var(--navy);padding:48px 20px 14px;border-bottom:3px solid var(--teal);}
+.abar.terra{border-bottom-color:var(--terra);}
+.abar.purple{border-bottom-color:var(--purple);}
+.abar.success{border-bottom-color:var(--success);}
+.abar h1{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);font-weight:700;}
+.abar .sub{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.abar-row{display:flex;align-items:center;justify-content:space-between;}
+/* Stat bar */
+.statbar{display:grid;gap:10px;padding:12px 16px;background:var(--navy);border-bottom:1px solid var(--border);}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.slabel{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:3px;}
+.sval{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--teal);}
+.sval.terra{color:var(--terra);} .sval.success{color:var(--success);} .sval.warn{color:var(--warn);} .sval.dim{color:var(--ink);}
+/* Section label */
+.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:10px;}
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(5,10,12,0.8);display:flex;align-items:flex-end;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);padding:20px 20px calc(var(--safe-b) + 24px);width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s;}
+.modal-bg.open .modal{transform:translateY(0);}
+.mhandle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.mtitle{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+/* Fields */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);}
+.field textarea{resize:vertical;min-height:80px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* Buttons */
+.btn{padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:active{opacity:.8;}
+.btn-teal{background:var(--teal);color:white;}
+.btn-terra{background:var(--terra);color:white;}
+.btn-success{background:var(--success);color:white;}
+.btn-purple{background:var(--purple);color:white;}
+.btn-ghost{background:var(--card2);border:1px solid var(--border2);color:var(--muted);}
+.btn-full{width:100%;padding:14px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;border-radius:12px;border:none;cursor:pointer;}
+.btn-cancel{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;}
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);right:20px;width:56px;height:56px;border-radius:50%;border:none;color:white;font-size:28px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+.fab:active{transform:scale(0.92);}
 /* Toast */
-#toast{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:#1a2b2e;color:#ddeef0;border:1px solid #254043;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.badge-teal{background:var(--teal-pale);color:var(--teal);}
+.badge-terra{background:var(--terra-pale);color:var(--terra);}
+.badge-success{background:var(--success-pale);color:var(--success);}
+.badge-warn{background:var(--warn-pale);color:var(--warn);}
+.badge-purple{background:var(--purple-pale);color:var(--purple);}
+/* Icon btn */
+.ibtn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px;line-height:1;}
+/* Empty state */
+.empty{text-align:center;padding:48px 20px;color:var(--muted);}
+/* Auth overlay */
+#auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px;padding:40px;}
+#auth-overlay h1{font-family:'Caveat',cursive;font-size:28px;color:var(--ink);font-weight:700;text-align:center;}
+#auth-overlay p{font-size:13px;color:var(--muted);text-align:center;max-width:280px;line-height:1.6;}
+#sign-in-btn{display:flex;align-items:center;gap:10px;background:white;color:#1e2e30;border:none;border-radius:12px;padding:14px 24px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+#sign-in-btn:active{transform:scale(0.97);}
+#sign-in-btn svg{width:20px;height:20px;flex-shrink:0;}
+#app{display:none;min-height:100dvh;flex-direction:column;}
+#app.visible{display:flex;}
+.stego-wrap{width:72px;height:72px;border-radius:50%;background:var(--card);border:2px solid var(--teal-dim);display:flex;align-items:center;justify-content:center;}
+
+
+/* Bills-specific */
+.abar{border-bottom-color:var(--teal);}
+header{background:var(--navy);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
+.logo{font-family:'Caveat',cursive;font-size:20px;font-weight:700;color:var(--ink);}
+nav{display:flex;gap:2px;}
+nav button{background:none;border:none;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;}
+nav button:hover{color:var(--ink);background:rgba(255,255,255,.06);}
+nav button.active{color:var(--ink);background:rgba(255,255,255,.1);font-weight:500;}
+.hright{display:flex;align-items:center;gap:8px;}
+.mnav{display:flex;align-items:center;gap:6px;}
+.mnav button{background:rgba(255,255,255,.08);border:none;color:var(--ink);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.mnav button:hover{background:rgba(255,255,255,.15);}
+#cml{color:var(--ink);font-size:14px;font-weight:500;min-width:110px;text-align:center;}
+.rec-btn{background:var(--teal);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;}
+.rec-btn:hover{background:var(--teal-light);}
+.ubtn{background:rgba(255,255,255,.08);border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-width:1200px;margin:0 auto;width:100%;}
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-card .label{font-size:11px;color:var(--muted2);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.stat-card .value{font-size:20px;font-weight:600;font-family:'DM Mono',monospace;color:var(--ink);}
+.stat-card.highlight .value{color:var(--teal);}
+.stat-card.danger .value{color:var(--terra);}
+.stat-card.success .value{color:var(--success);}
+.cols{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-header h2{font-size:14px;font-weight:600;color:var(--ink);}
+.pw{display:flex;align-items:center;gap:8px;}
+.pb{width:100px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:var(--teal);border-radius:99px;transition:width .4s;}
+.pl{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.bill-table{width:100%;border-collapse:collapse;}
+.bill-table thead tr{background:var(--card2);}
+.bill-table thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);padding:8px 16px;text-align:left;border-bottom:1px solid var(--border);}
+.bill-table thead th.right{text-align:right;}
+.bill-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+.bill-table tbody tr:last-child{border-bottom:none;}
+.bill-table tbody tr:hover{background:var(--card2);}
+.bill-table tbody tr.paid-row{opacity:.5;}
+.bill-table td{padding:9px 16px;font-size:13px;vertical-align:middle;}
+.bill-table td.right{text-align:right;}
+.bill-table td.clk{cursor:pointer;}
+.bname{font-weight:500;color:var(--ink);}
+.bdue{color:var(--muted);font-size:12px;}
+.mono{font-family:'DM Mono',monospace;font-size:12px;}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;}
+.badge.paid{background:var(--success-pale);color:var(--success);}
+.badge.unpaid{background:var(--terra-pale);color:var(--terra);}
+.badge.auto{background:var(--teal-pale);color:var(--teal);}
+.badge.soon{background:var(--warn-pale);color:var(--warn);}
+.right-col{display:flex;flex-direction:column;gap:16px;}
+.inc-table{width:100%;border-collapse:collapse;font-size:12px;}
+.inc-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);background:var(--card2);}
+.inc-table th.right{text-align:right;}
+.inc-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.inc-table tr:last-child td{border-bottom:none;}
+.inc-table tr:hover{background:var(--card2);}
+.editable{cursor:pointer;color:var(--teal);text-decoration:underline;text-underline-offset:2px;text-decoration-style:dotted;font-family:'DM Mono',monospace;}
+.empty-val{color:var(--muted);cursor:pointer;font-style:italic;font-size:11px;}
+.del-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;padding:0 3px;line-height:1;}
+.del-btn:hover{color:var(--terra);}
+.inc-tot{background:var(--card2);display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-weight:600;font-size:13px;border-top:1px solid var(--border);}
+.add-inc{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--teal);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 14px;cursor:pointer;width:100%;text-align:left;border-top:1px solid var(--border);}
+.add-inc:hover{background:var(--card2);}
+.balance-display{background:var(--navy);border-radius:14px;padding:16px 20px;color:var(--ink);border-left:3px solid var(--teal);}
+.balance-display .bl{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.balance-display .bv{font-size:28px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-1px;}
+.balance-display .bs{font-size:11px;color:var(--muted2);margin-top:4px;}
+/* Modals */
+.modal-bg{position:fixed;inset:0;background:rgba(5,10,12,.8);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border-radius:16px;padding:24px;width:400px;max-width:90vw;border:1px solid var(--border2);}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:4px;color:var(--ink);}
+.modal .sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.mfield{margin-bottom:14px;}
+.mfield label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;}
+.mfield input{width:100%;border:1.5px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
+.mfield input:focus{border-color:var(--teal);}
+.macts{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+.mbtn{padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;}
+.mbtn-p{background:var(--teal);color:white;}
+.mbtn-p:hover{background:var(--teal-light);}
+.mbtn-s{background:var(--card2);color:var(--muted);border:1px solid var(--border2);}
+.mbtn-d{background:var(--terra-pale);color:var(--terra);border:1px solid rgba(196,103,63,0.3);margin-left:auto;}
+.master-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
+.mi-name{flex:1;font-weight:500;font-size:13px;}
+.mi-due{font-size:12px;color:var(--muted);min-width:55px;}
+.mi-min{font-family:'DM Mono',monospace;font-size:12px;min-width:65px;text-align:right;}
+.add-bill-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border2);border-radius:10px;padding:9px 14px;width:100%;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;margin-top:6px;}
+.add-bill-btn:hover{border-color:var(--teal);color:var(--teal);}
+.rm-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:0 3px;}
+.rm-btn:hover{color:var(--terra);}
+.ann-grid{overflow-x:auto;}
+.ann-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ann-table th{padding:8px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);border-bottom:1px solid var(--border);white-space:nowrap;}
+.ann-table th:first-child{text-align:left;}
+.ann-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;text-align:right;color:var(--ink);}
+.ann-table td:first-child{font-family:'DM Sans',sans-serif;font-weight:500;text-align:left;color:var(--muted);}
+.ann-table tr.sec-hdr td{background:var(--card2);font-family:'DM Sans',sans-serif;font-weight:600;font-size:11px;text-transform:uppercase;color:var(--teal);padding:10px 12px;}
+.ann-table tr.tot-row td{font-weight:600;color:var(--teal);background:var(--teal-pale);}
+.ann-table .dim{color:var(--muted2);}
+.notif-strip{background:var(--warn-pale);border:1px solid rgba(212,144,10,0.3);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:var(--warn);}
+.notif-strip button{background:var(--warn);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.notif-strip.hidden{display:none;}
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(max-width:800px){
+  .summary-row{grid-template-columns:repeat(2,1fr);}
+  .cols{grid-template-columns:1fr;}
+  header{padding:0 12px;}
+  main{padding:12px 12px calc(var(--nav-h) + var(--safe-b) + 12px);}
+  nav button{font-size:11px;padding:5px 8px;}
+}
 
 </style>
 </head>
 <body>
-
 <div id="auth-overlay">
-  <h1>🦕 Bills Tracker</h1>
-  <p>Sign in with Google to sync your bills across all devices</p>
-  <button id="sign-in-btn">
-    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-    Sign in with Google
-  </button>
+  <div class="stego-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="44" height="30">
+  <polygon points="38,38 42,18 46,38" fill="#2d8a94"/>
+  <polygon points="46,36 52,14 57,36" fill="#2d8a94"/>
+  <polygon points="55,35 62,10 68,35" fill="#2d8a94"/>
+  <polygon points="64,36 70,16 75,36" fill="#2d8a94"/>
+  <polygon points="72,38 77,22 81,38" fill="#2d8a94" opacity="0.85"/>
+  <ellipse cx="60" cy="50" rx="32" ry="16" fill="#2d8a94"/>
+  <ellipse cx="24" cy="46" rx="12" ry="10" fill="#2d8a94"/>
+  <ellipse cx="13" cy="50" rx="7" ry="5" fill="#2d8a94"/>
+  <circle cx="20" cy="42" r="2.5" fill="#0a1416"/>
+  <circle cx="19" cy="41" r="1" fill="rgba(255,255,255,0.4)"/>
+  <rect x="35" y="62" width="8" height="14" rx="3" fill="#2d8a94"/>
+  <rect x="48" y="64" width="8" height="12" rx="3" fill="#2d8a94"/>
+  <rect x="64" y="64" width="8" height="12" rx="3" fill="#2d8a94"/>
+  <rect x="77" y="62" width="8" height="14" rx="3" fill="#2d8a94"/>
+  <path d="M92,50 Q105,45 112,52 Q105,55 92,54 Z" fill="#2d8a94"/>
+</svg></div>
+  <h1>Bills Tracker</h1>
+  <p>Sign in with Google to sync your bills across devices</p>
+  <button id="sign-in-btn"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google</button>
 </div>
-
 <div id="app">
   <header>
-    <div class="header-left">
+    <div style="display:flex;align-items:center;gap:20px;">
       <div class="logo">🏠 bills</div>
       <nav>
         <button class="active" onclick="setView('monthly')">Monthly</button>
@@ -194,22 +256,25 @@ body{background:var(--surface);color:var(--text);}
         <button onclick="setView('master')">Bill master</button>
       </nav>
     </div>
-    <div class="header-right">
-      <div class="month-nav" id="month-nav">
+    <div class="hright">
+      <div class="mnav" id="month-nav">
         <button onclick="changeMonth(-1)">&#8249;</button>
-        <span id="current-month-label">April 2026</span>
+        <span id="cml">April 2026</span>
         <button onclick="changeMonth(1)">&#8250;</button>
       </div>
-      <button class="reconcile-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
-      <button class="user-btn" onclick="signOut()">Sign out</button>
+      <button class="rec-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
+      <button class="ubtn" onclick="signOut('bt_token')">Sign out</button>
     </div>
   </header>
-
-  <main style="padding-bottom:80px;">
+  <main>
+    <div class="notif-strip hidden" id="notifStrip">
+      🔔 Enable bill due-date reminders so you never miss a payment!
+      <button onclick="requestBillNotifs()">Enable</button>
+    </div>
     <div id="view-monthly">
       <div style="display:flex;gap:6px;margin-bottom:16px">
-        <button class="btn btn-primary" id="tab-house" onclick="setAccount('house')" style="font-size:12px;padding:7px 16px">House account</button>
-        <button class="btn btn-secondary" id="tab-my" onclick="setAccount('my')" style="font-size:12px;padding:7px 16px">My bills</button>
+        <button class="mbtn mbtn-p" id="tab-house" onclick="setAccount('house')" style="font-size:12px;padding:7px 16px">House account</button>
+        <button class="mbtn mbtn-s" id="tab-my" onclick="setAccount('my')" style="font-size:12px;padding:7px 16px">My bills</button>
       </div>
       <div class="summary-row">
         <div class="stat-card"><div class="label">Min. due</div><div class="value" id="s-min-due">—</div></div>
@@ -223,79 +288,41 @@ body{background:var(--surface);color:var(--text);}
           <div class="panel-header">
             <h2 id="bills-panel-title">House bills</h2>
             <div style="display:flex;align-items:center;gap:10px">
-              <button onclick="openAddBillThisMonth()" style="background:none;border:1px solid var(--border-strong);border-radius:6px;padding:4px 10px;font-family:var(--sans);font-size:11px;color:var(--text-mid);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-mid)'">+ One-time bill</button>
-              <div class="progress-wrap">
-                <div class="progress-bar"><div class="progress-fill" id="bills-progress" style="width:0%"></div></div>
-                <span class="progress-label" id="bills-progress-label">0 / 0</span>
-              </div>
+              <button onclick="openAddBillThisMonth()" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;">+ One-time</button>
+              <div class="pw"><div class="pb"><div class="pf" id="bills-progress" style="width:0%"></div></div><span class="pl" id="bills-progress-label">0 / 0</span></div>
             </div>
           </div>
           <table class="bill-table">
-            <thead><tr>
-              <th>Bill</th>
-              <th class="right">Min due</th>
-              <th class="right">Date paid</th>
-              <th class="right">Amt paid</th>
-              <th class="right">Status</th>
-              <th></th>
-            </tr></thead>
-            <tbody id="bills-tbody">
-              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>
-            </tbody>
+            <thead><tr><th>Bill</th><th class="right">Min due</th><th class="right">Date paid</th><th class="right">Amt paid</th><th class="right">Status</th><th></th></tr></thead>
+            <tbody id="bills-tbody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
           </table>
         </div>
         <div class="right-col">
           <div class="balance-display">
-            <div class="bl" id="balance-account-label">House account</div>
+            <div class="bl" id="bal-acct-lbl">House account</div>
             <div class="bv" id="balance-value">$0.00</div>
             <div class="bs" id="balance-sub">Remaining after bills paid</div>
           </div>
           <div class="panel">
             <div class="panel-header"><h2 id="income-panel-title">Income</h2></div>
-            <table class="income-table">
-              <thead><tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th class="right">Expected</th>
-                <th class="right">Actual</th>
-                <th></th>
-              </tr></thead>
+            <table class="inc-table">
+              <thead><tr><th>Date</th><th>Description</th><th class="right">Expected</th><th class="right">Actual</th><th></th></tr></thead>
               <tbody id="income-tbody"></tbody>
             </table>
-            <button class="add-income-btn" onclick="openAddIncome()">+ Add income line</button>
-            <div class="income-total-row">
-              <span>Total income</span>
-              <span style="font-family:var(--mono);font-size:13px" id="income-total-actual">$0.00</span>
-            </div>
+            <button class="add-inc" onclick="openAddIncome()">+ Add income line</button>
+            <div class="inc-tot"><span>Total income</span><span style="font-family:'DM Mono',monospace;font-size:13px" id="income-total">$0.00</span></div>
           </div>
         </div>
       </div>
     </div>
-
     <div id="view-annual" style="display:none">
-      <div class="panel">
-        <div class="panel-header"><h2 id="annual-title">Annual overview — 2026</h2></div>
-        <div class="annual-grid">
-          <table class="annual-table">
-            <thead><tr id="annual-header-row"></tr></thead>
-            <tbody id="annual-tbody"></tbody>
-          </table>
-        </div>
-      </div>
+      <div class="panel"><div class="panel-header"><h2 id="annual-title">Annual overview — 2026</h2></div>
+      <div class="ann-grid"><table class="ann-table"><thead><tr id="ann-hdr"></tr></thead><tbody id="ann-body"></tbody></table></div></div>
     </div>
-
     <div id="view-master" style="display:none">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div>
-          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">House account bills</div>
-          <div id="master-house-list"></div>
-          <button class="add-bill-btn" onclick="openAddBill('house')">+ Add recurring bill</button>
-        </div>
-        <div>
-          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">My bills account</div>
-          <div id="master-my-list"></div>
-          <button class="add-bill-btn" onclick="openAddBill('my')">+ Add recurring bill</button>
-        </div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">House account</div><div id="master-house-list"></div><button class="add-bill-btn" onclick="openAddBill('house')">+ Add recurring bill</button></div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">My bills</div><div id="master-my-list"></div><button class="add-bill-btn" onclick="openAddBill('my')">+ Add recurring bill</button></div>
       </div>
     </div>
   </main>
@@ -304,14 +331,13 @@ body{background:var(--surface);color:var(--text);}
 <!-- Pay modal -->
 <div class="modal-bg" id="pay-modal">
   <div class="modal">
-    <h3 id="modal-bill-name">Mark as paid</h3>
-    <div class="sub" id="modal-bill-sub">Enter payment details</div>
-    <div class="field"><label>Date paid</label><input type="date" id="modal-date"/></div>
-    <div class="field"><label>Amount paid</label><input type="number" id="modal-amount" placeholder="0.00" step="0.01"/></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="savePay()">Save payment</button>
-      <button class="btn btn-secondary" onclick="closeModal('pay-modal')">Cancel</button>
-      <button class="btn btn-danger" onclick="clearPay()" style="margin-left:auto">Clear</button>
+    <h3 id="modal-bill-name">Mark as paid</h3><div class="sub" id="modal-bill-sub">Enter payment details</div>
+    <div class="mfield"><label>Date paid</label><input type="date" id="modal-date"/></div>
+    <div class="mfield"><label>Amount paid</label><input type="number" id="modal-amount" placeholder="0.00" step="0.01"/></div>
+    <div class="macts">
+      <button class="mbtn mbtn-p" onclick="savePay()">Save payment</button>
+      <button class="mbtn mbtn-s" onclick="closeModal('pay-modal')">Cancel</button>
+      <button class="mbtn mbtn-d" onclick="clearPay()">Clear</button>
     </div>
   </div>
 </div>
@@ -319,54 +345,102 @@ body{background:var(--surface);color:var(--text);}
 <!-- Income modal -->
 <div class="modal-bg" id="income-modal">
   <div class="modal">
-    <h3 id="income-modal-title">Add income line</h3>
-    <div class="sub">Fill in what you know — you can edit anything later by clicking it</div>
-    <div class="field"><label>Date</label><input type="date" id="inc-date"/></div>
-    <div class="field"><label>Description</label><input type="text" id="inc-desc" placeholder="e.g. My check, Ron's check"/></div>
-    <div class="field"><label>Expected amount</label><input type="number" id="inc-expected" placeholder="0.00" step="0.01"/></div>
-    <div class="field"><label>Actual amount (leave blank if not received yet)</label><input type="number" id="inc-actual" placeholder="0.00" step="0.01"/></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="saveIncomeLine()">Save</button>
-      <button class="btn btn-secondary" onclick="closeModal('income-modal')">Cancel</button>
-    </div>
+    <h3 id="income-modal-title">Add income line</h3><div class="sub">Click any value later to edit it inline</div>
+    <div class="mfield"><label>Date</label><input type="date" id="inc-date"/></div>
+    <div class="mfield"><label>Description</label><input type="text" id="inc-desc" placeholder="e.g. My check, Ron's check"/></div>
+    <div class="mfield"><label>Expected amount</label><input type="number" id="inc-expected" placeholder="0.00" step="0.01"/></div>
+    <div class="mfield"><label>Actual amount (leave blank if not received)</label><input type="number" id="inc-actual" placeholder="0.00" step="0.01"/></div>
+    <div class="macts"><button class="mbtn mbtn-p" onclick="saveIncomeLine()">Save</button><button class="mbtn mbtn-s" onclick="closeModal('income-modal')">Cancel</button></div>
   </div>
 </div>
 
 <!-- Add bill modal -->
 <div class="modal-bg" id="add-modal">
   <div class="modal">
-    <h3>Add recurring bill</h3>
-    <div class="sub">Adds to master list and pre-populates future months</div>
-    <div class="field"><label>Bill name / payee</label><input type="text" id="add-name" placeholder="e.g. Netflix"/></div>
-    <div class="field"><label>Due day of month</label><input type="number" id="add-due" placeholder="e.g. 15" min="1" max="31"/></div>
-    <div class="field"><label>Min. payment</label><input type="number" id="add-min" placeholder="0.00" step="0.01"/></div>
-    <div class="field"><label>Notes (e.g. auto)</label><input type="text" id="add-notes" placeholder="optional"/></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="saveNewBill()">Add bill</button>
-      <button class="btn btn-secondary" onclick="closeModal('add-modal')">Cancel</button>
-    </div>
+    <h3>Add recurring bill</h3><div class="sub">Adds to master list and pre-populates future months</div>
+    <div class="mfield"><label>Bill name / payee</label><input type="text" id="add-name" placeholder="e.g. Netflix"/></div>
+    <div class="mfield"><label>Due day of month</label><input type="number" id="add-due" placeholder="e.g. 15" min="1" max="31"/></div>
+    <div class="mfield"><label>Min. payment</label><input type="number" id="add-min" placeholder="0.00" step="0.01"/></div>
+    <div class="mfield"><label>Notes (e.g. auto)</label><input type="text" id="add-notes" placeholder="optional"/></div>
+    <div class="macts"><button class="mbtn mbtn-p" onclick="saveNewBill()">Add bill</button><button class="mbtn mbtn-s" onclick="closeModal('add-modal')">Cancel</button></div>
   </div>
 </div>
 
 <!-- One-time bill modal -->
 <div class="modal-bg" id="onetime-modal">
   <div class="modal">
-    <h3>Add one-time bill</h3>
-    <div class="sub" id="onetime-modal-sub">Adds to this month only — not the master list</div>
-    <div class="field"><label>Bill name / payee</label><input type="text" id="ot-name" placeholder="e.g. Car repair"/></div>
-    <div class="field"><label>Due day (optional)</label><input type="number" id="ot-due" placeholder="e.g. 15" min="1" max="31"/></div>
-    <div class="field"><label>Amount due</label><input type="number" id="ot-min" placeholder="0.00" step="0.01"/></div>
-    <div class="field"><label>Notes (optional)</label><input type="text" id="ot-notes" placeholder="optional"/></div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="saveOnetimeBill()">Add to this month</button>
-      <button class="btn btn-secondary" onclick="closeModal('onetime-modal')">Cancel</button>
-    </div>
+    <h3>Add one-time bill</h3><div class="sub" id="onetime-sub">Adds to this month only</div>
+    <div class="mfield"><label>Bill name / payee</label><input type="text" id="ot-name" placeholder="e.g. Car repair"/></div>
+    <div class="mfield"><label>Due day (optional)</label><input type="number" id="ot-due" placeholder="e.g. 15" min="1" max="31"/></div>
+    <div class="mfield"><label>Amount due</label><input type="number" id="ot-min" placeholder="0.00" step="0.01"/></div>
+    <div class="mfield"><label>Notes (optional)</label><input type="text" id="ot-notes" placeholder="optional"/></div>
+    <div class="macts"><button class="mbtn mbtn-p" onclick="saveOnetimeBill()">Add to this month</button><button class="mbtn mbtn-s" onclick="closeModal('onetime-modal')">Cancel</button></div>
   </div>
 </div>
 
+<nav class="bnav"><a href="index.html" class=""><span class="ni">🏡</span><span class="nl">Home</span></a><a href="bills.html" class="active"><span class="ni">💰</span><span class="nl">Bills</span></a><a href="cxc.html" class=""><span class="ni">🦕</span><span class="nl">CXC</span></a><a href="books.html" class=""><span class="ni">🎧</span><span class="nl">Books</span></a><a href="plants.html" class=""><span class="ni">🌱</span><span class="nl">Plants</span></a></nav>
 <div id="toast"></div>
-
 <script>
+
+const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+let accessToken = null;
+
+async function initAuth(tokenKey) {
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  document.head.appendChild(s);
+  await new Promise(r => s.onload = r);
+  const stored = localStorage.getItem(tokenKey);
+  if (stored) { accessToken = stored; showApp(); return; }
+  document.getElementById('sign-in-btn').onclick = () => {
+    google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: r => {
+        if (r.access_token) {
+          accessToken = r.access_token;
+          localStorage.setItem(tokenKey, r.access_token);
+          showApp();
+        }
+      }
+    }).requestAccessToken({prompt:''});
+  };
+}
+
+function signOut(tokenKey) {
+  accessToken = null;
+  localStorage.removeItem(tokenKey);
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-overlay').style.display='flex';
+}
+
+async function sheetsGet(range, sid) {
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(range)}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+  if(!r.ok) throw new Error(r.status);
+  return (await r.json()).values || [];
+}
+async function sheetsPut(range, values, sid) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
+}
+async function sheetsAppend(range, values, sid) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
+}
+async function sheetsClear(range, sid) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(range)}:clear`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`}});
+}
+async function getSheetTitles(sid) {
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+  return (await r.json()).sheets.map(s=>s.properties.title);
+}
+async function addSheetTab(title, sid) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}:batchUpdate`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({requests:[{addSheet:{properties:{title}}}]})});
+}
+
+let _tt;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500);}
+
+
 const CLIENT_ID   = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
 const SHEET_ID    = '1sDhXuYD9udlmzXi4UzGfqJ2QDFihCcJMRXBne2bFZpI';
 const SCOPES      = 'https://www.googleapis.com/auth/spreadsheets';
@@ -816,14 +890,60 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 
 loadSavedMonth();
 initAuth();
-</script>
 
-<nav class="bottom-nav">
-  <a class="nav-item" href="index.html"><span class="nav-icon">🏡</span><span class="nav-label">Home</span></a>
-  <a class="nav-item active" href="bills.html"><span class="nav-icon">💰</span><span class="nav-label">Bills</span></a>
-  <a class="nav-item" href="cxc.html"><span class="nav-icon">🦕</span><span class="nav-label">CXC</span></a>
-  <a class="nav-item" href="books.html"><span class="nav-icon">🎧</span><span class="nav-label">Books</span></a>
-  <a class="nav-item" href="plants.html"><span class="nav-icon">🌱</span><span class="nav-label">Plants</span></a>
-</nav>
-</body>
-</html>
+
+// ── Bill due-date notifications ───────────────────────────────────────────────
+async function requestBillNotifs() {
+  if(!('Notification'in window)){toast('Notifications not supported');return;}
+  const p = await Notification.requestPermission();
+  if(p==='granted'){
+    localStorage.setItem('bill_notif','1');
+    document.getElementById('notifStrip').classList.add('hidden');
+    toast('🔔 Bill reminders enabled!');
+    scheduleBillCheck();
+  } else toast('Notifications blocked — check browser settings');
+}
+
+function scheduleBillCheck() {
+  checkBillsAndNotify();
+  const now=new Date(), t=new Date(now);
+  t.setHours(9,0,0,0); if(t<=now) t.setDate(t.getDate()+1);
+  setTimeout(()=>{checkBillsAndNotify();setInterval(checkBillsAndNotify,864e5);}, t-now);
+}
+
+function checkBillsAndNotify() {
+  if(Notification.permission!=='granted')return;
+  const last=localStorage.getItem('bill_notif_date');
+  const tod=new Date().toISOString().split('T')[0];
+  if(last===tod)return;
+  const cm=currentMonth+1,cy=currentYear;
+  const key=`house-${cy}-${cm}`;
+  const data=monthData[key];
+  if(!data)return;
+  const today=new Date().getDate();
+  const dueSoon=data.bills.filter(b=>b.amtPaid==null&&b.dueDay&&Math.abs(b.dueDay-today)<=3);
+  if(!dueSoon.length)return;
+  localStorage.setItem('bill_notif_date',tod);
+  const names=dueSoon.map(b=>`${b.name} (due ${cm}/${b.dueDay})`).join(', ');
+  new Notification('💰 Bills due soon!',{body:names,icon:'/casgrahtools/icon.svg',tag:'bill-reminder',data:{url:'/casgrahtools/bills.html'}});
+}
+
+// Show notif strip if not enabled
+if(Notification.permission!=='granted'&&!localStorage.getItem('bill_notif_dismissed')){
+  document.getElementById('notifStrip').classList.remove('hidden');
+}
+if(Notification.permission==='granted')scheduleBillCheck();
+
+// Override showApp to init auth properly
+const _origShowApp = showApp;
+async function showApp() {
+  document.getElementById('auth-overlay').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  await ensureSheetsExist();
+  await loadMasterList();
+  renderMonthly();
+}
+
+loadSavedMonth();
+initAuth('bt_token');
+</script></body></html>

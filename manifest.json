@@ -6,8 +6,8 @@
   "scope": "/casgrahtools/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1e20",
-  "theme_color": "#2d6b73",
+  "background_color": "#0a1416",
+  "theme_color": "#2d8a94",
   "icons": [
     {
       "src": "icon.svg",
