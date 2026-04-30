@@ -864,8 +864,6 @@ let toastTimer;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 ['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal(id);}));
 
-
-
 // ── Bill due-date notifications ───────────────────────────────────────────────
 async function requestBillNotifs() {
   if(!('Notification'in window)){toast('Notifications not supported');return;}

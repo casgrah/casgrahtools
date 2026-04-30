@@ -747,9 +747,6 @@ function exportCSV(){
 let toastTimer;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 
-initAuth();
-
-
 function setSyncStatus(state, msg) {
   const d=document.getElementById('sdot'), t=document.getElementById('smsg');
   d.className='sdot '+state; t.textContent=msg;
