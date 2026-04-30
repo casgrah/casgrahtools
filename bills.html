@@ -7,15 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:#0f1e20;--blue:#2d6b73;--blue-light:#3d8a94;
-  --teal:#b85c38;--teal-light:#faf0eb;
-  --red:#b85c38;--red-light:#faf0eb;
-  --surface:#f5f0eb;--card:#FFFFFF;
-  --border:#d8cfc6;--border-strong:#c4b8ac;
-  --text:#1e2e30;--text-mid:#4A5568;--text-muted:#7a8a8c;
+  --navy:#0a1416;--blue:#2d8a94;--blue-light:#3da8b5;
+  --teal:#c4673f;--teal-light:#e07a4f;
+  --red:#c4673f;--red-light:rgba(196,103,63,0.13);
+  --surface:#0f1e20;--card:#152224;
+  --border:#1e3538;--border-strong:#254043;
+  --text:#ddeef0;--text-mid:#8ab0b5;--text-muted:#5a8a90;
   --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
   --radius:12px;--radius-sm:8px;
-  --shadow:0 2px 12px rgba(15,30,32,.08);
+  --shadow:0 2px 16px rgba(0,0,0,0.3);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--surface);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
@@ -140,6 +140,25 @@ main{flex:1;padding:20px 24px;max-width:1200px;margin:0 auto;width:100%}
   main{padding:12px}
   nav button{font-size:11px;padding:5px 10px}
 }
+
+/* Dark mode overrides */
+body{background:var(--surface);color:var(--text);}
+.bill-table tbody tr:hover{background:rgba(45,138,148,0.08);}
+.income-table tr:hover{background:rgba(45,138,148,0.08);}
+.add-income-btn:hover{background:rgba(45,138,148,0.08);}
+.annual-table tr.total-row td{background:rgba(45,138,148,0.1);color:var(--blue);}
+.annual-table tr.section-header td{background:rgba(45,138,148,0.06);color:var(--text);}
+.master-bill-item{background:var(--card);border-color:var(--border);}
+.add-bill-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(45,138,148,0.08);}
+.modal{background:var(--card);}
+.field input{background:var(--surface);color:var(--text);border-color:var(--border-strong);}
+.btn-secondary{background:var(--surface);color:var(--text-mid);border-color:var(--border-strong);}
+.btn-secondary:hover{background:var(--border);}
+.bill-table thead tr{background:var(--surface);}
+.income-table th{background:var(--surface);}
+.stat-card{background:var(--card);border-color:var(--border);}
+#toast{background:var(--card);color:var(--text);border:1px solid var(--border-strong);}
+
 </style>
 </head>
 <body>
@@ -170,12 +189,11 @@ main{flex:1;padding:20px 24px;max-width:1200px;margin:0 auto;width:100%}
         <button onclick="changeMonth(1)">&#8250;</button>
       </div>
       <button class="reconcile-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
-      <a class="hub-btn" href="index.html">← Hub</a>
       <button class="user-btn" onclick="signOut()">Sign out</button>
     </div>
   </header>
 
-  <main>
+  <main style="padding-bottom:80px;">
     <div id="view-monthly">
       <div style="display:flex;gap:6px;margin-bottom:16px">
         <button class="btn btn-primary" id="tab-house" onclick="setAccount('house')" style="font-size:12px;padding:7px 16px">House account</button>
@@ -820,5 +838,13 @@ maybeRefreshToken();
 loadSavedMonth();
 initAuth();
 </script>
+
+<nav class="bottom-nav">
+  <a class="nav-item" href="index.html"><span class="nav-icon">🏡</span><span class="nav-label">Home</span></a>
+  <a class="nav-item active" href="bills.html"><span class="nav-icon">💰</span><span class="nav-label">Bills</span></a>
+  <a class="nav-item" href="cxc.html"><span class="nav-icon">🦕</span><span class="nav-label">CXC</span></a>
+  <a class="nav-item" href="books.html"><span class="nav-icon">🎧</span><span class="nav-label">Books</span></a>
+  <a class="nav-item" href="plants.html"><span class="nav-icon">🌱</span><span class="nav-label">Plants</span></a>
+</nav>
 </body>
 </html>
