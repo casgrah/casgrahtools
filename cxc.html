@@ -281,40 +281,18 @@ a{color:inherit;text-decoration:none;}
 const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 let accessToken = null;
-let tokenClient = null;
-let googleIdentityPromise = null;
-
-function loadGoogleIdentity() {
-  if (window.google?.accounts?.oauth2) return Promise.resolve();
-  if (googleIdentityPromise) return googleIdentityPromise;
-  googleIdentityPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-    if (existing) {
-      existing.addEventListener('load', resolve, {once:true});
-      existing.addEventListener('error', reject, {once:true});
-      return;
-    }
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.async = true;
-    s.defer = true;
-    s.onload = resolve;
-    s.onerror = () => reject(new Error('Google sign-in script failed to load'));
-    document.head.appendChild(s);
-  });
-  return googleIdentityPromise;
-}
 
 async function initAuth(tokenKey) {
-  const btn = document.getElementById('sign-in-btn');
-  const initTokenClient = () => {
-    tokenClient = google.accounts.oauth2.initTokenClient({
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  document.head.appendChild(s);
+  await new Promise(r => s.onload = r);
+  const stored = localStorage.getItem(tokenKey);
+  if (stored) { accessToken = stored; showApp(); return; }
+  document.getElementById('sign-in-btn').onclick = () => {
+    google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
-      error_callback: e => {
-        toast('Google sign-in was blocked. Allow pop-ups for this page, then try again.');
-        console.error(e);
-      },
       callback: r => {
         if (r.access_token) {
           accessToken = r.access_token;
@@ -322,27 +300,8 @@ async function initAuth(tokenKey) {
           showApp();
         }
       }
-    });
-    btn.disabled = false;
-    btn.style.opacity = '1';
+    }).requestAccessToken({prompt:''});
   };
-  btn.disabled = true;
-  btn.style.opacity = '.7';
-  btn.onclick = () => {
-    if (tokenClient) {
-      tokenClient.requestAccessToken({prompt:'consent'});
-    } else {
-      toast('Google sign-in is still loading. Try again in a moment.');
-    }
-  };
-  loadGoogleIdentity().then(initTokenClient).catch(e => {
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    toast('Google sign-in could not load. Check your connection and try again.');
-    console.error(e);
-  });
-  const stored = localStorage.getItem(tokenKey);
-  if (stored) { accessToken = stored; showApp(); }
 }
 
 function signOut(tokenKey) {
