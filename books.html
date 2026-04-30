@@ -398,14 +398,17 @@ function render(){
   }
 }
 
+let searchAbort=null;
 async function searchBooks(){
   const q=document.getElementById('searchInput').value.trim();
   const results=document.getElementById('searchResults');
   if(q.length<3){results.style.display='none';return;}
   clearTimeout(searchTimer);
+  if(searchAbort){searchAbort.abort();}
   searchTimer=setTimeout(async()=>{
+    searchAbort=new AbortController();
     try{
-      const res=await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&fields=title,author_name,cover_i&limit=5`);
+      const res=await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&fields=title,author_name,cover_i&limit=5`,{signal:searchAbort.signal});
       const data=await res.json();
       if(!data.docs?.length){results.style.display='none';return;}
       results.style.display='block';
@@ -417,8 +420,8 @@ async function searchBooks(){
           <div><div class="src-title">${d.title}</div><div class="src-author">${author}</div></div>
         </div>`;
       }).join('');
-    }catch(e){results.style.display='none';}
-  },400);
+    }catch(e){if(e.name!=='AbortError')results.style.display='none';}
+  },500);
 }
 
 function selectBook(title,author,cover){

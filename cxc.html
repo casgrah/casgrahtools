@@ -184,6 +184,7 @@ a{color:inherit;text-decoration:none;}
 .main-layout{padding:16px 20px calc(var(--nav-h) + var(--safe-b) + 16px);display:grid;grid-template-columns:1fr 340px;gap:16px;}
 @media(max-width:900px){.main-layout{grid-template-columns:1fr;}.olist{max-height:400px;}}
 
+
 </style>
 </head>
 <body>
@@ -623,7 +624,7 @@ function render() {
         <span class="dbadge ${DC[dm]}">${DL[dm]}</span>
         <span class="odate">${order.date}</span>
         <span class="ostatus ${fc}">${ft}</span>
-        <span class="chevron open" id="chev-${ri}">▾</span>
+        <span class="chev open" id="chev-${ri}">▾</span>
       </div>
       <div id="group-body-${ri}">
         ${itemRows}${shipRow}
