@@ -592,10 +592,10 @@ async function loadMonthData(acct,y,m){
 // ── Render ────────────────────────────────────────────────────────────────────
 async function renderMonthly(){
   const m=currentMonth+1,y=currentYear;
-  document.getElementById('current-month-label').textContent=`${MONTHS[currentMonth]} ${y}`;
+  document.getElementById('cml').textContent=`${MONTHS[currentMonth]} ${y}`;
   document.getElementById('bills-panel-title').textContent=currentAcct==='house'?'House bills':'My bills';
   document.getElementById('income-panel-title').textContent=`Income — ${MONTHS[currentMonth]}`;
-  document.getElementById('balance-account-label').textContent=currentAcct==='house'?'House account':'My bills account';
+  document.getElementById('bal-acct-lbl').textContent=currentAcct==='house'?'House account':'My bills account';
   document.getElementById('bills-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
   try{const data=await loadMonthData(currentAcct,y,m);renderBills(data.bills);renderIncome(data.income);renderStats(data.bills,data.income);}
   catch(e){console.error(e);toast('Error loading data');}
@@ -629,7 +629,7 @@ function renderIncome(income){
     <td class="right">${r.actual!=null?`<span class="editable" onclick="editInc(${i},'actual')">${fmt(r.actual)}</span>`:`<span class="empty-val" onclick="editInc(${i},'actual')">tap to enter</span>`}</td>
     <td><button class="del-btn" onclick="removeIncome(${i})" title="Remove line">&#215;</button></td>
   </tr>`).join('');
-  document.getElementById('income-total-actual').textContent=fmt(income.reduce((s,r)=>s+(r.actual||0),0));
+  document.getElementById('income-total').textContent=fmt(income.reduce((s,r)=>s+(r.actual||0),0));
 }
 function renderStats(bills,income){
   const minDue=bills.reduce((s,b)=>s+(b.minPay||0),0);
@@ -728,8 +728,8 @@ function reconcileMonth(){
 async function renderAnnual(){
   document.getElementById('view-monthly').style.display='none';document.getElementById('view-master').style.display='none';document.getElementById('view-annual').style.display='block';document.getElementById('month-nav').style.visibility='hidden';
   document.getElementById('annual-title').textContent=`Annual overview — ${currentYear}`;
-  document.getElementById('annual-header-row').innerHTML='<th>Category</th>'+MONTH_SHORT.map(m=>`<th>${m}</th>`).join('')+'<th>YTD</th>';
-  const tbody=document.getElementById('annual-tbody');
+  document.getElementById('ann-hdr').innerHTML='<th>Category</th>'+MONTH_SHORT.map(m=>`<th>${m}</th>`).join('')+'<th>YTD</th>';
+  const tbody=document.getElementById('ann-body');
   tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
   const allData={};
   for(let m=1;m<=12;m++){try{allData[m]={house:await loadMonthData('house',currentYear,m),my:await loadMonthData('my',currentYear,m)};}catch(e){allData[m]=null;}}
@@ -799,8 +799,8 @@ function setView(v){
 }
 function setAccount(a){
   currentAcct=a;
-  document.getElementById('tab-house').className='btn '+(a==='house'?'btn-primary':'btn-secondary');
-  document.getElementById('tab-my').className='btn '+(a==='my'?'btn-primary':'btn-secondary');
+  document.getElementById('tab-house').className='mbtn '+(a==='house'?'mbtn-p':'mbtn-s');
+  document.getElementById('tab-my').className='mbtn '+(a==='my'?'mbtn-p':'mbtn-s');
   renderMonthly();
 }
 function changeMonth(d){
@@ -814,7 +814,7 @@ function changeMonth(d){
 // ── One-time bill ─────────────────────────────────────────────────────────────
 function openAddBillThisMonth(){
   ['ot-name','ot-due','ot-min','ot-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('onetime-modal-sub').textContent=`Adds to ${MONTHS[currentMonth]} ${currentYear} only — not the master list`;
+  document.getElementById('onetime-sub').textContent=`Adds to ${MONTHS[currentMonth]} ${currentYear} only — not the master list`;
   document.getElementById('onetime-modal').classList.add('open');
 }
 async function saveOnetimeBill(){
