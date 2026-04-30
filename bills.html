@@ -864,8 +864,6 @@ let toastTimer;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 ['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal(id);}));
 
-loadSavedMonth();
-initAuth();
 
 
 // ── Bill due-date notifications ───────────────────────────────────────────────
@@ -909,9 +907,6 @@ if(Notification.permission!=='granted'&&!localStorage.getItem('bill_notif_dismis
   document.getElementById('notifStrip').classList.remove('hidden');
 }
 if(Notification.permission==='granted')scheduleBillCheck();
-
-// Override showApp to init auth properly
-const _origShowApp = showApp;
 
 loadSavedMonth();
 initAuth('cgt_token');
