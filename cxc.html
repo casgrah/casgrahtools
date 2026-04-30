@@ -281,27 +281,57 @@ a{color:inherit;text-decoration:none;}
 const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 let accessToken = null;
+let tokenClient = null;
+let googleIdentityPromise = null;
+
+function loadGoogleIdentity() {
+  if (window.google?.accounts?.oauth2) return Promise.resolve();
+  if (googleIdentityPromise) return googleIdentityPromise;
+  googleIdentityPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existing) {
+      existing.addEventListener('load', resolve, {once:true});
+      existing.addEventListener('error', reject, {once:true});
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.defer = true;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Google sign-in script failed to load'));
+    document.head.appendChild(s);
+  });
+  return googleIdentityPromise;
+}
 
 async function initAuth(tokenKey) {
-  const s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client';
-  document.head.appendChild(s);
-  await new Promise(r => s.onload = r);
-  const stored = localStorage.getItem(tokenKey);
-  if (stored) { accessToken = stored; showApp(); return; }
-  document.getElementById('sign-in-btn').onclick = () => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: r => {
-        if (r.access_token) {
-          accessToken = r.access_token;
-          localStorage.setItem(tokenKey, r.access_token);
-          showApp();
-        }
+  const btn = document.getElementById('sign-in-btn');
+  btn.onclick = async () => {
+    try {
+      await loadGoogleIdentity();
+      if (!tokenClient) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: r => {
+            if (r.access_token) {
+              accessToken = r.access_token;
+              localStorage.setItem(tokenKey, r.access_token);
+              showApp();
+            }
+          }
+        });
       }
-    }).requestAccessToken({prompt:''});
+      tokenClient.requestAccessToken({prompt:'consent'});
+    } catch (e) {
+      toast('Google sign-in could not load. Check your connection and try again.');
+      console.error(e);
+    }
   };
+  loadGoogleIdentity().catch(e => console.error(e));
+  const stored = localStorage.getItem(tokenKey);
+  if (stored) { accessToken = stored; showApp(); }
 }
 
 function signOut(tokenKey) {
@@ -338,7 +368,7 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 
 
 const CXC_SID = '11DuEx40pI_qXn9638AsAZTCb4CiISSnS1s1h4FXA8XQ';
-const SHEET_NAME = 'Orders';
+let SHEET_NAME = 'Orders';
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 // Wrap sheet calls for CXC
@@ -355,6 +385,7 @@ let orders = [];
 let statusFilter = 'all';
 let editingIdx = null;
 let lineCount = 0;
+const ORDER_HEADERS = ['Order ID','Customer','Date','Delivery Method','Ship Charged','Ship Cost','Notes','Payment Status','Fulfillment Status','Item','Qty','Unit Price','Expense'];
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -367,10 +398,16 @@ async function showApp() {
   document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   setSyncStatus('syncing', 'Loading orders...');
-  await ensureSheet();
-  await loadOrders();
-  resetForm();
-  render();
+  try {
+    await ensureSheet();
+    await loadOrders();
+    resetForm();
+    render();
+  } catch (e) {
+    setSyncStatus('error', 'Sync error - check the sheet connection');
+    toast('Could not load the Google Sheet.');
+    console.error(e);
+  }
 }
 
 // ── Sheets API ────────────────────────────────────────────────────────────────
@@ -408,6 +445,23 @@ function ordersToRows(ords) {
     }
   }
   return rows;
+}
+
+async function ensureSheet() {
+  const sheets = await cxcSheets();
+  if (!sheets.includes(SHEET_NAME)) {
+    if (sheets.length) {
+      SHEET_NAME = sheets[0];
+    } else {
+      await cxcAddSheet(SHEET_NAME);
+      await cxcPut(`${SHEET_NAME}!A1:M1`, [ORDER_HEADERS]);
+      return;
+    }
+  }
+  const header = await cxcGet(`${SHEET_NAME}!A1:M1`);
+  if (!header.length || !header[0].length) {
+    await cxcPut(`${SHEET_NAME}!A1:M1`, [ORDER_HEADERS]);
+  }
 }
 
 function rowsToOrders(rows) {
@@ -518,13 +572,6 @@ const defaultOrders = [
 ];
 
 // ── Sync status ───────────────────────────────────────────────────────────────
-function setSyncStatus(state, msg) {
-  const dot = document.getElementById('syncDot');
-  const txt = document.getElementById('syncMsg');
-  dot.className = 'sync-dot ' + state;
-  txt.textContent = msg;
-}
-
 // ── Calculations ──────────────────────────────────────────────────────────────
 function calcOrder(o) {
   let itemSale=0, itemExp=0;
@@ -750,7 +797,8 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 
 function setSyncStatus(state, msg) {
   const d=document.getElementById('sdot'), t=document.getElementById('smsg');
-  d.className='sdot '+state; t.textContent=msg;
+  const cls = state === 'synced' ? 'ok' : state === 'syncing' ? 'busy' : state === 'error' ? 'err' : state;
+  d.className='sdot '+cls; t.textContent=msg;
 }
 
 
