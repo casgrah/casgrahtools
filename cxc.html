@@ -24,6 +24,7 @@
   --nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{overflow-x:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
 a{color:inherit;text-decoration:none;}
 /* Bottom nav */
@@ -184,7 +185,6 @@ a{color:inherit;text-decoration:none;}
 .main-layout{padding:16px 20px calc(var(--nav-h) + var(--safe-b) + 16px);display:grid;grid-template-columns:1fr 340px;gap:16px;}
 @media(max-width:900px){.main-layout{grid-template-columns:1fr;}.olist{max-height:400px;}}
 
-
 </style>
 </head>
 <body>
@@ -289,20 +289,27 @@ async function initAuth(tokenKey) {
   document.head.appendChild(s);
   await new Promise(r => s.onload = r);
   const stored = localStorage.getItem(tokenKey);
-  if (stored) { accessToken = stored; showApp(); return; }
-  document.getElementById('sign-in-btn').onclick = () => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: r => {
-        if (r.access_token) {
-          accessToken = r.access_token;
-          localStorage.setItem(tokenKey, r.access_token);
-          showApp();
-        }
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: r => {
+      if (r.access_token) {
+        accessToken = r.access_token;
+        localStorage.setItem(tokenKey, r.access_token);
+        showApp();
       }
-    }).requestAccessToken({prompt:''});
-  };
+    }
+  });
+  if (stored) {
+    try {
+      const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
+      const info = await test.json();
+      if (info.expires_in && info.expires_in > 60) { accessToken = stored; showApp(); return; }
+    } catch(e) {}
+    client.requestAccessToken({prompt:''});
+    return;
+  }
+  document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({prompt:''});
 }
 
 function signOut(tokenKey) {
@@ -314,6 +321,7 @@ function signOut(tokenKey) {
 
 async function sheetsGet(range, sid) {
   const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/${encodeURIComponent(range)}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+  if(r.status===401){accessToken=null;localStorage.removeItem('cgt_token');document.getElementById('app').classList.remove('visible');document.getElementById('auth-overlay').style.display='flex';toast('Session expired — please sign in again');throw new Error('401');}
   if(!r.ok) throw new Error(r.status);
   return (await r.json()).values || [];
 }
@@ -328,6 +336,8 @@ async function sheetsClear(range, sid) {
 }
 async function getSheetTitles(sid) {
   const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+  if(r.status===401){accessToken=null;localStorage.removeItem('cgt_token');document.getElementById('app').classList.remove('visible');document.getElementById('auth-overlay').style.display='flex';toast('Session expired — please sign in again');throw new Error('401');}
+  if(!r.ok) throw new Error(r.status);
   return (await r.json()).sheets.map(s=>s.properties.title);
 }
 async function addSheetTab(title, sid) {

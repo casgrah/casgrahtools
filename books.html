@@ -292,6 +292,8 @@ const BOOKS_SID = '14di7s_sxnReXHHbeFy5w0Jow8aCigoNL-jcTgb0UTIo';
 let books = [];
 let currentTab = 'listening';
 let searchTimer = null;
+let searchAbort = null;
+let searchAbort = null;
 
 async function showApp() {
   document.getElementById('auth-overlay').style.display='none';
@@ -398,7 +400,6 @@ function render(){
   }
 }
 
-let searchAbort=null;
 async function searchBooks(){
   const q=document.getElementById('searchInput').value.trim();
   const results=document.getElementById('searchResults');
@@ -412,14 +413,19 @@ async function searchBooks(){
       const data=await res.json();
       if(!data.docs?.length){results.style.display='none';return;}
       results.style.display='block';
-      results.innerHTML=data.docs.map(d=>{
+      results.innerHTML='';
+      data.docs.forEach(d=>{
         const cover=d.cover_i?`https://covers.openlibrary.org/b/id/${d.cover_i}-S.jpg`:'';
         const author=d.author_name?.[0]||'';
-        return`<div class="src-result" onclick="selectBook(${JSON.stringify(d.title)},${JSON.stringify(author)},${JSON.stringify(cover)})">
-          ${cover?`<img class="src-cover" src="${cover}">`:('<div class="src-cover" style="display:flex;align-items:center;justify-content:center;font-size:18px;">📚</div>')}
-          <div><div class="src-title">${d.title}</div><div class="src-author">${author}</div></div>
-        </div>`;
-      }).join('');
+        const el=document.createElement('div');
+        el.className='src-result';
+        el.dataset.title=d.title;
+        el.dataset.author=author;
+        el.dataset.cover=cover;
+        el.innerHTML=`${cover?`<img class="src-cover" src="${cover}">`:('<div class="src-cover" style="display:flex;align-items:center;justify-content:center;font-size:18px;">📚</div>')}<div><div class="src-title">${d.title}</div><div class="src-author">${author}</div></div>`;
+        el.addEventListener('click',()=>selectBook(el.dataset.title,el.dataset.author,el.dataset.cover));
+        results.appendChild(el);
+      });
     }catch(e){if(e.name!=='AbortError')results.style.display='none';}
   },500);
 }

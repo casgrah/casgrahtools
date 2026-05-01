@@ -24,6 +24,7 @@
   --nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{overflow-x:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
 a{color:inherit;text-decoration:none;}
 /* Bottom nav */
@@ -403,16 +404,11 @@ async function initAuth(tokenKey) {
     }
   });
   if (stored) {
-    // Try using stored token; if expired, do silent refresh
-    accessToken = stored;
     try {
       const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
       const info = await test.json();
-      if (info.expires_in && info.expires_in > 60) {
-        showApp(); return;
-      }
+      if (info.expires_in && info.expires_in > 60) { accessToken = stored; showApp(); return; }
     } catch(e) {}
-    // Token expired or invalid - silent refresh (no popup)
     client.requestAccessToken({prompt:''});
     return;
   }
