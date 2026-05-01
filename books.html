@@ -239,20 +239,27 @@ async function initAuth(tokenKey) {
   document.head.appendChild(s);
   await new Promise(r => s.onload = r);
   const stored = localStorage.getItem(tokenKey);
-  if (stored) { accessToken = stored; showApp(); return; }
-  document.getElementById('sign-in-btn').onclick = () => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: r => {
-        if (r.access_token) {
-          accessToken = r.access_token;
-          localStorage.setItem(tokenKey, r.access_token);
-          showApp();
-        }
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: r => {
+      if (r.access_token) {
+        accessToken = r.access_token;
+        localStorage.setItem(tokenKey, r.access_token);
+        showApp();
       }
-    }).requestAccessToken({prompt:''});
-  };
+    }
+  });
+  if (stored) {
+    try {
+      const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
+      const info = await test.json();
+      if (info.expires_in && info.expires_in > 60) { accessToken = stored; showApp(); return; }
+    } catch(e) {}
+    client.requestAccessToken({prompt:''});
+    return;
+  }
+  document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({prompt:''});
 }
 
 function signOut(tokenKey) {
@@ -292,7 +299,6 @@ const BOOKS_SID = '14di7s_sxnReXHHbeFy5w0Jow8aCigoNL-jcTgb0UTIo';
 let books = [];
 let currentTab = 'listening';
 let searchTimer = null;
-let searchAbort = null;
 let searchAbort = null;
 
 async function showApp() {
