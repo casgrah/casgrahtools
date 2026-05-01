@@ -391,20 +391,32 @@ async function initAuth(tokenKey) {
   document.head.appendChild(s);
   await new Promise(r => s.onload = r);
   const stored = localStorage.getItem(tokenKey);
-  if (stored) { accessToken = stored; showApp(); return; }
-  document.getElementById('sign-in-btn').onclick = () => {
-    google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: r => {
-        if (r.access_token) {
-          accessToken = r.access_token;
-          localStorage.setItem(tokenKey, r.access_token);
-          showApp();
-        }
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: r => {
+      if (r.access_token) {
+        accessToken = r.access_token;
+        localStorage.setItem(tokenKey, r.access_token);
+        showApp();
       }
-    }).requestAccessToken({prompt:''});
-  };
+    }
+  });
+  if (stored) {
+    // Try using stored token; if expired, do silent refresh
+    accessToken = stored;
+    try {
+      const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
+      const info = await test.json();
+      if (info.expires_in && info.expires_in > 60) {
+        showApp(); return;
+      }
+    } catch(e) {}
+    // Token expired or invalid - silent refresh (no popup)
+    client.requestAccessToken({prompt:''});
+    return;
+  }
+  document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({prompt:''});
 }
 
 function signOut(tokenKey) {
@@ -512,11 +524,11 @@ async function api(path,method='GET',body=null){
   if(!r.ok)throw new Error(`${method} ${path}: ${r.status}`);
   return r.json();
 }
-async function sheetsGet(range){const d=await api(`/values/${encodeURIComponent(range)}`);return d.values||[];}
+async function sheetsGet(range){const d=await api(`/values/${encodeURIComponent(range)}`);if(!d)return[];return d.values||[];}
 async function sheetsUpdate(range,values){return api(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,'PUT',{range,majorDimension:'ROWS',values});}
 async function sheetsAppend(range,values){return api(`/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,'POST',{range,majorDimension:'ROWS',values});}
 async function sheetsClear(range){return api(`/values/${encodeURIComponent(range)}:clear`,'POST');}
-async function getSheetsList(){const d=await api('');return(d.sheets||[]).map(s=>s.properties.title);}
+async function getSheetsList(){const d=await api('');if(!d)return[];return(d.sheets||[]).map(s=>s.properties.title);}
 async function addSheet(title){return api(':batchUpdate','POST',{requests:[{addSheet:{properties:{title}}}]});}
 
 const sn  = (a,y,m) => `${a==='house'?'House':'MyBills'} ${y}-${String(m).padStart(2,'0')}`;
