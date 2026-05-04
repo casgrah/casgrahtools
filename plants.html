@@ -659,6 +659,7 @@ function plantCardHTML(p) {
       </div>
       <div class="pacts">
         ${logs.length > 0 ? `<button class="ibtn" onclick="toggleHistory('${p.id}')" title="History">📋</button>` : ''}
+        <button class="ibtn" onclick="openBury('${p.id}')" title="Send to graveyard">💀</button>
         <button class="ibtn" onclick="editPlant('${p.id}')">✏️</button>
         <button class="ibtn" onclick="deletePlant('${p.id}')">🗑️</button>
       </div>
