@@ -194,6 +194,31 @@ a{color:inherit;text-decoration:none;}
 /* Spinner */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Search & Sort */
+.search-bar{padding:10px 16px;background:var(--navy);border-bottom:1px solid var(--border);display:flex;gap:8px;}
+.search-input{flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
+.search-input:focus{border-color:var(--teal);}
+.search-input::placeholder{color:var(--muted2);}
+.sort-btn{padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;background:var(--card2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.sort-btn.active{border-color:var(--teal);color:var(--teal);background:var(--teal-pale);}
+.no-results{text-align:center;padding:32px 20px;color:var(--muted);font-size:13px;}
+
+
+/* Graveyard */
+.graveyard-toggle{width:100%;padding:12px 16px;background:none;border:1px solid var(--border);border-radius:12px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;margin-top:8px;}
+.graveyard-toggle:active{opacity:.8;}
+.graveyard-section{display:none;margin-top:8px;}
+.graveyard-section.open{display:block;}
+.gcard{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:14px;margin-bottom:10px;opacity:.7;display:flex;gap:12px;align-items:flex-start;}
+.gcard-info{flex:1;min-width:0;}
+.gcard-name{font-weight:700;font-size:14px;color:var(--muted);}
+.gcard-species{font-size:11px;color:var(--muted2);font-style:italic;margin-top:1px;}
+.gcard-meta{font-size:11px;color:var(--muted2);margin-top:4px;}
+.gcard-cause{font-size:11px;color:var(--terra);margin-top:2px;font-style:italic;}
+.gemoji{width:44px;height:44px;border-radius:10px;background:rgba(196,103,63,0.08);border:1px solid rgba(196,103,63,.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;filter:grayscale(0.5);}
+.restore-btn{background:none;border:1px solid var(--border2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.restore-btn:active{opacity:.8;}
 </style>
 </head>
 <body>
@@ -233,9 +258,15 @@ a{color:inherit;text-decoration:none;}
     <div class="scard"><div class="slabel">Watered 💧</div><div class="sval success" id="stWatered">0</div></div>
     <div class="scard"><div class="slabel">Avg Interval</div><div class="sval teal" id="stAvg">—</div></div>
   </div>
+  <div class="search-bar">
+    <input class="search-input" id="searchInput" placeholder="&#x1F50D; Search plants..." oninput="applyFilters()">
+    <button class="sort-btn" id="sortBtn" onclick="cycleSort()">A–Z</button>
+  </div>
   <div class="scroll">
     <div class="slbl">My Plants</div>
     <div id="plantList"></div>
+    <button class="graveyard-toggle" id="graveyardToggle" onclick="toggleGraveyard()" style="display:none">&#x26B0;&#xFE0F; Graveyard <span id="graveyardCount" style="margin-left:auto;font-size:11px;"></span></button>
+    <div class="graveyard-section" id="graveyardSection"><div class="slbl" style="margin-top:12px;">&#x1F480; RIP</div><div id="graveyardList"></div></div>
     <div class="empty hidden" id="emptyState">
       <div style="font-size:52px;margin-bottom:12px">🪴</div>
       <div>No plants yet — add your first one!</div>
@@ -387,6 +418,37 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+
+<!-- Bury Modal -->
+<div class="modal-bg" id="buryModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#x26B0;&#xFE0F; Lay to Rest</div>
+    <div class="msub" id="buryModalSub"></div>
+    <div class="field"><label>Date of Passing</label><input type="date" id="buryDate"></div>
+    <div class="field">
+      <label>Cause of Death (optional)</label>
+      <select id="buryCause">
+        <option value="">Unknown / Mysterious Circumstances</option>
+        <option value="Overwatered">Overwatered &#x1F4A7;</option>
+        <option value="Underwatered">Underwatered &#x1F3DC;&#xFE0F;</option>
+        <option value="Too much sun">Too much sun &#x2600;&#xFE0F;</option>
+        <option value="Not enough light">Not enough light &#x1F311;</option>
+        <option value="Root rot">Root rot &#x1FAB2;</option>
+        <option value="Pests">Pests &#x1F41B;</option>
+        <option value="Chomper">Chomper &#x1F436;</option>
+        <option value="Marmalade">Marmalade &#x1F431;</option>
+        <option value="Old age">Old age &#x1F44B;</option>
+        <option value="Already dead when I bought it">Already dead when I bought it &#x1F644;</option>
+      </select>
+    </div>
+    <div class="field"><label>Final Words (optional)</label><input type="text" id="buryNote" placeholder="e.g. She fought hard but the rot won"></div>
+    <input type="hidden" id="buryPlantId">
+    <button class="btn-full" style="background:var(--terra);" onclick="confirmBury()">&#x26B0;&#xFE0F; Bury</button>
+    <button class="btn-cancel" onclick="closeModal('buryModal')">Cancel</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -457,7 +519,8 @@ async function showApp() {
   document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   await ensureSheets();
-  await Promise.all([loadPlants(), loadWaterLogs()]);
+  await Promise.all([loadPlants(), loadWaterLogs(), loadGraveyard()]);
+  await ensureGraveyardSheet();
   render();
   syncPending(); // retry any plants that didn't sync last session
 }
@@ -615,9 +678,9 @@ function render() {
     list.innerHTML = '';
     document.getElementById('emptyState').classList.remove('hidden');
   } else {
-    document.getElementById('emptyState').classList.add('hidden');
-    list.innerHTML = plants.map(plantCardHTML).join('');
+    applyFilters();
   }
+  renderGraveyard();
 }
 
 function toggleHistory(pid) {
@@ -939,6 +1002,167 @@ async function deletePlant(id) {
   if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
 }
 
+
+// --- Graveyard ---------------------------------------------------------
+let graveyard = [];
+
+async function ensureGraveyardSheet() {
+  try {
+    const sheets = await getSheetTitles();
+    if (!sheets.includes('Graveyard')) {
+      await addSheetTab('Graveyard');
+      await sheetsPut('Graveyard!A1:G1', [['ID','Name','Emoji','Species','DiedOn','Cause','Note']]);
+    }
+  } catch(e) { console.warn('ensureGraveyardSheet:', e); }
+}
+
+async function loadGraveyard() {
+  try {
+    const rows = await sheetsGet('Graveyard!A2:G1000');
+    graveyard = rows.filter(r => r[0]).map(r => ({
+      id: r[0]||'', name: r[1]||'', emoji: r[2]||'&#x1F331;',
+      species: r[3]||'', diedOn: r[4]||'', cause: r[5]||'', note: r[6]||''
+    }));
+    localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+  } catch(e) {
+    graveyard = JSON.parse(localStorage.getItem('cgt_graveyard') || '[]');
+  }
+}
+
+function openBury(pid) {
+  const p = plants.find(x => x.id === pid); if (!p) return;
+  document.getElementById('buryPlantId').value = pid;
+  document.getElementById('buryModalSub').textContent = p.name + (p.species ? ' • ' + p.species : '');
+  document.getElementById('buryDate').value = today();
+  document.getElementById('buryCause').value = '';
+  document.getElementById('buryNote').value = '';
+  document.getElementById('buryModal').classList.add('open');
+}
+
+async function confirmBury() {
+  const pid = document.getElementById('buryPlantId').value;
+  const p = plants.find(x => x.id === pid); if (!p) return;
+  const diedOn = document.getElementById('buryDate').value;
+  const cause = document.getElementById('buryCause').value;
+  const note = document.getElementById('buryNote').value.trim();
+
+  const entry = { id: p.id, name: p.name, emoji: p.emoji, species: p.species, diedOn, cause, note };
+  graveyard.push(entry);
+  localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+
+  // Remove from living plants
+  if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
+  plants = plants.filter(x => x.id !== pid);
+  delete waterLogs[pid];
+  localStorage.setItem('cgt_plants', JSON.stringify(plants));
+  localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
+
+  closeModal('buryModal');
+  render();
+  toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
+
+  // Sync to sheet in background
+  try {
+    await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
+  } catch(e) { console.warn('Graveyard sync failed:', e); }
+}
+
+async function restorePlant(id) {
+  const g = graveyard.find(x => x.id === id); if (!g) return;
+  const restored = {
+    id: g.id, name: g.name, emoji: g.emoji, species: g.species,
+    location: '', containerType: '', potSize: '', sunlight: '', soilType: '',
+    toxicity: '', propagation: '', perenualId: '', notes: 'Restored from graveyard',
+    _row: null, _unsynced: true
+  };
+  plants.push(restored);
+  graveyard = graveyard.filter(x => x.id !== id);
+  localStorage.setItem('cgt_plants', JSON.stringify(plants));
+  localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+  render();
+  toast(g.emoji + ' ' + g.name + ' lives again! &#x1F331;');
+  syncPlantToSheet(restored, true);
+}
+
+function toggleGraveyard() {
+  document.getElementById('graveyardSection').classList.toggle('open');
+}
+
+function renderGraveyard() {
+  const btn = document.getElementById('graveyardToggle');
+  const list = document.getElementById('graveyardList');
+  const count = document.getElementById('graveyardCount');
+  if (graveyard.length === 0) { btn.style.display = 'none'; return; }
+  btn.style.display = 'flex';
+  count.textContent = graveyard.length + ' soul' + (graveyard.length !== 1 ? 's' : '');
+  list.innerHTML = graveyard.map(g => `
+    <div class="gcard">
+      <div class="gemoji">${g.emoji}</div>
+      <div class="gcard-info">
+        <div class="gcard-name">${g.name}</div>
+        ${g.species ? `<div class="gcard-species">${g.species}</div>` : ''}
+        ${g.diedOn ? `<div class="gcard-meta">Passed: ${g.diedOn}</div>` : ''}
+        ${g.cause ? `<div class="gcard-cause">${g.cause}</div>` : ''}
+        ${g.note ? `<div class="gcard-meta" style="font-style:italic;">"${g.note}"</div>` : ''}
+      </div>
+      <button class="restore-btn" onclick="restorePlant('${g.id}')">&#x1F331; Restore</button>
+    </div>`).join('');
+}
+
+
+// --- Search & Sort ----------------------------------------------------
+let currentSort = 'az'; // az | za | recent | oldest
+const sortCycles = ['az','za','recent','oldest'];
+const sortLabels = {'az':'A–Z','za':'Z–A','recent':'Recently Watered','oldest':'Least Watered'};
+
+function cycleSort() {
+  const idx = sortCycles.indexOf(currentSort);
+  currentSort = sortCycles[(idx + 1) % sortCycles.length];
+  document.getElementById('sortBtn').textContent = sortLabels[currentSort];
+  document.getElementById('sortBtn').classList.toggle('active', currentSort !== 'az');
+  applyFilters();
+}
+
+function getLastWateredDate(p) {
+  const logs = waterLogs[p.id] || [];
+  return logs.length ? logs[0].date : '0000-00-00';
+}
+
+function applyFilters() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  const list = document.getElementById('plantList');
+
+  let filtered = [...plants];
+
+  // Search filter
+  if (q) {
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.species.toLowerCase().includes(q) ||
+      p.location.toLowerCase().includes(q) ||
+      p.containerType.toLowerCase().includes(q)
+    );
+  }
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (currentSort === 'az') return a.name.localeCompare(b.name);
+    if (currentSort === 'za') return b.name.localeCompare(a.name);
+    if (currentSort === 'recent') return getLastWateredDate(b).localeCompare(getLastWateredDate(a));
+    if (currentSort === 'oldest') return getLastWateredDate(a).localeCompare(getLastWateredDate(b));
+    return 0;
+  });
+
+  if (!filtered.length && plants.length) {
+    list.innerHTML = '<div class="no-results">No plants match "' + q + '"</div>';
+  } else {
+    list.innerHTML = filtered.map(plantCardHTML).join('');
+  }
+
+  // Hide empty state if we have plants (even if filtered to zero)
+  document.getElementById('emptyState').classList.toggle('hidden', plants.length > 0);
+}
+
 // ─── Toast ────────────────────────────────────────────────────────────────────
 let _tt;
 function toast(msg) {
@@ -950,7 +1174,7 @@ function toast(msg) {
 }
 
 // ─── Close modals on backdrop click ──────────────────────────────────────────
-['addModal','waterModal'].forEach(id => {
+['addModal','waterModal','buryModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target === e.currentTarget) closeModal(id);
   });
