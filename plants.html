@@ -542,13 +542,18 @@ async function ensureSheets() {
 async function loadPlants() {
   try {
     const rows = await sheetsGet('Plants!A2:M1000');
-    plants = rows.filter(r=>r[0]).map((r,i)=>({
+    const fromSheet = rows.filter(r=>r[0]).map((r,i)=>({
       id:r[0]||'', name:r[1]||'', emoji:r[2]||'🌱',
       species:r[3]||'', location:r[4]||'', containerType:r[5]||'',
       potSize:r[6]||'', sunlight:r[7]||'', soilType:r[8]||'',
       toxicity:r[9]||'', propagation:r[10]||'', perenualId:r[11]||'',
       notes:r[12]||'', _row:i+2
     }));
+    // Merge: keep any locally-saved plants that didn't make it to the sheet yet
+    const local = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
+    const sheetIds = new Set(fromSheet.map(p => p.id));
+    const unsynced = local.filter(p => p._unsynced && !sheetIds.has(p.id));
+    plants = [...fromSheet, ...unsynced];
     localStorage.setItem('cgt_plants', JSON.stringify(plants));
   } catch(e) {
     plants = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
