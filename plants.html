@@ -195,6 +195,18 @@ a{color:inherit;text-decoration:none;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Sync indicator */
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;}
+.sync-status{display:flex;align-items:center;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;cursor:default;}
+.sync-status.synced{color:var(--success);background:var(--success-pale);}
+.sync-status.synced .sync-dot{background:var(--success);}
+.sync-status.pending{color:var(--warn);background:var(--warn-pale);}
+.sync-status.pending .sync-dot{background:var(--warn);animation:pulse 1s infinite;}
+.sync-status.error{color:var(--terra);background:var(--terra-pale);}
+.sync-status.error .sync-dot{background:var(--terra);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+
 /* Search & Sort */
 .search-bar{padding:10px 16px;background:var(--navy);border-bottom:1px solid var(--border);display:flex;gap:8px;}
 .search-input{flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
@@ -945,6 +957,7 @@ async function savePlant() {
   closeModal('addModal');
   render();
   toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
+  setSyncStatus('pending');
 
   // Sync to Sheets in background
   syncPlantToSheet(entry, idx < 0);
@@ -965,7 +978,8 @@ async function syncPlantToSheet(entry, isNew) {
       if (i >= 0) plants[i]._unsynced = false;
     }
     localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); }
+    setSyncStatus('synced');
+  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); setSyncStatus('error'); }
 }
 
 async function syncPending() {
@@ -991,9 +1005,10 @@ async function saveWaterLog() {
   const wt = waterTypeLabel(type);
   toast(wt.label + ' logged!');
 
+  setSyncStatus('pending');
   // Sync in background
-  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); }
-  catch(e) { console.warn('Water log sync failed:', e); }
+  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); setSyncStatus('synced'); }
+  catch(e) { console.warn('Water log sync failed:', e); setSyncStatus('error'); }
 }
 
 async function deletePlant(id) {
@@ -1067,10 +1082,12 @@ async function confirmBury() {
   render();
   toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
 
+  setSyncStatus('pending');
   // Sync to sheet in background
   try {
     await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
-  } catch(e) { console.warn('Graveyard sync failed:', e); }
+    setSyncStatus('synced');
+  } catch(e) { console.warn('Graveyard sync failed:', e); setSyncStatus('error'); }
 }
 
 async function restorePlant(id) {
@@ -1167,6 +1184,19 @@ function applyFilters() {
 
   // Hide empty state if we have plants (even if filtered to zero)
   document.getElementById('emptyState').classList.toggle('hidden', plants.length > 0);
+}
+
+
+// --- Sync Status -------------------------------------------------------
+function setSyncStatus(state) {
+  // state: 'synced' | 'pending' | 'error'
+  const el = document.getElementById('syncStatus');
+  const lbl = document.getElementById('syncLabel');
+  if (!el) return;
+  el.className = 'sync-status ' + state;
+  if (state === 'synced')  lbl.textContent = 'Synced';
+  if (state === 'pending') lbl.textContent = 'Saving...';
+  if (state === 'error')   lbl.textContent = 'Sync failed — data saved locally';
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
