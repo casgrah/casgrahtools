@@ -699,14 +699,12 @@ function updateShipFields(){
   const method=document.getElementById('deliveryMethod').value, fields=document.getElementById('shipFields');
   if(method==='hand')fields.innerHTML='<div class="ship-na">🤝 No shipping — hand delivered!</div>';
   else if(method==='tbd')fields.innerHTML='<div class="ship-na">⏳ Fill in shipping details later</div>';
-  else fields.innerHTML=`<div><label>Charged to customer ($)</label><input type="number" id="shipCharged" placeholder="e.g. 10.00" step="0.01" min="0"></div><div><label>Your actual cost ($)</label><input type="number" id="shipCost" placeholder="e.g. 4.80" step="0.01" min="0"></div>`;
-}
+else fields.innerHTML=`<div class="field"><label>Charged to customer ($)</label><input type="number" id="shipCharged" placeholder="e.g. 10.00" step="0.01" min="0"></div><div class="field"><label>Your actual cost ($)</label><input type="number" id="shipCost" placeholder="e.g. 4.80" step="0.01" min="0"></div>`;}
 function addLineItem(name='',qty='',price='',expense=''){
   lineCount++; const id=`li-${lineCount}`; const div=document.createElement('div');
   div.className='lif'; div.id=id;
   const first=document.getElementById('lineItemsContainer').children.length===0;
-  div.innerHTML=`<div>${first?'<label>Item</label>':''}<input type="text" placeholder="Item name" value="${name}" class="li-name"></div><div>${first?'<label>Qty</label>':''}<input type="number" placeholder="1" value="${qty}" min="1" class="li-qty" style="text-align:center"></div><div>${first?'<label>Price</label>':''}<input type="number" placeholder="0.00" value="${price}" step="0.01" min="0" class="li-price"></div><div>${first?'<label>Expense</label>':''}<input type="number" placeholder="0.00" value="${expense}" step="0.01" min="0" class="li-expense"></div>${lineCount>1?`<button class="rml" onclick="removeLine('${id}')">✕</button>`:'<span></span>'}`;
-  document.getElementById('lineItemsContainer').appendChild(div);
+div.innerHTML=`<div class="field">${first?'<label>Item</label>':''}<input type="text" placeholder="Item name" value="${name}" class="li-name"></div><div class="field">${first?'<label>Qty</label>':''}<input type="number" placeholder="1" value="${qty}" min="1" class="li-qty" style="text-align:center"></div><div class="field">${first?'<label>Price</label>':''}<input type="number" placeholder="0.00" value="${price}" step="0.01" min="0" class="li-price"></div><div class="field">${first?'<label>Expense</label>':''}<input type="number" placeholder="0.00" value="${expense}" step="0.01" min="0" class="li-expense"></div>${lineCount>1?`<button class="rml" onclick="removeLine('${id}')">✕</button>`:'<span></span>'}`;  document.getElementById('lineItemsContainer').appendChild(div);
 }
 function removeLine(id){const el=document.getElementById(id);if(el)el.remove();}
 function resetForm(){
