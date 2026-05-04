@@ -636,8 +636,83 @@ async function searchPerenual(q) {
 async function getPerenualDetail(id) {
   try {
     const r = await fetch(`https://perenual.com/api/species/details/${id}?key=${PERENUAL_KEY}`);
-    return await r.json();
+    if (!r.ok) return null;
+    const data = await r.json();
+    // Perenual returns an "Upgrade Plan" error object for locked species
+    if (data.error || (typeof data.message === 'string' && data.message.toLowerCase().includes('upgrade'))) return null;
+    return data;
   } catch(e) { return null; }
+}
+
+function applyListData(item) {
+  // Pull what we can directly from the search result item
+  let filled = [];
+
+  if (item.sunlight?.length) {
+    const s = item.sunlight[0].toLowerCase();
+    const sel = document.getElementById('sunlight');
+    if (s.includes('full sun')) sel.value = 'Full Sun';
+    else if (s.includes('part')) sel.value = 'Part Sun';
+    else if (s.includes('indirect')) sel.value = 'Indirect Light';
+    else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
+    if (sel.value) filled.push('sunlight');
+  }
+
+  if (item.watering) {
+    // watering field gives a general hint, map to soil loosely
+    const w = item.watering.toLowerCase();
+    const sel = document.getElementById('soilType');
+    if (!sel.value) {
+      if (w.includes('minimum') || w.includes('none')) sel.value = 'Sandy';
+      else if (w.includes('frequent') || w.includes('average')) sel.value = 'Well-draining';
+    }
+  }
+
+  if (item.cycle) {
+    // not directly mapped but useful for notes hint
+  }
+
+  return filled;
+}
+
+function applyDetailData(detail) {
+  let filled = [];
+
+  if (detail.sunlight?.length) {
+    const s = detail.sunlight[0].toLowerCase();
+    const sel = document.getElementById('sunlight');
+    if (s.includes('full sun')) sel.value = 'Full Sun';
+    else if (s.includes('part')) sel.value = 'Part Sun';
+    else if (s.includes('indirect')) sel.value = 'Indirect Light';
+    else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
+    if (sel.value) filled.push('sunlight');
+  }
+
+  if (detail.soil?.length) {
+    const s = detail.soil[0].toLowerCase();
+    const sel = document.getElementById('soilType');
+    if (s.includes('loam') || s.includes('rich')) sel.value = 'Moist';
+    else if (s.includes('sand')) sel.value = 'Sandy';
+    else if (s.includes('cactus') || s.includes('succulent')) sel.value = 'Cactus Mix';
+    else if (s.includes('peat')) sel.value = 'Peat-based';
+    else if (s.includes('well') || s.includes('drain')) sel.value = 'Well-draining';
+    else sel.value = 'Any';
+    if (sel.value) filled.push('soil');
+  }
+
+  if (detail.poisonous_to_pets !== undefined || detail.poisonous_to_humans !== undefined) {
+    if (detail.poisonous_to_pets) document.getElementById('toxicity').value = 'Toxic to pets';
+    else if (detail.poisonous_to_humans) document.getElementById('toxicity').value = 'Toxic to humans';
+    else if (detail.poisonous_to_pets === false) document.getElementById('toxicity').value = 'Safe for pets';
+    filled.push('toxicity');
+  }
+
+  if (detail.propagation?.length) {
+    document.getElementById('propagation').value = detail.propagation.join(', ');
+    filled.push('propagation');
+  }
+
+  return filled;
 }
 
 function onSpeciesInput(val) {
@@ -652,6 +727,9 @@ function onSpeciesInput(val) {
       results.innerHTML = '<div class="sres-loading">No results found</div>';
       return;
     }
+    // Store items on window so selectSpecies can access full item data
+    window._perenualItems = {};
+    items.forEach(i => window._perenualItems[i.id] = i);
     results.innerHTML = items.map(item => `
       <div class="sres-item" onclick="selectSpecies(${item.id}, '${(item.common_name||'').replace(/'/g,"\\'")}', '${(item.scientific_name?.[0]||'').replace(/'/g,"\\'")}')">
         <div class="sres-name">${item.common_name || 'Unknown'}</div>
@@ -665,53 +743,25 @@ async function selectSpecies(id, common, sci) {
   document.getElementById('perenualId').value = id;
   document.getElementById('speciesResults').classList.remove('open');
 
-  // fetch details
   const banner = document.getElementById('autofillBanner');
   banner.textContent = '⏳ Fetching care info...';
   banner.classList.add('show');
 
+  // Step 1: apply what we already have from the list result
+  const listItem = window._perenualItems?.[id];
+  const listFilled = listItem ? applyListData(listItem) : [];
+
+  // Step 2: try the detail endpoint for richer data (silently skip if locked)
   const detail = await getPerenualDetail(id);
-  if (!detail) { banner.textContent = '⚠️ Could not load details'; return; }
+  const detailFilled = detail ? applyDetailData(detail) : [];
 
-  // Sunlight
-  if (detail.sunlight?.length) {
-    const s = detail.sunlight[0].toLowerCase();
-    const sel = document.getElementById('sunlight');
-    if (s.includes('full sun')) sel.value = 'Full Sun';
-    else if (s.includes('part')) sel.value = 'Part Sun';
-    else if (s.includes('indirect')) sel.value = 'Indirect Light';
-    else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
+  const allFilled = [...new Set([...listFilled, ...detailFilled])];
+
+  if (allFilled.length > 0) {
+    banner.textContent = `✨ Auto-filled: ${allFilled.join(', ')} — fill in the rest manually!`;
+  } else {
+    banner.textContent = '🌿 Name matched! Care info not available — fill in manually.';
   }
-
-  // Soil
-  if (detail.soil?.length) {
-    const s = detail.soil[0].toLowerCase();
-    const sel = document.getElementById('soilType');
-    if (s.includes('loam') || s.includes('rich')) sel.value = 'Moist';
-    else if (s.includes('sand')) sel.value = 'Sandy';
-    else if (s.includes('cactus') || s.includes('succulent')) sel.value = 'Cactus Mix';
-    else if (s.includes('peat')) sel.value = 'Peat-based';
-    else if (s.includes('well') || s.includes('drain')) sel.value = 'Well-draining';
-    else sel.value = 'Any';
-  }
-
-  // Toxicity
-  const tox = [];
-  if (detail.poisonous_to_pets) tox.push('Toxic to pets');
-  if (detail.poisonous_to_humans) tox.push('Toxic to humans');
-  if (tox.length) {
-    const sel = document.getElementById('toxicity');
-    sel.value = tox[0];
-  } else if (detail.poisonous_to_pets === false) {
-    document.getElementById('toxicity').value = 'Safe for pets';
-  }
-
-  // Propagation
-  if (detail.propagation?.length) {
-    document.getElementById('propagation').value = detail.propagation.join(', ');
-  }
-
-  banner.textContent = '✨ Care info auto-filled from Perenual!';
 }
 
 // ─── Emoji picker ────────────────────────────────────────────────────────────
