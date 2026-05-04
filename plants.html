@@ -195,18 +195,6 @@ a{color:inherit;text-decoration:none;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Sync indicator */
-.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;}
-.sync-status{display:flex;align-items:center;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;cursor:default;}
-.sync-status.synced{color:var(--success);background:var(--success-pale);}
-.sync-status.synced .sync-dot{background:var(--success);}
-.sync-status.pending{color:var(--warn);background:var(--warn-pale);}
-.sync-status.pending .sync-dot{background:var(--warn);animation:pulse 1s infinite;}
-.sync-status.error{color:var(--terra);background:var(--terra-pale);}
-.sync-status.error .sync-dot{background:var(--terra);}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-
-
 /* Search & Sort */
 .search-bar{padding:10px 16px;background:var(--navy);border-bottom:1px solid var(--border);display:flex;gap:8px;}
 .search-input{flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
@@ -264,9 +252,6 @@ a{color:inherit;text-decoration:none;}
       <h1 style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);">🌱 Plants</h1>
       <div class="sub">care tracker</div>
     </div>
-    <div class="sync-status synced" id="syncStatus">
-      <span class="sync-dot"></span><span id="syncLabel">Synced</span>
-    </div>
   </div>
   <div class="statbar">
     <div class="scard"><div class="slabel">Total</div><div class="sval dim" id="stTotal">0</div></div>
@@ -283,6 +268,8 @@ a{color:inherit;text-decoration:none;}
     <button class="graveyard-toggle" id="graveyardToggle" onclick="toggleGraveyard()" style="display:none">&#x26B0;&#xFE0F; Graveyard <span id="graveyardCount" style="margin-left:auto;font-size:11px;"></span></button>
     <div class="graveyard-section" id="graveyardSection"><div class="slbl" style="margin-top:12px;">&#x1F480; RIP</div><div id="graveyardList"></div></div>
     <div class="empty hidden" id="emptyState">
+      <div style="font-size:52px;margin-bottom:12px">🪴</div>
+      <div>No plants yet — add your first one!</div>
     </div>
   </div>
   <button class="fab" onclick="openAdd()">+</button>
@@ -385,6 +372,7 @@ a{color:inherit;text-decoration:none;}
     </div>
 
     <div class="field"><label>Notes</label><textarea id="plantNotes" placeholder="Anything else worth remembering..."></textarea></div>
+    <div class="field"><label>Adopted / Acquired Date</label><input type="text" id="plantAdopted" placeholder="e.g. 5/4/2025"></div>
 
     <input type="hidden" id="plantId">
     <input type="hidden" id="selectedEmoji" value="🌱">
@@ -535,7 +523,8 @@ async function showApp() {
   await Promise.all([loadPlants(), loadWaterLogs(), loadGraveyard()]);
   await ensureGraveyardSheet();
   render();
-  syncPending(); // retry any plants that didn't sync last session
+  syncPending();
+  migrateAdoptedDates();
 }
 
 async function ensureSheets() {
@@ -543,7 +532,7 @@ async function ensureSheets() {
     const sheets = await getSheetTitles();
     if (!sheets.includes('Plants')) {
       await addSheetTab('Plants');
-      await sheetsPut('Plants!A1:M1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes']]);
+      await sheetsPut('Plants!A1:N1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes','Adopted']]);
     }
     if (!sheets.includes('WaterLog')) {
       await addSheetTab('WaterLog');
@@ -554,13 +543,13 @@ async function ensureSheets() {
 
 async function loadPlants() {
   try {
-    const rows = await sheetsGet('Plants!A2:M1000');
+    const rows = await sheetsGet('Plants!A2:N1000');
     const fromSheet = rows.filter(r=>r[0]).map((r,i)=>({
       id:r[0]||'', name:r[1]||'', emoji:r[2]||'🌱',
       species:r[3]||'', location:r[4]||'', containerType:r[5]||'',
       potSize:r[6]||'', sunlight:r[7]||'', soilType:r[8]||'',
       toxicity:r[9]||'', propagation:r[10]||'', perenualId:r[11]||'',
-      notes:r[12]||'', _row:i+2
+      notes:r[12]||'', adopted:r[13]||'', _row:i+2
     }));
     // Merge: keep any locally-saved plants that didn't make it to the sheet yet
     const local = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
@@ -628,6 +617,7 @@ function plantCardHTML(p) {
     const isTox = p.toxicity.toLowerCase().includes('toxic');
     pills += `<span class="pill ${isTox?'pill-tox':'pill-safe'}">${isTox?'⚠️':'✅'} ${p.toxicity}</span>`;
   }
+  if (p.adopted) pills += `<span class="pill pill-pot">&#x1F4C5; Adopted ${p.adopted}</span>`;
   if (p.propagation) pills += `<span class="pill pill-prop">✂️ ${p.propagation}</span>`;
 
   // Log strip
@@ -672,7 +662,6 @@ function plantCardHTML(p) {
       </div>
       <div class="pacts">
         ${logs.length > 0 ? `<button class="ibtn" onclick="toggleHistory('${p.id}')" title="History">📋</button>` : ''}
-        <button class="ibtn" onclick="openBury('${p.id}')" title="Send to graveyard">💀</button>
         <button class="ibtn" onclick="editPlant('${p.id}')">✏️</button>
         <button class="ibtn" onclick="deletePlant('${p.id}')">🗑️</button>
       </div>
@@ -876,7 +865,7 @@ function openAdd() {
   document.getElementById('modalTitle').textContent = 'Add Plant';
   document.getElementById('plantId').value = '';
   document.getElementById('perenualId').value = '';
-  ['plantName','plantSpecies','plantLocation','potSize','plantNotes','propagation'].forEach(id => document.getElementById(id).value = '');
+  ['plantName','plantSpecies','plantLocation','potSize','plantNotes','propagation','plantAdopted'].forEach(id => document.getElementById(id).value = '');
   ['containerType','sunlight','soilType','toxicity'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('selectedEmoji').value = '🌱';
   document.getElementById('autofillBanner').classList.remove('show');
@@ -900,6 +889,7 @@ function editPlant(id) {
   document.getElementById('toxicity').value = p.toxicity;
   document.getElementById('propagation').value = p.propagation;
   document.getElementById('plantNotes').value = p.notes;
+  document.getElementById('plantAdopted').value = p.adopted || '';
   document.getElementById('selectedEmoji').value = p.emoji || '🌱';
   document.getElementById('autofillBanner').classList.remove('show');
   document.getElementById('speciesResults').classList.remove('open');
@@ -948,6 +938,7 @@ async function savePlant() {
     propagation: document.getElementById('propagation').value.trim(),
     perenualId: document.getElementById('perenualId').value,
     notes: document.getElementById('plantNotes').value.trim(),
+    adopted: document.getElementById('plantAdopted').value.trim(),
     _row: idx >= 0 ? plants[idx]._row : null,
     _unsynced: idx < 0
   };
@@ -958,7 +949,6 @@ async function savePlant() {
   closeModal('addModal');
   render();
   toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
-  setSyncStatus('pending');
 
   // Sync to Sheets in background
   syncPlantToSheet(entry, idx < 0);
@@ -966,9 +956,9 @@ async function savePlant() {
 
 async function syncPlantToSheet(entry, isNew) {
   try {
-    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes];
+    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes,entry.adopted||''];
     if (isNew) {
-      await sheetsAppend('Plants!A2:M', [row]);
+      await sheetsAppend('Plants!A2:N', [row]);
       const rows = await sheetsGet('Plants!A2:A1000');
       entry._row = rows.length + 1;
       const i = plants.findIndex(p => p.id === entry.id);
@@ -979,8 +969,7 @@ async function syncPlantToSheet(entry, isNew) {
       if (i >= 0) plants[i]._unsynced = false;
     }
     localStorage.setItem('cgt_plants', JSON.stringify(plants));
-    setSyncStatus('synced');
-  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); setSyncStatus('error'); }
+  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); }
 }
 
 async function syncPending() {
@@ -1006,10 +995,9 @@ async function saveWaterLog() {
   const wt = waterTypeLabel(type);
   toast(wt.label + ' logged!');
 
-  setSyncStatus('pending');
   // Sync in background
-  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); setSyncStatus('synced'); }
-  catch(e) { console.warn('Water log sync failed:', e); setSyncStatus('error'); }
+  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); }
+  catch(e) { console.warn('Water log sync failed:', e); }
 }
 
 async function deletePlant(id) {
@@ -1083,12 +1071,10 @@ async function confirmBury() {
   render();
   toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
 
-  setSyncStatus('pending');
   // Sync to sheet in background
   try {
     await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
-    setSyncStatus('synced');
-  } catch(e) { console.warn('Graveyard sync failed:', e); setSyncStatus('error'); }
+  } catch(e) { console.warn('Graveyard sync failed:', e); }
 }
 
 async function restorePlant(id) {
@@ -1187,10 +1173,34 @@ function applyFilters() {
   document.getElementById('emptyState').classList.toggle('hidden', plants.length > 0);
 }
 
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let _tt;
+// --- One-time migration: extract adopted dates from notes ---------------
+async function migrateAdoptedDates() {
+  if (localStorage.getItem('cgt_adopted_migrated')) return;
+  const datePattern = /[Aa]dopted\s+([\d\/]+),?\s*/;
+  let anyChanged = false;
+  for (const p of plants) {
+    if (!p.adopted && p.notes) {
+      const m = p.notes.match(datePattern);
+      if (m) {
+        p.adopted = m[1];
+        p.notes = p.notes.replace(datePattern, '').trim();
+        anyChanged = true;
+        syncPlantToSheet(p, false);
+      }
+    }
+  }
+  if (anyChanged) {
+    localStorage.setItem('cgt_plants', JSON.stringify(plants));
+    render();
+    toast('Adopted dates migrated!');
+  }
+  localStorage.setItem('cgt_adopted_migrated', '1');
+}
 
-// --- Sync Status -------------------------------------------------------
+
 function setSyncStatus(state) {
-  // state: 'synced' | 'pending' | 'error'
   const el = document.getElementById('syncStatus');
   const lbl = document.getElementById('syncLabel');
   if (!el) return;
@@ -1200,8 +1210,7 @@ function setSyncStatus(state) {
   if (state === 'error')   lbl.textContent = 'Sync failed — data saved locally';
 }
 
-// ─── Toast ────────────────────────────────────────────────────────────────────
-let _tt;
+
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
