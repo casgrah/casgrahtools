@@ -459,6 +459,7 @@ async function showApp() {
   await ensureSheets();
   await Promise.all([loadPlants(), loadWaterLogs()]);
   render();
+  syncPending(); // retry any plants that didn't sync last session
 }
 
 async function ensureSheets() {
@@ -700,10 +701,15 @@ function applyDetailData(detail) {
     if (sel.value) filled.push('soil');
   }
 
-  if (detail.poisonous_to_pets !== undefined || detail.poisonous_to_humans !== undefined) {
-    if (detail.poisonous_to_pets) document.getElementById('toxicity').value = 'Toxic to pets';
-    else if (detail.poisonous_to_humans) document.getElementById('toxicity').value = 'Toxic to humans';
-    else if (detail.poisonous_to_pets === false) document.getElementById('toxicity').value = 'Safe for pets';
+  const toxPets = detail.poisonous_to_pets;
+  const toxHumans = detail.poisonous_to_humans;
+  if (toxPets || toxHumans) {
+    if (toxPets && toxHumans) document.getElementById('toxicity').value = 'Toxic to pets';
+    else if (toxPets) document.getElementById('toxicity').value = 'Toxic to pets';
+    else document.getElementById('toxicity').value = 'Toxic to humans';
+    filled.push('toxicity');
+  } else if (toxPets === 0 || toxPets === false) {
+    document.getElementById('toxicity').value = 'Safe for pets';
     filled.push('toxicity');
   }
 
@@ -842,7 +848,7 @@ function selectWaterType(type) {
   });
 }
 
-// ─── Save / Delete ───────────────────────────────────────────────────────────
+// ─── Save / Delete ─────────────────────────────────────────────────────────────────────────────
 async function savePlant() {
   const name = document.getElementById('plantName').value.trim();
   if (!name) { toast('Please enter a plant name'); return; }
@@ -860,24 +866,42 @@ async function savePlant() {
     propagation: document.getElementById('propagation').value.trim(),
     perenualId: document.getElementById('perenualId').value,
     notes: document.getElementById('plantNotes').value.trim(),
-    _row: idx >= 0 ? plants[idx]._row : null
+    _row: idx >= 0 ? plants[idx]._row : null,
+    _unsynced: idx < 0
   };
   if (idx >= 0) plants[idx] = entry; else plants.push(entry);
+
+  // Save to localStorage IMMEDIATELY — navigating away won't lose this
+  localStorage.setItem('cgt_plants', JSON.stringify(plants));
   closeModal('addModal');
   render();
+  toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
+
+  // Sync to Sheets in background
+  syncPlantToSheet(entry, idx < 0);
+}
+
+async function syncPlantToSheet(entry, isNew) {
   try {
     const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes];
-    if (idx < 0) {
+    if (isNew) {
       await sheetsAppend('Plants!A2:M', [row]);
       const rows = await sheetsGet('Plants!A2:A1000');
       entry._row = rows.length + 1;
-      plants[plants.length - 1]._row = entry._row;
+      const i = plants.findIndex(p => p.id === entry.id);
+      if (i >= 0) { plants[i]._row = entry._row; plants[i]._unsynced = false; }
     } else {
-      await sheetsPut(`Plants!A${entry._row}:M${entry._row}`, [row]);
+      await sheetsPut('Plants!A' + entry._row + ':M' + entry._row, [row]);
+      const i = plants.findIndex(p => p.id === entry.id);
+      if (i >= 0) plants[i]._unsynced = false;
     }
     localStorage.setItem('cgt_plants', JSON.stringify(plants));
-    toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
-  } catch(e) { toast('Saved locally — sync failed'); }
+  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); }
+}
+
+async function syncPending() {
+  const unsynced = plants.filter(p => p._unsynced);
+  for (const p of unsynced) { await syncPlantToSheet(p, !p._row); }
 }
 
 async function saveWaterLog() {
@@ -890,27 +914,29 @@ async function saveWaterLog() {
   if (!waterLogs[pid]) waterLogs[pid] = [];
   waterLogs[pid].unshift({date, type, note});
   waterLogs[pid].sort((a,b) => b.date.localeCompare(a.date));
+
+  // Save locally first
+  localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
   closeModal('waterModal');
   render();
-
   const wt = waterTypeLabel(type);
-  try {
-    await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]);
-    localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
-    toast(wt.label + ' logged!');
-  } catch(e) { toast('Saved locally — sync failed'); }
+  toast(wt.label + ' logged!');
+
+  // Sync in background
+  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); }
+  catch(e) { console.warn('Water log sync failed:', e); }
 }
 
 async function deletePlant(id) {
   if (!confirm('Remove this plant and all its watering history?')) return;
   const p = plants.find(x => x.id === id); if (!p) return;
-  if (p._row) await sheetsClear(`Plants!A${p._row}:M${p._row}`);
   plants = plants.filter(x => x.id !== id);
   delete waterLogs[id];
   localStorage.setItem('cgt_plants', JSON.stringify(plants));
   localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
   render();
   toast('Plant removed');
+  if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
