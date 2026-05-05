@@ -12,15 +12,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:#0a1416; --surface:#0f1e20; --card:#152224; --card2:#1a2b2e;
-  --border:#1e3538; --border2:#254043;
-  --ink:#ddeef0; --muted:#5a8a90; --muted2:#3d6a70;
-  --teal:#2d8a94; --teal-light:#3da8b5; --teal-dim:#1e5f66; --teal-pale:rgba(45,138,148,0.12);
-  --terra:#c4673f; --terra-light:#e07a4f; --terra-dim:#7a3820; --terra-pale:rgba(196,103,63,0.12);
-  --success:#2d9a5f; --success-pale:rgba(45,154,95,0.12);
-  --warn:#d4900a; --warn-pale:rgba(212,144,10,0.12);
-  --purple:#8b6fd4; --purple-pale:rgba(139,111,212,0.12);
-  --nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
+--navy:#0a1416; --surface:#0f1e20; --card:#152224; --card2:#1a2b2e;
+--border:#1e3538; --border2:#254043;
+--ink:#ddeef0; --muted:#5a8a90; --muted2:#3d6a70;
+--teal:#2d8a94; --teal-light:#3da8b5; --teal-dim:#1e5f66; --teal-pale:rgba(45,138,148,0.12);
+--terra:#c4673f; --terra-light:#e07a4f; --terra-dim:#7a3820; --terra-pale:rgba(196,103,63,0.12);
+--success:#2d9a5f; --success-pale:rgba(45,154,95,0.12);
+--warn:#d4900a; --warn-pale:rgba(212,144,10,0.12);
+--purple:#8b6fd4; --purple-pale:rgba(139,111,212,0.12);
+--nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
@@ -195,6 +195,18 @@ a{color:inherit;text-decoration:none;}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Sync indicator */
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;flex-shrink:0;}
+.sync-status{display:flex;align-items:center;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;cursor:default;}
+.sync-status.synced{color:var(--success);background:var(--success-pale);}
+.sync-status.synced .sync-dot{background:var(--success);}
+.sync-status.pending{color:var(--warn);background:var(--warn-pale);}
+.sync-status.pending .sync-dot{background:var(--warn);animation:pulse 1s infinite;}
+.sync-status.error{color:var(--terra);background:var(--terra-pale);}
+.sync-status.error .sync-dot{background:var(--terra);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+
 /* Search & Sort */
 .search-bar{padding:10px 16px;background:var(--navy);border-bottom:1px solid var(--border);display:flex;gap:8px;}
 .search-input{flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;}
@@ -219,289 +231,238 @@ a{color:inherit;text-decoration:none;}
 .gemoji{width:44px;height:44px;border-radius:10px;background:rgba(196,103,63,0.08);border:1px solid rgba(196,103,63,.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;filter:grayscale(0.5);}
 .restore-btn{background:none;border:1px solid var(--border2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .restore-btn:active{opacity:.8;}
-
-/* Photo */
-.pemoji.has-photo{padding:0;overflow:hidden;background:none;border:none;}
-.pemoji.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;}
-.photo-btn{background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:13px;padding:5px 9px;border-radius:8px;cursor:pointer;line-height:1;}
-.photo-btn:active{opacity:.8;}
-
-/* Photo modal */
-.photo-history{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
-.photo-entry{display:flex;gap:10px;align-items:flex-start;}
-.photo-thumb{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer;}
-.photo-meta{flex:1;min-width:0;}
-.photo-date{font-size:11px;color:var(--muted2);}
-.photo-note{font-size:12px;color:var(--ink);margin-top:2px;}
-.photo-full{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:600;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.photo-full img{max-width:95vw;max-height:90dvh;object-fit:contain;border-radius:8px;}
-
 </style>
 </head>
 <body>
 
 <!-- Auth overlay -->
 <div id="auth-overlay">
-  <div class="stego-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="44" height="30">
-    <polygon points="38,38 42,18 46,38" fill="#2d8a94"/><polygon points="46,36 52,14 57,36" fill="#2d8a94"/>
-    <polygon points="55,35 62,10 68,35" fill="#2d8a94"/><polygon points="64,36 70,16 75,36" fill="#2d8a94"/>
-    <polygon points="72,38 77,22 81,38" fill="#2d8a94" opacity="0.85"/>
-    <ellipse cx="60" cy="50" rx="32" ry="16" fill="#2d8a94"/>
-    <ellipse cx="24" cy="46" rx="12" ry="10" fill="#2d8a94"/>
-    <ellipse cx="13" cy="50" rx="7" ry="5" fill="#2d8a94"/>
-    <circle cx="20" cy="42" r="2.5" fill="#0a1416"/><circle cx="19" cy="41" r="1" fill="rgba(255,255,255,0.4)"/>
-    <rect x="35" y="62" width="8" height="14" rx="3" fill="#2d8a94"/><rect x="48" y="64" width="8" height="12" rx="3" fill="#2d8a94"/>
-    <rect x="64" y="64" width="8" height="12" rx="3" fill="#2d8a94"/><rect x="77" y="62" width="8" height="14" rx="3" fill="#2d8a94"/>
-    <path d="M92,50 Q105,45 112,52 Q105,55 92,54 Z" fill="#2d8a94"/>
-  </svg></div>
-  <h1>Plant Tracker</h1>
-  <p>Sign in to sync your plants and watering history</p>
-  <button id="sign-in-btn">
-    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-    Sign in with Google
-  </button>
+<div class="stego-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="44" height="30">
+<polygon points="38,38 42,18 46,38" fill="#2d8a94"/><polygon points="46,36 52,14 57,36" fill="#2d8a94"/>
+<polygon points="55,35 62,10 68,35" fill="#2d8a94"/><polygon points="64,36 70,16 75,36" fill="#2d8a94"/>
+<polygon points="72,38 77,22 81,38" fill="#2d8a94" opacity="0.85"/>
+<ellipse cx="60" cy="50" rx="32" ry="16" fill="#2d8a94"/>
+<ellipse cx="24" cy="46" rx="12" ry="10" fill="#2d8a94"/>
+<ellipse cx="13" cy="50" rx="7" ry="5" fill="#2d8a94"/>
+<circle cx="20" cy="42" r="2.5" fill="#0a1416"/><circle cx="19" cy="41" r="1" fill="rgba(255,255,255,0.4)"/>
+<rect x="35" y="62" width="8" height="14" rx="3" fill="#2d8a94"/><rect x="48" y="64" width="8" height="12" rx="3" fill="#2d8a94"/>
+<rect x="64" y="64" width="8" height="12" rx="3" fill="#2d8a94"/><rect x="77" y="62" width="8" height="14" rx="3" fill="#2d8a94"/>
+<path d="M92,50 Q105,45 112,52 Q105,55 92,54 Z" fill="#2d8a94"/>
+</svg></div>
+<h1>Plant Tracker</h1>
+<p>Sign in to sync your plants and watering history</p>
+<button id="sign-in-btn">
+<svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+Sign in with Google
+</button>
 </div>
 
 <!-- Main app -->
 <div id="app">
-  <div class="abar abar-row">
-    <div>
-      <h1 style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);">🌱 Plants</h1>
-      <div class="sub">care tracker</div>
-    </div>
+<div class="abar abar-row">
+<div>
+<h1 style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);">🌱 Plants</h1>
+<div class="sub">care tracker</div>
+</div>
     <div class="sync-status synced" id="syncStatus">
       <span class="sync-dot"></span><span id="syncLabel">Synced</span>
     </div>
-  </div>
-  <div class="statbar">
-    <div class="scard"><div class="slabel">Total</div><div class="sval dim" id="stTotal">0</div></div>
-    <div class="scard"><div class="slabel">Watered 💧</div><div class="sval success" id="stWatered">0</div></div>
-    <div class="scard"><div class="slabel">Avg Interval</div><div class="sval teal" id="stAvg">—</div></div>
-  </div>
-  <div class="search-bar">
-    <input class="search-input" id="searchInput" placeholder="&#x1F50D; Search plants..." oninput="applyFilters()">
-    <button class="sort-btn" id="sortBtn" onclick="cycleSort()">A–Z</button>
-  </div>
-  <div class="scroll">
-    <div class="slbl">My Plants</div>
-    <div id="plantList"></div>
-    <button class="graveyard-toggle" id="graveyardToggle" onclick="toggleGraveyard()" style="display:none">&#x26B0;&#xFE0F; Graveyard <span id="graveyardCount" style="margin-left:auto;font-size:11px;"></span></button>
-    <div class="graveyard-section" id="graveyardSection"><div class="slbl" style="margin-top:12px;">&#x1F480; RIP</div><div id="graveyardList"></div></div>
-    <div class="empty hidden" id="emptyState">
+</div>
+<div class="statbar">
+<div class="scard"><div class="slabel">Total</div><div class="sval dim" id="stTotal">0</div></div>
+<div class="scard"><div class="slabel">Watered 💧</div><div class="sval success" id="stWatered">0</div></div>
+<div class="scard"><div class="slabel">Avg Interval</div><div class="sval teal" id="stAvg">—</div></div>
+</div>
+<div class="search-bar">
+<input class="search-input" id="searchInput" placeholder="&#x1F50D; Search plants..." oninput="applyFilters()">
+<button class="sort-btn" id="sortBtn" onclick="cycleSort()">A–Z</button>
+</div>
+<div class="scroll">
+<div class="slbl">My Plants</div>
+<div id="plantList"></div>
+<button class="graveyard-toggle" id="graveyardToggle" onclick="toggleGraveyard()" style="display:none">&#x26B0;&#xFE0F; Graveyard <span id="graveyardCount" style="margin-left:auto;font-size:11px;"></span></button>
+<div class="graveyard-section" id="graveyardSection"><div class="slbl" style="margin-top:12px;">&#x1F480; RIP</div><div id="graveyardList"></div></div>
+<div class="empty hidden" id="emptyState">
       <div style="font-size:52px;margin-bottom:12px">🪴</div>
       <div>No plants yet — add your first one!</div>
-    </div>
-  </div>
-  <button class="fab" onclick="openAdd()">+</button>
+</div>
+</div>
+<button class="fab" onclick="openAdd()">+</button>
 </div>
 
 <!-- Bottom nav -->
 <nav class="bnav">
-  <a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a>
-  <a href="bills.html"><span class="ni">💰</span><span class="nl">Bills</span></a>
-  <a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a>
-  <a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a>
-  <a href="plants.html" class="active"><span class="ni">🌱</span><span class="nl">Plants</span></a>
+<a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a>
+<a href="bills.html"><span class="ni">💰</span><span class="nl">Bills</span></a>
+<a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a>
+<a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a>
+<a href="plants.html" class="active"><span class="ni">🌱</span><span class="nl">Plants</span></a>
 </nav>
 
 <!-- Add/Edit Plant Modal -->
 <div class="modal-bg" id="addModal">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle" id="modalTitle">Add Plant</div>
-    <div class="msub">Fill in what you know — nothing is required except a name!</div>
+<div class="modal">
+<div class="mhandle"></div>
+<div class="mtitle" id="modalTitle">Add Plant</div>
+<div class="msub">Fill in what you know — nothing is required except a name!</div>
 
-    <div class="field"><label>Pick an Emoji</label><div class="epicker" id="emojiPicker"></div></div>
+<div class="field"><label>Pick an Emoji</label><div class="epicker" id="emojiPicker"></div></div>
 
-    <div class="field">
-      <label>Plant Name</label>
-      <div class="name-row">
-        <input type="text" id="plantName" placeholder="e.g. Big Bessy">
-        <button class="surprise-btn" onclick="randomName()">🎲 Surprise Me</button>
-      </div>
-    </div>
+<div class="field">
+<label>Plant Name</label>
+<div class="name-row">
+<input type="text" id="plantName" placeholder="e.g. Big Bessy">
+<button class="surprise-btn" onclick="randomName()">🎲 Surprise Me</button>
+</div>
+</div>
 
-    <div class="field">
-      <label>Species — search to auto-fill care info</label>
-      <div class="species-wrap">
-        <input type="text" id="plantSpecies" placeholder="e.g. Pothos, Snake Plant..." autocomplete="off" oninput="onSpeciesInput(this.value)">
-        <div class="species-results" id="speciesResults"></div>
-      </div>
-    </div>
+<div class="field">
+<label>Species — search to auto-fill care info</label>
+<div class="species-wrap">
+<input type="text" id="plantSpecies" placeholder="e.g. Pothos, Snake Plant..." autocomplete="off" oninput="onSpeciesInput(this.value)">
+<div class="species-results" id="speciesResults"></div>
+</div>
+</div>
 
-    <div class="autofill-banner" id="autofillBanner">✨ Care info auto-filled from Perenual!</div>
+<div class="autofill-banner" id="autofillBanner">✨ Care info auto-filled from Perenual!</div>
 
-    <div class="mdivider">Location & Container</div>
+<div class="mdivider">Location & Container</div>
 
-    <div class="frow">
-      <div class="field"><label>Location</label><input type="text" id="plantLocation" placeholder="e.g. Bedroom"></div>
-      <div class="field">
-        <label>Container Type</label>
-        <select id="containerType">
-          <option value="">— Select —</option>
-          <option value="Single Pot">Single Pot</option>
-          <option value="Multi-plant Container">Multi-plant Container</option>
-          <option value="Raised Planter">Raised Planter</option>
-          <option value="Hanging Basket">Hanging Basket</option>
-          <option value="Ground">In Ground</option>
-        </select>
-      </div>
-    </div>
-    <div class="field"><label>Pot Size (optional)</label><input type="text" id="potSize" placeholder="e.g. 6 inch, large, #3 nursery pot"></div>
+<div class="frow">
+<div class="field"><label>Location</label><input type="text" id="plantLocation" placeholder="e.g. Bedroom"></div>
+<div class="field">
+<label>Container Type</label>
+<select id="containerType">
+<option value="">— Select —</option>
+<option value="Single Pot">Single Pot</option>
+<option value="Multi-plant Container">Multi-plant Container</option>
+<option value="Raised Planter">Raised Planter</option>
+<option value="Hanging Basket">Hanging Basket</option>
+<option value="Ground">In Ground</option>
+</select>
+</div>
+</div>
+<div class="field"><label>Pot Size (optional)</label><input type="text" id="potSize" placeholder="e.g. 6 inch, large, #3 nursery pot"></div>
 
-    <div class="mdivider">Care Info</div>
+<div class="mdivider">Care Info</div>
 
-    <div class="frow">
-      <div class="field">
-        <label>Sunlight</label>
-        <select id="sunlight">
-          <option value="">— Select —</option>
-          <option value="Full Sun">Full Sun</option>
-          <option value="Part Sun">Part Sun / Part Shade</option>
-          <option value="Indirect Light">Indirect Light</option>
-          <option value="Low Light">Low Light</option>
-          <option value="Grow Light 8hr">Grow Light 8hr</option>
-          <option value="Grow Light 12hr">Grow Light 12hr</option>
-          <option value="Grow Light 16hr">Grow Light 16hr</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Soil Type</label>
-        <select id="soilType">
-          <option value="">— Select —</option>
-          <option value="Cactus Mix">Cactus / Succulent Mix</option>
-          <option value="Potting Soil">Potting Soil</option>
-          <option value="Chunky Soil Mix">Chunky Soil Mix</option>
-        </select>
-      </div>
-    </div>
+<div class="frow">
+<div class="field">
+<label>Sunlight</label>
+<select id="sunlight">
+<option value="">— Select —</option>
+<option value="Full Sun">Full Sun</option>
+<option value="Part Sun">Part Sun / Part Shade</option>
+<option value="Indirect Light">Indirect Light</option>
+<option value="Low Light">Low Light</option>
+<option value="Grow Light 8hr">Grow Light 8hr</option>
+<option value="Grow Light 12hr">Grow Light 12hr</option>
+<option value="Grow Light 16hr">Grow Light 16hr</option>
+</select>
+</div>
+<div class="field">
+<label>Soil Type</label>
+<select id="soilType">
+<option value="">— Select —</option>
+<option value="Cactus Mix">Cactus / Succulent Mix</option>
+<option value="Potting Soil">Potting Soil</option>
+<option value="Chunky Soil Mix">Chunky Soil Mix</option>
+</select>
+</div>
+</div>
 
-    <div class="frow">
-      <div class="field">
-        <label>Toxicity</label>
-        <select id="toxicity">
-          <option value="">Unknown</option>
-          <option value="Safe for pets">✅ Safe for pets</option>
-          <option value="Toxic to pets">⚠️ Toxic to pets</option>
-          <option value="Toxic to cats">⚠️ Toxic to cats</option>
-          <option value="Toxic to dogs">⚠️ Toxic to dogs</option>
-          <option value="Toxic to humans">⚠️ Toxic to humans</option>
-        </select>
-      </div>
-      <div class="field"><label>Propagation Methods</label><input type="text" id="propagation" placeholder="e.g. Stem cuttings, Division"></div>
-    </div>
+<div class="frow">
+<div class="field">
+<label>Toxicity</label>
+<select id="toxicity">
+<option value="">Unknown</option>
+<option value="Safe for pets">✅ Safe for pets</option>
+<option value="Toxic to pets">⚠️ Toxic to pets</option>
+<option value="Toxic to cats">⚠️ Toxic to cats</option>
+<option value="Toxic to dogs">⚠️ Toxic to dogs</option>
+<option value="Toxic to humans">⚠️ Toxic to humans</option>
+</select>
+</div>
+<div class="field"><label>Propagation Methods</label><input type="text" id="propagation" placeholder="e.g. Stem cuttings, Division"></div>
+</div>
 
-    <div class="field"><label>Notes</label><textarea id="plantNotes" placeholder="Anything else worth remembering..."></textarea></div>
+<div class="field"><label>Notes</label><textarea id="plantNotes" placeholder="Anything else worth remembering..."></textarea></div>
     <div class="field"><label>Adopted / Acquired Date</label><input type="text" id="plantAdopted" placeholder="e.g. 5/4/2025"></div>
 
-    <input type="hidden" id="plantId">
-    <input type="hidden" id="selectedEmoji" value="🌱">
-    <input type="hidden" id="perenualId" value="">
+<input type="hidden" id="plantId">
+<input type="hidden" id="selectedEmoji" value="🌱">
+<input type="hidden" id="perenualId" value="">
 
-    <button class="btn-full" onclick="savePlant()">Save Plant 🌱</button>
-    <button class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-  </div>
+<button class="btn-full" onclick="savePlant()">Save Plant 🌱</button>
+<button class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+</div>
 </div>
 
 <!-- Water Log Modal -->
 <div class="modal-bg" id="waterModal">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle" id="waterModalTitle">Log Watering</div>
-    <div class="msub" id="waterModalSub"></div>
+<div class="modal">
+<div class="mhandle"></div>
+<div class="mtitle" id="waterModalTitle">Log Watering</div>
+<div class="msub" id="waterModalSub"></div>
 
-    <div class="field">
-      <label>What did you use?</label>
-      <div class="wtype-row">
-        <div class="wtype-opt plain sel" onclick="selectWaterType('plain')">
-          <span class="wtype-icon">💧</span>
-          <span class="wtype-label">Plain Water</span>
-        </div>
-        <div class="wtype-opt pest" onclick="selectWaterType('pest')">
-          <span class="wtype-icon">🐛</span>
-          <span class="wtype-label">Pest Control</span>
-        </div>
-        <div class="wtype-opt nutrient" onclick="selectWaterType('nutrient')">
-          <span class="wtype-icon">🌿</span>
-          <span class="wtype-label">Nutrient Mix</span>
-        </div>
-      </div>
-    </div>
+<div class="field">
+<label>What did you use?</label>
+<div class="wtype-row">
+<div class="wtype-opt plain sel" onclick="selectWaterType('plain')">
+<span class="wtype-icon">💧</span>
+<span class="wtype-label">Plain Water</span>
+</div>
+<div class="wtype-opt pest" onclick="selectWaterType('pest')">
+<span class="wtype-icon">🐛</span>
+<span class="wtype-label">Pest Control</span>
+</div>
+<div class="wtype-opt nutrient" onclick="selectWaterType('nutrient')">
+<span class="wtype-icon">🌿</span>
+<span class="wtype-label">Nutrient Mix</span>
+</div>
+</div>
+</div>
 
-    <div class="field"><label>Date</label><input type="date" id="waterDate"></div>
-    <div class="field"><label>Notes (optional)</label><input type="text" id="waterNote" placeholder="e.g. looking a little droopy, bottom watered"></div>
+<div class="field"><label>Date</label><input type="date" id="waterDate"></div>
+<div class="field"><label>Notes (optional)</label><input type="text" id="waterNote" placeholder="e.g. looking a little droopy, bottom watered"></div>
 
-    <input type="hidden" id="waterPlantId">
-    <input type="hidden" id="selectedWaterType" value="plain">
+<input type="hidden" id="waterPlantId">
+<input type="hidden" id="selectedWaterType" value="plain">
 
-    <button class="btn-full" onclick="saveWaterLog()">Log It 💧</button>
-    <button class="btn-cancel" onclick="closeModal('waterModal')">Cancel</button>
-  </div>
+<button class="btn-full" onclick="saveWaterLog()">Log It 💧</button>
+<button class="btn-cancel" onclick="closeModal('waterModal')">Cancel</button>
+</div>
 </div>
 
 
 <!-- Bury Modal -->
 <div class="modal-bg" id="buryModal">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#x26B0;&#xFE0F; Lay to Rest</div>
-    <div class="msub" id="buryModalSub"></div>
-    <div class="field"><label>Date of Passing</label><input type="date" id="buryDate"></div>
-    <div class="field">
-      <label>Cause of Death (optional)</label>
-      <select id="buryCause">
-        <option value="">Unknown / Mysterious Circumstances</option>
-        <option value="Overwatered">Overwatered &#x1F4A7;</option>
-        <option value="Underwatered">Underwatered &#x1F3DC;&#xFE0F;</option>
-        <option value="Too much sun">Too much sun &#x2600;&#xFE0F;</option>
-        <option value="Not enough light">Not enough light &#x1F311;</option>
-        <option value="Root rot">Root rot &#x1FAB2;</option>
-        <option value="Pests">Pests &#x1F41B;</option>
-        <option value="Chomper">Chomper &#x1F436;</option>
-        <option value="Marmalade">Marmalade &#x1F431;</option>
-        <option value="Old age">Old age &#x1F44B;</option>
-        <option value="Already dead when I bought it">Already dead when I bought it &#x1F644;</option>
-      </select>
-    </div>
-    <div class="field"><label>Final Words (optional)</label><input type="text" id="buryNote" placeholder="e.g. She fought hard but the rot won"></div>
-    <input type="hidden" id="buryPlantId">
-    <button class="btn-full" style="background:var(--terra);" onclick="confirmBury()">&#x26B0;&#xFE0F; Bury</button>
-    <button class="btn-cancel" onclick="closeModal('buryModal')">Cancel</button>
-  </div>
+<div class="modal">
+<div class="mhandle"></div>
+<div class="mtitle">&#x26B0;&#xFE0F; Lay to Rest</div>
+<div class="msub" id="buryModalSub"></div>
+<div class="field"><label>Date of Passing</label><input type="date" id="buryDate"></div>
+<div class="field">
+<label>Cause of Death (optional)</label>
+<select id="buryCause">
+<option value="">Unknown / Mysterious Circumstances</option>
+<option value="Overwatered">Overwatered &#x1F4A7;</option>
+<option value="Underwatered">Underwatered &#x1F3DC;&#xFE0F;</option>
+<option value="Too much sun">Too much sun &#x2600;&#xFE0F;</option>
+<option value="Not enough light">Not enough light &#x1F311;</option>
+<option value="Root rot">Root rot &#x1FAB2;</option>
+<option value="Pests">Pests &#x1F41B;</option>
+<option value="Chomper">Chomper &#x1F436;</option>
+<option value="Marmalade">Marmalade &#x1F431;</option>
+<option value="Old age">Old age &#x1F44B;</option>
+<option value="Already dead when I bought it">Already dead when I bought it &#x1F644;</option>
+</select>
 </div>
-
-
-<!-- Photo Modal -->
-<div class="modal-bg" id="photoModal">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle" id="photoModalTitle">&#x1F4F7; Photos</div>
-    <div class="msub" id="photoModalSub"></div>
-
-    <div class="field">
-      <label>Add a Photo</label>
-      <input type="file" id="photoFile" accept="image/*" style="color:var(--muted);font-size:13px;">
-    </div>
-    <div class="field">
-      <label>Note (optional)</label>
-      <input type="text" id="photoNote" placeholder="e.g. new growth, just repotted">
-    </div>
-    <div id="photoUploadStatus" style="font-size:12px;color:var(--muted);margin-bottom:8px;display:none;"></div>
-    <button class="btn-full" onclick="uploadPhoto()" id="photoUploadBtn">&#x1F4F7; Upload Photo</button>
-
-    <div id="photoHistoryWrap" style="margin-top:16px;display:none;">
-      <div class="slbl">Photo History</div>
-      <div class="photo-history" id="photoHistory"></div>
-    </div>
-
-    <button class="btn-cancel" onclick="closeModal('photoModal')">Close</button>
-    <input type="hidden" id="photoPlantId">
-  </div>
+<div class="field"><label>Final Words (optional)</label><input type="text" id="buryNote" placeholder="e.g. She fought hard but the rot won"></div>
+<input type="hidden" id="buryPlantId">
+<button class="btn-full" style="background:var(--terra);" onclick="confirmBury()">&#x26B0;&#xFE0F; Bury</button>
+<button class="btn-cancel" onclick="closeModal('buryModal')">Cancel</button>
 </div>
-
-<!-- Full size photo viewer -->
-<div class="photo-full" id="photoFull" style="display:none;" onclick="closePhotoFull()">
-  <img id="photoFullImg" src="" alt="Plant photo">
 </div>
 
 <div id="toast"></div>
@@ -511,7 +472,6 @@ const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleuse
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const PLANTS_SID = '1m_zVkymi7Vl8GzkIahpqvXU1WG_B1rAVYvtplCin838';
 const PERENUAL_KEY = 'sk-5uQu69f80dd77ac5916967';
-const IMGBB_KEY = 'd5de8b93eccfe4785e2e7ff48d3d64b3';
 
 let accessToken = null;
 let plants = [];
@@ -520,561 +480,565 @@ let speciesTimer = null;
 
 // ─── Auth ───────────────────────────────────────────────────────────────────
 async function initAuth() {
-  const s = document.createElement('script');
-  s.src = 'https://accounts.google.com/gsi/client';
-  document.head.appendChild(s);
-  await new Promise(r => s.onload = r);
-  const stored = localStorage.getItem('cgt_token');
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID, scope: SCOPES,
-    callback: r => {
-      if (r.access_token) {
-        accessToken = r.access_token;
-        localStorage.setItem('cgt_token', r.access_token);
-        showApp();
-      }
-    }
-  });
-  if (stored) {
-    try {
-      const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
-      const info = await test.json();
-      if (info.expires_in && info.expires_in > 60) { accessToken = stored; showApp(); return; }
-    } catch(e) {}
-    client.requestAccessToken({prompt:''});
-    return;
-  }
-  document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({prompt:''});
+const s = document.createElement('script');
+s.src = 'https://accounts.google.com/gsi/client';
+document.head.appendChild(s);
+await new Promise(r => s.onload = r);
+const stored = localStorage.getItem('cgt_token');
+const client = google.accounts.oauth2.initTokenClient({
+client_id: CLIENT_ID, scope: SCOPES,
+callback: r => {
+if (r.access_token) {
+accessToken = r.access_token;
+localStorage.setItem('cgt_token', r.access_token);
+showApp();
+}
+}
+});
+if (stored) {
+try {
+const test = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
+const info = await test.json();
+if (info.expires_in && info.expires_in > 60) { accessToken = stored; showApp(); return; }
+} catch(e) {}
+client.requestAccessToken({prompt:''});
+return;
+}
+document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({prompt:''});
 }
 
 // ─── Sheets helpers ──────────────────────────────────────────────────────────
 async function sheetsGet(range) {
-  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}`,{headers:{Authorization:`Bearer ${accessToken}`}});
-  if(!r.ok) throw new Error(r.status);
-  return (await r.json()).values || [];
+const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+if(!r.ok) throw new Error(r.status);
+return (await r.json()).values || [];
 }
 async function sheetsPut(range, values) {
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
+return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,{method:'PUT',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
 }
 async function sheetsAppend(range, values) {
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
+return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({range,majorDimension:'ROWS',values})});
 }
 async function sheetsClear(range) {
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}:clear`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`}});
+return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}/values/${encodeURIComponent(range)}:clear`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`}});
 }
 async function getSheetTitles() {
-  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}`,{headers:{Authorization:`Bearer ${accessToken}`}});
-  return (await r.json()).sheets.map(s=>s.properties.title);
+const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}`,{headers:{Authorization:`Bearer ${accessToken}`}});
+return (await r.json()).sheets.map(s=>s.properties.title);
 }
 async function addSheetTab(title) {
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}:batchUpdate`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({requests:[{addSheet:{properties:{title}}}]})});
+return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${PLANTS_SID}:batchUpdate`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({requests:[{addSheet:{properties:{title}}}]})});
 }
 
 // ─── App init ────────────────────────────────────────────────────────────────
 async function showApp() {
-  document.getElementById('auth-overlay').style.display = 'none';
-  document.getElementById('app').classList.add('visible');
-  await ensureSheets();
-  await Promise.all([loadPlants(), loadWaterLogs(), loadGraveyard()]);
-  await ensureGraveyardSheet();
-  render();
+document.getElementById('auth-overlay').style.display = 'none';
+document.getElementById('app').classList.add('visible');
+await ensureSheets();
+await Promise.all([loadPlants(), loadWaterLogs(), loadGraveyard()]);
+await ensureGraveyardSheet();
+render();
+  syncPending(); // retry any plants that didn't sync last session
   syncPending();
   migrateAdoptedDates();
 }
 
 async function ensureSheets() {
-  try {
-    const sheets = await getSheetTitles();
-    if (!sheets.includes('Plants')) {
-      await addSheetTab('Plants');
-      await sheetsPut('Plants!A1:O1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes','Adopted','Photos']]);
-    }
-    if (!sheets.includes('WaterLog')) {
-      await addSheetTab('WaterLog');
-      await sheetsPut('WaterLog!A1:D1', [['PlantID','Date','WaterType','Notes']]);
-    }
-  } catch(e) { console.error('ensureSheets', e); }
+try {
+const sheets = await getSheetTitles();
+if (!sheets.includes('Plants')) {
+await addSheetTab('Plants');
+      await sheetsPut('Plants!A1:M1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes']]);
+      await sheetsPut('Plants!A1:N1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes','Adopted']]);
+}
+if (!sheets.includes('WaterLog')) {
+await addSheetTab('WaterLog');
+await sheetsPut('WaterLog!A1:D1', [['PlantID','Date','WaterType','Notes']]);
+}
+} catch(e) { console.error('ensureSheets', e); }
 }
 
 async function loadPlants() {
-  try {
-    const rows = await sheetsGet('Plants!A2:O1000');
-    const fromSheet = rows.filter(r=>r[0]).map((r,i)=>({
-      id:r[0]||'', name:r[1]||'', emoji:r[2]||'🌱',
-      species:r[3]||'', location:r[4]||'', containerType:r[5]||'',
-      potSize:r[6]||'', sunlight:r[7]||'', soilType:r[8]||'',
-      toxicity:r[9]||'', propagation:r[10]||'', perenualId:r[11]||'',
-      notes:r[12]||'', adopted:r[13]||'', photos:r[14]?JSON.parse(r[14]):[], _row:i+2
-    }));
-    // Merge: keep any locally-saved plants that didn't make it to the sheet yet
-    const local = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
-    const sheetIds = new Set(fromSheet.map(p => p.id));
-    const unsynced = local.filter(p => p._unsynced && !sheetIds.has(p.id));
-    plants = [...fromSheet, ...unsynced];
-    localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  } catch(e) {
-    plants = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
-  }
+try {
+    const rows = await sheetsGet('Plants!A2:M1000');
+    const rows = await sheetsGet('Plants!A2:N1000');
+const fromSheet = rows.filter(r=>r[0]).map((r,i)=>({
+id:r[0]||'', name:r[1]||'', emoji:r[2]||'🌱',
+species:r[3]||'', location:r[4]||'', containerType:r[5]||'',
+potSize:r[6]||'', sunlight:r[7]||'', soilType:r[8]||'',
+toxicity:r[9]||'', propagation:r[10]||'', perenualId:r[11]||'',
+      notes:r[12]||'', _row:i+2
+      notes:r[12]||'', adopted:r[13]||'', _row:i+2
+}));
+// Merge: keep any locally-saved plants that didn't make it to the sheet yet
+const local = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
+const sheetIds = new Set(fromSheet.map(p => p.id));
+const unsynced = local.filter(p => p._unsynced && !sheetIds.has(p.id));
+plants = [...fromSheet, ...unsynced];
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
+} catch(e) {
+plants = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
+}
 }
 
 async function loadWaterLogs() {
-  try {
-    const rows = await sheetsGet('WaterLog!A2:D5000');
-    waterLogs = {};
-    rows.filter(r=>r[0]&&r[1]).forEach(r=>{
-      const pid = r[0];
-      if (!waterLogs[pid]) waterLogs[pid] = [];
-      waterLogs[pid].push({date:r[1], type:r[2]||'plain', note:r[3]||''});
-    });
-    // Sort each plant's logs descending
-    Object.keys(waterLogs).forEach(pid => {
-      waterLogs[pid].sort((a,b)=>b.date.localeCompare(a.date));
-    });
-    localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
-  } catch(e) {
-    waterLogs = JSON.parse(localStorage.getItem('cgt_waterlogs')||'{}');
-  }
+try {
+const rows = await sheetsGet('WaterLog!A2:D5000');
+waterLogs = {};
+rows.filter(r=>r[0]&&r[1]).forEach(r=>{
+const pid = r[0];
+if (!waterLogs[pid]) waterLogs[pid] = [];
+waterLogs[pid].push({date:r[1], type:r[2]||'plain', note:r[3]||''});
+});
+// Sort each plant's logs descending
+Object.keys(waterLogs).forEach(pid => {
+waterLogs[pid].sort((a,b)=>b.date.localeCompare(a.date));
+});
+localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
+} catch(e) {
+waterLogs = JSON.parse(localStorage.getItem('cgt_waterlogs')||'{}');
+}
 }
 
 // ─── Rendering ───────────────────────────────────────────────────────────────
 function today() { return new Date().toISOString().split('T')[0]; }
 
 function getAvgInterval(pid) {
-  const logs = waterLogs[pid];
-  if (!logs || logs.length < 2) return null;
-  const sorted = [...logs].sort((a,b)=>a.date.localeCompare(b.date));
-  let total = 0, count = 0;
-  for (let i = 1; i < sorted.length; i++) {
-    const diff = Math.round((new Date(sorted[i].date) - new Date(sorted[i-1].date)) / 864e5);
-    if (diff > 0) { total += diff; count++; }
-  }
-  return count > 0 ? Math.round(total / count) : null;
+const logs = waterLogs[pid];
+if (!logs || logs.length < 2) return null;
+const sorted = [...logs].sort((a,b)=>a.date.localeCompare(b.date));
+let total = 0, count = 0;
+for (let i = 1; i < sorted.length; i++) {
+const diff = Math.round((new Date(sorted[i].date) - new Date(sorted[i-1].date)) / 864e5);
+if (diff > 0) { total += diff; count++; }
+}
+return count > 0 ? Math.round(total / count) : null;
 }
 
 function waterTypeLabel(type) {
-  if (type === 'pest') return {cls:'lt-pest', label:'🐛 Pest Control'};
-  if (type === 'nutrient') return {cls:'lt-nutrient', label:'🌿 Nutrient Mix'};
-  return {cls:'lt-plain', label:'💧 Plain Water'};
+if (type === 'pest') return {cls:'lt-pest', label:'🐛 Pest Control'};
+if (type === 'nutrient') return {cls:'lt-nutrient', label:'🌿 Nutrient Mix'};
+return {cls:'lt-plain', label:'💧 Plain Water'};
 }
 
 function plantCardHTML(p) {
-  const logs = waterLogs[p.id] || [];
-  const lastLog = logs[0];
-  const avg = getAvgInterval(p.id);
-  const photos = p.photos || [];
-  const latestPhoto = photos.length ? photos[photos.length - 1] : null;
+const logs = waterLogs[p.id] || [];
+const lastLog = logs[0];
+const avg = getAvgInterval(p.id);
 
-  // Pills
-  let pills = '';
-  if (p.sunlight) pills += `<span class="pill pill-sun">☀️ ${p.sunlight}</span>`;
-  if (p.soilType) pills += `<span class="pill pill-soil">🪸 ${p.soilType}</span>`;
-  if (p.containerType) pills += `<span class="pill pill-pot">🪴 ${p.containerType}</span>`;
-  if (p.potSize) pills += `<span class="pill pill-pot">📏 ${p.potSize}</span>`;
-  if (p.toxicity) {
-    const isTox = p.toxicity.toLowerCase().includes('toxic');
-    pills += `<span class="pill ${isTox?'pill-tox':'pill-safe'}">${isTox?'⚠️':'✅'} ${p.toxicity}</span>`;
-  }
+// Pills
+let pills = '';
+if (p.sunlight) pills += `<span class="pill pill-sun">☀️ ${p.sunlight}</span>`;
+if (p.soilType) pills += `<span class="pill pill-soil">🪸 ${p.soilType}</span>`;
+if (p.containerType) pills += `<span class="pill pill-pot">🪴 ${p.containerType}</span>`;
+if (p.potSize) pills += `<span class="pill pill-pot">📏 ${p.potSize}</span>`;
+if (p.toxicity) {
+const isTox = p.toxicity.toLowerCase().includes('toxic');
+pills += `<span class="pill ${isTox?'pill-tox':'pill-safe'}">${isTox?'⚠️':'✅'} ${p.toxicity}</span>`;
+}
   if (p.adopted) pills += `<span class="pill pill-pot">&#x1F4C5; Adopted ${p.adopted}</span>`;
-  if (p.propagation) pills += `<span class="pill pill-prop">✂️ ${p.propagation}</span>`;
+if (p.propagation) pills += `<span class="pill pill-prop">✂️ ${p.propagation}</span>`;
 
-  // Log strip
-  const wtInfo = lastLog ? waterTypeLabel(lastLog.type) : null;
-  const logHTML = `
-    <div class="plog">
-      <div class="plog-left">
-        ${lastLog
-          ? `<div class="plog-last">Last watered: ${lastLog.date}</div>
-             <span class="plog-type ${wtInfo.cls}">${wtInfo.label}</span>
-             ${lastLog.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic;">${lastLog.note}</div>` : ''}`
-          : `<div class="plog-last" style="color:var(--muted2);">Not yet watered</div>`}
-        ${avg ? `<div class="plog-avg" style="margin-top:4px;">Avg every ~${avg} days (${logs.length} logs)</div>` : ''}
-      </div>
-      <button class="wbtn" onclick="openWater('${p.id}')">💧 Log</button>
-    </div>`;
+// Log strip
+const wtInfo = lastLog ? waterTypeLabel(lastLog.type) : null;
+const logHTML = `
+   <div class="plog">
+     <div class="plog-left">
+       ${lastLog
+         ? `<div class="plog-last">Last watered: ${lastLog.date}</div>
+            <span class="plog-type ${wtInfo.cls}">${wtInfo.label}</span>
+            ${lastLog.note ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic;">${lastLog.note}</div>` : ''}`
+         : `<div class="plog-last" style="color:var(--muted2);">Not yet watered</div>`}
+       ${avg ? `<div class="plog-avg" style="margin-top:4px;">Avg every ~${avg} days (${logs.length} logs)</div>` : ''}
+     </div>
+     <button class="wbtn" onclick="openWater('${p.id}')">💧 Log</button>
+   </div>`;
 
-  // History rows (last 5)
-  let histHTML = '';
-  if (logs.length > 0) {
-    const recent = logs.slice(0, 5);
-    histHTML = `
-      <div class="phistory" id="hist-${p.id}">
-        ${recent.map(l => {
-          const wt = waterTypeLabel(l.type);
-          return `<div class="hist-row">
-            <div class="hist-date">${l.date}</div>
-            <span class="plog-type ${wt.cls}" style="font-size:9px;">${wt.label}</span>
-            <div class="hist-note">${l.note||'—'}</div>
-          </div>`;
-        }).join('')}
-      </div>`;
-  }
+// History rows (last 5)
+let histHTML = '';
+if (logs.length > 0) {
+const recent = logs.slice(0, 5);
+histHTML = `
+     <div class="phistory" id="hist-${p.id}">
+       ${recent.map(l => {
+         const wt = waterTypeLabel(l.type);
+         return `<div class="hist-row">
+           <div class="hist-date">${l.date}</div>
+           <span class="plog-type ${wt.cls}" style="font-size:9px;">${wt.label}</span>
+           <div class="hist-note">${l.note||'—'}</div>
+         </div>`;
+       }).join('')}
+     </div>`;
+}
 
-  return `<div class="pcard">
-    <div class="pcard-top">
-      <div class="pemoji ${latestPhoto ? 'has-photo' : ''}">
-        ${latestPhoto
-          ? `<img src="${latestPhoto.url}" alt="${p.name}" onclick="openPhotoModal('${p.id}')">`
-          : p.emoji}
-      </div>
-      <div class="pinfo">
-        <div class="pname">${p.name}</div>
-        ${p.species ? `<div class="pspecies">${p.species}</div>` : ''}
-        ${p.location ? `<div class="ploc">📍 ${p.location}</div>` : ''}
-      </div>
-      <div class="pacts">
-        ${logs.length > 0 ? `<button class="ibtn" onclick="toggleHistory('${p.id}')" title="History">📋</button>` : ''}
-        <button class="ibtn" onclick="editPlant('${p.id}')">✏️</button>
-        <button class="ibtn" onclick="deletePlant('${p.id}')">🗑️</button>
-      </div>
-    </div>
-    ${pills ? `<div class="pills">${pills}</div>` : ''}
-    ${logHTML}
-    ${histHTML}
-  </div>`;
+return `<div class="pcard">
+   <div class="pcard-top">
+     <div class="pemoji">${p.emoji}</div>
+     <div class="pinfo">
+       <div class="pname">${p.name}</div>
+       ${p.species ? `<div class="pspecies">${p.species}</div>` : ''}
+       ${p.location ? `<div class="ploc">📍 ${p.location}</div>` : ''}
+     </div>
+     <div class="pacts">
+       ${logs.length > 0 ? `<button class="ibtn" onclick="toggleHistory('${p.id}')" title="History">📋</button>` : ''}
+        <button class="ibtn" onclick="openBury('${p.id}')" title="Send to graveyard">💀</button>
+       <button class="ibtn" onclick="editPlant('${p.id}')">✏️</button>
+       <button class="ibtn" onclick="deletePlant('${p.id}')">🗑️</button>
+     </div>
+   </div>
+   ${pills ? `<div class="pills">${pills}</div>` : ''}
+   ${logHTML}
+   ${histHTML}
+ </div>`;
 }
 
 function render() {
-  const watered = plants.filter(p => (waterLogs[p.id]||[]).length > 0);
-  const allAvgs = plants.map(p => getAvgInterval(p.id)).filter(Boolean);
-  const globalAvg = allAvgs.length ? Math.round(allAvgs.reduce((a,b)=>a+b,0)/allAvgs.length) : null;
+const watered = plants.filter(p => (waterLogs[p.id]||[]).length > 0);
+const allAvgs = plants.map(p => getAvgInterval(p.id)).filter(Boolean);
+const globalAvg = allAvgs.length ? Math.round(allAvgs.reduce((a,b)=>a+b,0)/allAvgs.length) : null;
 
-  document.getElementById('stTotal').textContent = plants.length;
-  document.getElementById('stWatered').textContent = watered.length;
-  document.getElementById('stAvg').textContent = globalAvg ? `~${globalAvg}d` : '—';
+document.getElementById('stTotal').textContent = plants.length;
+document.getElementById('stWatered').textContent = watered.length;
+document.getElementById('stAvg').textContent = globalAvg ? `~${globalAvg}d` : '—';
 
-  const list = document.getElementById('plantList');
-  if (!plants.length) {
-    list.innerHTML = '';
-    document.getElementById('emptyState').classList.remove('hidden');
-  } else {
-    applyFilters();
-  }
-  renderGraveyard();
+const list = document.getElementById('plantList');
+if (!plants.length) {
+list.innerHTML = '';
+document.getElementById('emptyState').classList.remove('hidden');
+} else {
+applyFilters();
+}
+renderGraveyard();
 }
 
 function toggleHistory(pid) {
-  const el = document.getElementById('hist-' + pid);
-  if (el) el.classList.toggle('open');
+const el = document.getElementById('hist-' + pid);
+if (el) el.classList.toggle('open');
 }
 
 // ─── Perenual API ─────────────────────────────────────────────────────────────
 async function searchPerenual(q) {
-  try {
-    const r = await fetch(`https://perenual.com/api/species-list?key=${PERENUAL_KEY}&q=${encodeURIComponent(q)}&page=1`);
-    const data = await r.json();
-    return (data.data || []).slice(0, 6);
-  } catch(e) { return []; }
+try {
+const r = await fetch(`https://perenual.com/api/species-list?key=${PERENUAL_KEY}&q=${encodeURIComponent(q)}&page=1`);
+const data = await r.json();
+return (data.data || []).slice(0, 6);
+} catch(e) { return []; }
 }
 
 async function getPerenualDetail(id) {
-  try {
-    const r = await fetch(`https://perenual.com/api/species/details/${id}?key=${PERENUAL_KEY}`);
-    if (!r.ok) return null;
-    const data = await r.json();
-    // Perenual returns an "Upgrade Plan" error object for locked species
-    if (data.error || (typeof data.message === 'string' && data.message.toLowerCase().includes('upgrade'))) return null;
-    return data;
-  } catch(e) { return null; }
+try {
+const r = await fetch(`https://perenual.com/api/species/details/${id}?key=${PERENUAL_KEY}`);
+if (!r.ok) return null;
+const data = await r.json();
+// Perenual returns an "Upgrade Plan" error object for locked species
+if (data.error || (typeof data.message === 'string' && data.message.toLowerCase().includes('upgrade'))) return null;
+return data;
+} catch(e) { return null; }
 }
 
 function applyListData(item) {
-  // Pull what we can directly from the search result item
-  let filled = [];
+// Pull what we can directly from the search result item
+let filled = [];
 
-  if (item.sunlight?.length) {
-    const s = item.sunlight[0].toLowerCase();
-    const sel = document.getElementById('sunlight');
-    if (s.includes('full sun')) sel.value = 'Full Sun';
-    else if (s.includes('part')) sel.value = 'Part Sun';
-    else if (s.includes('indirect')) sel.value = 'Indirect Light';
-    else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
-    if (sel.value) filled.push('sunlight');
-  }
+if (item.sunlight?.length) {
+const s = item.sunlight[0].toLowerCase();
+const sel = document.getElementById('sunlight');
+if (s.includes('full sun')) sel.value = 'Full Sun';
+else if (s.includes('part')) sel.value = 'Part Sun';
+else if (s.includes('indirect')) sel.value = 'Indirect Light';
+else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
+if (sel.value) filled.push('sunlight');
+}
 
-  if (item.watering) {
-    // watering field gives a general hint, map to soil loosely
-    const w = item.watering.toLowerCase();
-    const sel = document.getElementById('soilType');
-    if (!sel.value) {
-      if (w.includes('minimum') || w.includes('none')) sel.value = 'Sandy';
-      else if (w.includes('frequent') || w.includes('average')) sel.value = 'Well-draining';
-    }
-  }
+if (item.watering) {
+// watering field gives a general hint, map to soil loosely
+const w = item.watering.toLowerCase();
+const sel = document.getElementById('soilType');
+if (!sel.value) {
+if (w.includes('minimum') || w.includes('none')) sel.value = 'Sandy';
+else if (w.includes('frequent') || w.includes('average')) sel.value = 'Well-draining';
+}
+}
 
-  if (item.cycle) {
-    // not directly mapped but useful for notes hint
-  }
+if (item.cycle) {
+// not directly mapped but useful for notes hint
+}
 
-  return filled;
+return filled;
 }
 
 function applyDetailData(detail) {
-  let filled = [];
+let filled = [];
 
-  if (detail.sunlight?.length) {
-    const s = detail.sunlight[0].toLowerCase();
-    const sel = document.getElementById('sunlight');
-    if (s.includes('full sun')) sel.value = 'Full Sun';
-    else if (s.includes('part')) sel.value = 'Part Sun';
-    else if (s.includes('indirect')) sel.value = 'Indirect Light';
-    else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
-    if (sel.value) filled.push('sunlight');
-  }
+if (detail.sunlight?.length) {
+const s = detail.sunlight[0].toLowerCase();
+const sel = document.getElementById('sunlight');
+if (s.includes('full sun')) sel.value = 'Full Sun';
+else if (s.includes('part')) sel.value = 'Part Sun';
+else if (s.includes('indirect')) sel.value = 'Indirect Light';
+else if (s.includes('low') || s.includes('shade')) sel.value = 'Low Light';
+if (sel.value) filled.push('sunlight');
+}
 
-  if (detail.soil?.length) {
-    const s = detail.soil[0].toLowerCase();
-    const sel = document.getElementById('soilType');
-    if (s.includes('loam') || s.includes('rich')) sel.value = 'Moist';
-    else if (s.includes('sand')) sel.value = 'Sandy';
-    else if (s.includes('cactus') || s.includes('succulent')) sel.value = 'Cactus Mix';
-    else if (s.includes('peat')) sel.value = 'Peat-based';
-    else if (s.includes('well') || s.includes('drain')) sel.value = 'Well-draining';
-    else sel.value = 'Any';
-    if (sel.value) filled.push('soil');
-  }
+if (detail.soil?.length) {
+const s = detail.soil[0].toLowerCase();
+const sel = document.getElementById('soilType');
+if (s.includes('loam') || s.includes('rich')) sel.value = 'Moist';
+else if (s.includes('sand')) sel.value = 'Sandy';
+else if (s.includes('cactus') || s.includes('succulent')) sel.value = 'Cactus Mix';
+else if (s.includes('peat')) sel.value = 'Peat-based';
+else if (s.includes('well') || s.includes('drain')) sel.value = 'Well-draining';
+else sel.value = 'Any';
+if (sel.value) filled.push('soil');
+}
 
-  const toxPets = detail.poisonous_to_pets;
-  const toxHumans = detail.poisonous_to_humans;
-  if (toxPets || toxHumans) {
-    if (toxPets && toxHumans) document.getElementById('toxicity').value = 'Toxic to pets';
-    else if (toxPets) document.getElementById('toxicity').value = 'Toxic to pets';
-    else document.getElementById('toxicity').value = 'Toxic to humans';
-    filled.push('toxicity');
-  } else if (toxPets === 0 || toxPets === false) {
-    document.getElementById('toxicity').value = 'Safe for pets';
-    filled.push('toxicity');
-  }
+const toxPets = detail.poisonous_to_pets;
+const toxHumans = detail.poisonous_to_humans;
+if (toxPets || toxHumans) {
+if (toxPets && toxHumans) document.getElementById('toxicity').value = 'Toxic to pets';
+else if (toxPets) document.getElementById('toxicity').value = 'Toxic to pets';
+else document.getElementById('toxicity').value = 'Toxic to humans';
+filled.push('toxicity');
+} else if (toxPets === 0 || toxPets === false) {
+document.getElementById('toxicity').value = 'Safe for pets';
+filled.push('toxicity');
+}
 
-  if (detail.propagation?.length) {
-    document.getElementById('propagation').value = detail.propagation.join(', ');
-    filled.push('propagation');
-  }
+if (detail.propagation?.length) {
+document.getElementById('propagation').value = detail.propagation.join(', ');
+filled.push('propagation');
+}
 
-  return filled;
+return filled;
 }
 
 function onSpeciesInput(val) {
-  clearTimeout(speciesTimer);
-  const results = document.getElementById('speciesResults');
-  if (val.length < 2) { results.classList.remove('open'); return; }
-  results.innerHTML = '<div class="sres-loading"><span class="spin"></span> Searching...</div>';
-  results.classList.add('open');
-  speciesTimer = setTimeout(async () => {
-    const items = await searchPerenual(val);
-    if (!items.length) {
-      results.innerHTML = '<div class="sres-loading">No results found</div>';
-      return;
-    }
-    // Store items on window so selectSpecies can access full item data
-    window._perenualItems = {};
-    items.forEach(i => window._perenualItems[i.id] = i);
-    results.innerHTML = items.map(item => `
-      <div class="sres-item" onclick="selectSpecies(${item.id}, '${(item.common_name||'').replace(/'/g,"\\'")}', '${(item.scientific_name?.[0]||'').replace(/'/g,"\\'")}')">
-        <div class="sres-name">${item.common_name || 'Unknown'}</div>
-        <div class="sres-sci">${item.scientific_name?.[0] || ''}</div>
-      </div>`).join('');
-  }, 400);
+clearTimeout(speciesTimer);
+const results = document.getElementById('speciesResults');
+if (val.length < 2) { results.classList.remove('open'); return; }
+results.innerHTML = '<div class="sres-loading"><span class="spin"></span> Searching...</div>';
+results.classList.add('open');
+speciesTimer = setTimeout(async () => {
+const items = await searchPerenual(val);
+if (!items.length) {
+results.innerHTML = '<div class="sres-loading">No results found</div>';
+return;
+}
+// Store items on window so selectSpecies can access full item data
+window._perenualItems = {};
+items.forEach(i => window._perenualItems[i.id] = i);
+results.innerHTML = items.map(item => `
+     <div class="sres-item" onclick="selectSpecies(${item.id}, '${(item.common_name||'').replace(/'/g,"\\'")}', '${(item.scientific_name?.[0]||'').replace(/'/g,"\\'")}')">
+       <div class="sres-name">${item.common_name || 'Unknown'}</div>
+       <div class="sres-sci">${item.scientific_name?.[0] || ''}</div>
+     </div>`).join('');
+}, 400);
 }
 
 async function selectSpecies(id, common, sci) {
-  document.getElementById('plantSpecies').value = common || sci;
-  document.getElementById('perenualId').value = id;
-  document.getElementById('speciesResults').classList.remove('open');
+document.getElementById('plantSpecies').value = common || sci;
+document.getElementById('perenualId').value = id;
+document.getElementById('speciesResults').classList.remove('open');
 
-  const banner = document.getElementById('autofillBanner');
-  banner.textContent = '⏳ Fetching care info...';
-  banner.classList.add('show');
+const banner = document.getElementById('autofillBanner');
+banner.textContent = '⏳ Fetching care info...';
+banner.classList.add('show');
 
-  // Step 1: apply what we already have from the list result
-  const listItem = window._perenualItems?.[id];
-  const listFilled = listItem ? applyListData(listItem) : [];
+// Step 1: apply what we already have from the list result
+const listItem = window._perenualItems?.[id];
+const listFilled = listItem ? applyListData(listItem) : [];
 
-  // Step 2: try the detail endpoint for richer data (silently skip if locked)
-  const detail = await getPerenualDetail(id);
-  const detailFilled = detail ? applyDetailData(detail) : [];
+// Step 2: try the detail endpoint for richer data (silently skip if locked)
+const detail = await getPerenualDetail(id);
+const detailFilled = detail ? applyDetailData(detail) : [];
 
-  const allFilled = [...new Set([...listFilled, ...detailFilled])];
+const allFilled = [...new Set([...listFilled, ...detailFilled])];
 
-  if (allFilled.length > 0) {
-    banner.textContent = `✨ Auto-filled: ${allFilled.join(', ')} — fill in the rest manually!`;
-  } else {
-    banner.textContent = '🌿 Name matched! Care info not available — fill in manually.';
-  }
+if (allFilled.length > 0) {
+banner.textContent = `✨ Auto-filled: ${allFilled.join(', ')} — fill in the rest manually!`;
+} else {
+banner.textContent = '🌿 Name matched! Care info not available — fill in manually.';
+}
 }
 
 // ─── Emoji picker ────────────────────────────────────────────────────────────
 const EMOJIS = ['🌱','🪴','🌿','🍀','☘️','🌵','🌾','🌺','🌸','🌻','🌹','🪷','🍃','🌳','🌴','🪸','🎋','🎍','🍄','🌊','🌲','🪨','🌼','💐'];
 function initEmojiPicker(cur) {
-  document.getElementById('emojiPicker').innerHTML = EMOJIS.map(e =>
-    `<span class="eopt ${e===cur?'sel':''}" onclick="selectEmoji('${e}')">${e}</span>`).join('');
+document.getElementById('emojiPicker').innerHTML = EMOJIS.map(e =>
+`<span class="eopt ${e===cur?'sel':''}" onclick="selectEmoji('${e}')">${e}</span>`).join('');
 }
 function selectEmoji(e) {
-  document.getElementById('selectedEmoji').value = e;
-  document.querySelectorAll('.eopt').forEach(el => el.classList.toggle('sel', el.textContent === e));
+document.getElementById('selectedEmoji').value = e;
+document.querySelectorAll('.eopt').forEach(el => el.classList.toggle('sel', el.textContent === e));
 }
 
 // ─── Plant names ─────────────────────────────────────────────────────────────
 const PLANT_NAMES = ["Spike","Fluffy","Professor Green","Señor Leafy","Duchess","Barnaby","Wellington","Clementine","Reginald","Beatrice","Sir Droops-a-Lot","Countess Fern","Mortimer","Priscilla","Archibald","Lavinia","Captain Photon","Theodora","Biscuit","Mildred","Horatio","Zelda","Montgomery","Seraphina","Cornelius","Petunia","Bartholomew","Ingrid","Ptolemy","Gertrude","Maximilian","Eugenia","Thaddeus","Millicent","Prickles McGee","Lady Fernsworth","General Chlorophyll","Baroness Bloom","Sir Tangles","Madame Frond","Duke of Droop","Princess Petal","Count Chloro","The Magnificent Leafington","Empress Spiky","Reverend Roots","Admiral Aloe","Queen Verdant","Lord Snoot","Madam Wilts-No-More"];
 function randomName() {
-  const n = PLANT_NAMES[Math.floor(Math.random() * PLANT_NAMES.length)];
-  document.getElementById('plantName').value = n;
-  toast('🎲 ' + n + '!');
+const n = PLANT_NAMES[Math.floor(Math.random() * PLANT_NAMES.length)];
+document.getElementById('plantName').value = n;
+toast('🎲 ' + n + '!');
 }
 
 // ─── Modals ──────────────────────────────────────────────────────────────────
 function openAdd() {
-  document.getElementById('modalTitle').textContent = 'Add Plant';
-  document.getElementById('plantId').value = '';
-  document.getElementById('perenualId').value = '';
+document.getElementById('modalTitle').textContent = 'Add Plant';
+document.getElementById('plantId').value = '';
+document.getElementById('perenualId').value = '';
+  ['plantName','plantSpecies','plantLocation','potSize','plantNotes','propagation'].forEach(id => document.getElementById(id).value = '');
   ['plantName','plantSpecies','plantLocation','potSize','plantNotes','propagation','plantAdopted'].forEach(id => document.getElementById(id).value = '');
-  ['containerType','sunlight','soilType','toxicity'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('selectedEmoji').value = '🌱';
-  document.getElementById('autofillBanner').classList.remove('show');
-  document.getElementById('speciesResults').classList.remove('open');
-  initEmojiPicker('🌱');
-  document.getElementById('addModal').classList.add('open');
+['containerType','sunlight','soilType','toxicity'].forEach(id => document.getElementById(id).value = '');
+document.getElementById('selectedEmoji').value = '🌱';
+document.getElementById('autofillBanner').classList.remove('show');
+document.getElementById('speciesResults').classList.remove('open');
+initEmojiPicker('🌱');
+document.getElementById('addModal').classList.add('open');
 }
 
 function editPlant(id) {
-  const p = plants.find(x => x.id === id); if (!p) return;
-  document.getElementById('modalTitle').textContent = 'Edit Plant';
-  document.getElementById('plantId').value = p.id;
-  document.getElementById('perenualId').value = p.perenualId || '';
-  document.getElementById('plantName').value = p.name;
-  document.getElementById('plantSpecies').value = p.species;
-  document.getElementById('plantLocation').value = p.location;
-  document.getElementById('containerType').value = p.containerType;
-  document.getElementById('potSize').value = p.potSize;
-  document.getElementById('sunlight').value = p.sunlight;
-  document.getElementById('soilType').value = p.soilType;
-  document.getElementById('toxicity').value = p.toxicity;
-  document.getElementById('propagation').value = p.propagation;
-  document.getElementById('plantNotes').value = p.notes;
+const p = plants.find(x => x.id === id); if (!p) return;
+document.getElementById('modalTitle').textContent = 'Edit Plant';
+document.getElementById('plantId').value = p.id;
+document.getElementById('perenualId').value = p.perenualId || '';
+document.getElementById('plantName').value = p.name;
+document.getElementById('plantSpecies').value = p.species;
+document.getElementById('plantLocation').value = p.location;
+document.getElementById('containerType').value = p.containerType;
+document.getElementById('potSize').value = p.potSize;
+document.getElementById('sunlight').value = p.sunlight;
+document.getElementById('soilType').value = p.soilType;
+document.getElementById('toxicity').value = p.toxicity;
+document.getElementById('propagation').value = p.propagation;
+document.getElementById('plantNotes').value = p.notes;
   document.getElementById('plantAdopted').value = p.adopted || '';
-  document.getElementById('selectedEmoji').value = p.emoji || '🌱';
-  document.getElementById('autofillBanner').classList.remove('show');
-  document.getElementById('speciesResults').classList.remove('open');
-  initEmojiPicker(p.emoji || '🌱');
-  document.getElementById('addModal').classList.add('open');
+document.getElementById('selectedEmoji').value = p.emoji || '🌱';
+document.getElementById('autofillBanner').classList.remove('show');
+document.getElementById('speciesResults').classList.remove('open');
+initEmojiPicker(p.emoji || '🌱');
+document.getElementById('addModal').classList.add('open');
 }
 
 function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+document.getElementById(id).classList.remove('open');
 }
 
 function openWater(pid) {
-  const p = plants.find(x => x.id === pid); if (!p) return;
-  document.getElementById('waterPlantId').value = pid;
-  document.getElementById('waterModalTitle').textContent = '💧 ' + p.name;
-  document.getElementById('waterModalSub').textContent = p.species ? p.species : 'Log a watering session';
-  document.getElementById('waterDate').value = today();
-  document.getElementById('waterNote').value = '';
-  selectWaterType('plain');
-  document.getElementById('waterModal').classList.add('open');
+const p = plants.find(x => x.id === pid); if (!p) return;
+document.getElementById('waterPlantId').value = pid;
+document.getElementById('waterModalTitle').textContent = '💧 ' + p.name;
+document.getElementById('waterModalSub').textContent = p.species ? p.species : 'Log a watering session';
+document.getElementById('waterDate').value = today();
+document.getElementById('waterNote').value = '';
+selectWaterType('plain');
+document.getElementById('waterModal').classList.add('open');
 }
 
 function selectWaterType(type) {
-  document.getElementById('selectedWaterType').value = type;
-  document.querySelectorAll('.wtype-opt').forEach(el => {
-    el.classList.remove('sel');
-    if (el.classList.contains(type)) el.classList.add('sel');
-  });
+document.getElementById('selectedWaterType').value = type;
+document.querySelectorAll('.wtype-opt').forEach(el => {
+el.classList.remove('sel');
+if (el.classList.contains(type)) el.classList.add('sel');
+});
 }
 
 // ─── Save / Delete ─────────────────────────────────────────────────────────────────────────────
 async function savePlant() {
-  const name = document.getElementById('plantName').value.trim();
-  if (!name) { toast('Please enter a plant name'); return; }
-  const id = document.getElementById('plantId').value || Date.now().toString();
-  const idx = plants.findIndex(p => p.id === id);
-  const entry = {
-    id, name, emoji: document.getElementById('selectedEmoji').value,
-    species: document.getElementById('plantSpecies').value.trim(),
-    location: document.getElementById('plantLocation').value.trim(),
-    containerType: document.getElementById('containerType').value,
-    potSize: document.getElementById('potSize').value.trim(),
-    sunlight: document.getElementById('sunlight').value,
-    soilType: document.getElementById('soilType').value,
-    toxicity: document.getElementById('toxicity').value,
-    propagation: document.getElementById('propagation').value.trim(),
-    perenualId: document.getElementById('perenualId').value,
-    notes: document.getElementById('plantNotes').value.trim(),
+const name = document.getElementById('plantName').value.trim();
+if (!name) { toast('Please enter a plant name'); return; }
+const id = document.getElementById('plantId').value || Date.now().toString();
+const idx = plants.findIndex(p => p.id === id);
+const entry = {
+id, name, emoji: document.getElementById('selectedEmoji').value,
+species: document.getElementById('plantSpecies').value.trim(),
+location: document.getElementById('plantLocation').value.trim(),
+containerType: document.getElementById('containerType').value,
+potSize: document.getElementById('potSize').value.trim(),
+sunlight: document.getElementById('sunlight').value,
+soilType: document.getElementById('soilType').value,
+toxicity: document.getElementById('toxicity').value,
+propagation: document.getElementById('propagation').value.trim(),
+perenualId: document.getElementById('perenualId').value,
+notes: document.getElementById('plantNotes').value.trim(),
     adopted: document.getElementById('plantAdopted').value.trim(),
-    photos: idx >= 0 ? (plants[idx].photos || []) : [],
-    _row: idx >= 0 ? plants[idx]._row : null,
-    _unsynced: idx < 0
-  };
-  if (idx >= 0) plants[idx] = entry; else plants.push(entry);
+_row: idx >= 0 ? plants[idx]._row : null,
+_unsynced: idx < 0
+};
+if (idx >= 0) plants[idx] = entry; else plants.push(entry);
 
-  // Save to localStorage IMMEDIATELY — navigating away won't lose this
-  localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  closeModal('addModal');
-  render();
-  toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
+// Save to localStorage IMMEDIATELY — navigating away won't lose this
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
+closeModal('addModal');
+render();
+toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
   setSyncStatus('pending');
 
-  // Sync to Sheets in background
-  syncPlantToSheet(entry, idx < 0);
+// Sync to Sheets in background
+syncPlantToSheet(entry, idx < 0);
 }
 
 async function syncPlantToSheet(entry, isNew) {
-  try {
-    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes,entry.adopted||'',entry.photos&&entry.photos.length?JSON.stringify(entry.photos):''];
-    if (isNew) {
-      await sheetsAppend('Plants!A2:O', [row]);
-      const rows = await sheetsGet('Plants!A2:A1000');
-      entry._row = rows.length + 1;
-      const i = plants.findIndex(p => p.id === entry.id);
-      if (i >= 0) { plants[i]._row = entry._row; plants[i]._unsynced = false; }
-    } else {
-      await sheetsPut('Plants!A' + entry._row + ':O' + entry._row, [row]);
-      const i = plants.findIndex(p => p.id === entry.id);
-      if (i >= 0) plants[i]._unsynced = false;
-    }
-    localStorage.setItem('cgt_plants', JSON.stringify(plants));
+try {
+    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes];
+    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes,entry.adopted||''];
+if (isNew) {
+      await sheetsAppend('Plants!A2:M', [row]);
+      await sheetsAppend('Plants!A2:N', [row]);
+const rows = await sheetsGet('Plants!A2:A1000');
+entry._row = rows.length + 1;
+const i = plants.findIndex(p => p.id === entry.id);
+if (i >= 0) { plants[i]._row = entry._row; plants[i]._unsynced = false; }
+} else {
+await sheetsPut('Plants!A' + entry._row + ':M' + entry._row, [row]);
+const i = plants.findIndex(p => p.id === entry.id);
+if (i >= 0) plants[i]._unsynced = false;
+}
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
     setSyncStatus('synced');
   } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); setSyncStatus('error'); }
+  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); }
 }
 
 async function syncPending() {
-  const unsynced = plants.filter(p => p._unsynced);
-  for (const p of unsynced) { await syncPlantToSheet(p, !p._row); }
+const unsynced = plants.filter(p => p._unsynced);
+for (const p of unsynced) { await syncPlantToSheet(p, !p._row); }
 }
 
 async function saveWaterLog() {
-  const pid = document.getElementById('waterPlantId').value;
-  const date = document.getElementById('waterDate').value;
-  const type = document.getElementById('selectedWaterType').value;
-  const note = document.getElementById('waterNote').value.trim();
-  if (!date) { toast('Please pick a date'); return; }
+const pid = document.getElementById('waterPlantId').value;
+const date = document.getElementById('waterDate').value;
+const type = document.getElementById('selectedWaterType').value;
+const note = document.getElementById('waterNote').value.trim();
+if (!date) { toast('Please pick a date'); return; }
 
-  if (!waterLogs[pid]) waterLogs[pid] = [];
-  waterLogs[pid].unshift({date, type, note});
-  waterLogs[pid].sort((a,b) => b.date.localeCompare(a.date));
+if (!waterLogs[pid]) waterLogs[pid] = [];
+waterLogs[pid].unshift({date, type, note});
+waterLogs[pid].sort((a,b) => b.date.localeCompare(a.date));
 
-  // Save locally first
-  localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
-  closeModal('waterModal');
-  render();
-  const wt = waterTypeLabel(type);
-  toast(wt.label + ' logged!');
+// Save locally first
+localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
+closeModal('waterModal');
+render();
+const wt = waterTypeLabel(type);
+toast(wt.label + ' logged!');
 
   setSyncStatus('pending');
-  // Sync in background
+// Sync in background
   try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); setSyncStatus('synced'); }
   catch(e) { console.warn('Water log sync failed:', e); setSyncStatus('error'); }
+  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); }
+  catch(e) { console.warn('Water log sync failed:', e); }
 }
 
 async function deletePlant(id) {
-  if (!confirm('Remove this plant and all its watering history?')) return;
-  const p = plants.find(x => x.id === id); if (!p) return;
-  plants = plants.filter(x => x.id !== id);
-  delete waterLogs[id];
-  localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
-  render();
-  toast('Plant removed');
-  if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
+if (!confirm('Remove this plant and all its watering history?')) return;
+const p = plants.find(x => x.id === id); if (!p) return;
+plants = plants.filter(x => x.id !== id);
+delete waterLogs[id];
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
+localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
+render();
+toast('Plant removed');
+if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
 }
 
 
@@ -1082,108 +1046,109 @@ async function deletePlant(id) {
 let graveyard = [];
 
 async function ensureGraveyardSheet() {
-  try {
-    const sheets = await getSheetTitles();
-    if (!sheets.includes('Graveyard')) {
-      await addSheetTab('Graveyard');
-      await sheetsPut('Graveyard!A1:G1', [['ID','Name','Emoji','Species','DiedOn','Cause','Note']]);
-    }
-  } catch(e) { console.warn('ensureGraveyardSheet:', e); }
+try {
+const sheets = await getSheetTitles();
+if (!sheets.includes('Graveyard')) {
+await addSheetTab('Graveyard');
+await sheetsPut('Graveyard!A1:G1', [['ID','Name','Emoji','Species','DiedOn','Cause','Note']]);
+}
+} catch(e) { console.warn('ensureGraveyardSheet:', e); }
 }
 
 async function loadGraveyard() {
-  try {
-    const rows = await sheetsGet('Graveyard!A2:G1000');
-    graveyard = rows.filter(r => r[0]).map(r => ({
-      id: r[0]||'', name: r[1]||'', emoji: r[2]||'&#x1F331;',
-      species: r[3]||'', diedOn: r[4]||'', cause: r[5]||'', note: r[6]||''
-    }));
-    localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
-  } catch(e) {
-    graveyard = JSON.parse(localStorage.getItem('cgt_graveyard') || '[]');
-  }
+try {
+const rows = await sheetsGet('Graveyard!A2:G1000');
+graveyard = rows.filter(r => r[0]).map(r => ({
+id: r[0]||'', name: r[1]||'', emoji: r[2]||'&#x1F331;',
+species: r[3]||'', diedOn: r[4]||'', cause: r[5]||'', note: r[6]||''
+}));
+localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+} catch(e) {
+graveyard = JSON.parse(localStorage.getItem('cgt_graveyard') || '[]');
+}
 }
 
 function openBury(pid) {
-  const p = plants.find(x => x.id === pid); if (!p) return;
-  document.getElementById('buryPlantId').value = pid;
-  document.getElementById('buryModalSub').textContent = p.name + (p.species ? ' • ' + p.species : '');
-  document.getElementById('buryDate').value = today();
-  document.getElementById('buryCause').value = '';
-  document.getElementById('buryNote').value = '';
-  document.getElementById('buryModal').classList.add('open');
+const p = plants.find(x => x.id === pid); if (!p) return;
+document.getElementById('buryPlantId').value = pid;
+document.getElementById('buryModalSub').textContent = p.name + (p.species ? ' • ' + p.species : '');
+document.getElementById('buryDate').value = today();
+document.getElementById('buryCause').value = '';
+document.getElementById('buryNote').value = '';
+document.getElementById('buryModal').classList.add('open');
 }
 
 async function confirmBury() {
-  const pid = document.getElementById('buryPlantId').value;
-  const p = plants.find(x => x.id === pid); if (!p) return;
-  const diedOn = document.getElementById('buryDate').value;
-  const cause = document.getElementById('buryCause').value;
-  const note = document.getElementById('buryNote').value.trim();
+const pid = document.getElementById('buryPlantId').value;
+const p = plants.find(x => x.id === pid); if (!p) return;
+const diedOn = document.getElementById('buryDate').value;
+const cause = document.getElementById('buryCause').value;
+const note = document.getElementById('buryNote').value.trim();
 
-  const entry = { id: p.id, name: p.name, emoji: p.emoji, species: p.species, diedOn, cause, note };
-  graveyard.push(entry);
-  localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+const entry = { id: p.id, name: p.name, emoji: p.emoji, species: p.species, diedOn, cause, note };
+graveyard.push(entry);
+localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
 
-  // Remove from living plants
-  if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
-  plants = plants.filter(x => x.id !== pid);
-  delete waterLogs[pid];
-  localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
+// Remove from living plants
+if (p._row) { try { await sheetsClear('Plants!A' + p._row + ':M' + p._row); } catch(e) {} }
+plants = plants.filter(x => x.id !== pid);
+delete waterLogs[pid];
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
+localStorage.setItem('cgt_waterlogs', JSON.stringify(waterLogs));
 
-  closeModal('buryModal');
-  render();
-  toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
+closeModal('buryModal');
+render();
+toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
 
   setSyncStatus('pending');
-  // Sync to sheet in background
-  try {
-    await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
+// Sync to sheet in background
+try {
+await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
     setSyncStatus('synced');
   } catch(e) { console.warn('Graveyard sync failed:', e); setSyncStatus('error'); }
+  } catch(e) { console.warn('Graveyard sync failed:', e); }
 }
 
 async function restorePlant(id) {
-  const g = graveyard.find(x => x.id === id); if (!g) return;
-  const restored = {
-    id: g.id, name: g.name, emoji: g.emoji, species: g.species,
-    location: '', containerType: '', potSize: '', sunlight: '', soilType: '',
-    toxicity: '', propagation: '', perenualId: '', notes: 'Restored from graveyard',
-    _row: null, _unsynced: true
-  };
-  plants.push(restored);
-  graveyard = graveyard.filter(x => x.id !== id);
-  localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
-  render();
-  toast(g.emoji + ' ' + g.name + ' lives again! &#x1F331;');
-  syncPlantToSheet(restored, true);
+const g = graveyard.find(x => x.id === id); if (!g) return;
+const restored = {
+id: g.id, name: g.name, emoji: g.emoji, species: g.species,
+location: '', containerType: '', potSize: '', sunlight: '', soilType: '',
+toxicity: '', propagation: '', perenualId: '', notes: 'Restored from graveyard',
+_row: null, _unsynced: true
+};
+plants.push(restored);
+graveyard = graveyard.filter(x => x.id !== id);
+localStorage.setItem('cgt_plants', JSON.stringify(plants));
+localStorage.setItem('cgt_graveyard', JSON.stringify(graveyard));
+render();
+toast(g.emoji + ' ' + g.name + ' lives again! &#x1F331;');
+syncPlantToSheet(restored, true);
 }
 
 function toggleGraveyard() {
-  document.getElementById('graveyardSection').classList.toggle('open');
+document.getElementById('graveyardSection').classList.toggle('open');
 }
 
 function renderGraveyard() {
-  const btn = document.getElementById('graveyardToggle');
-  const list = document.getElementById('graveyardList');
-  const count = document.getElementById('graveyardCount');
-  if (graveyard.length === 0) { btn.style.display = 'none'; return; }
-  btn.style.display = 'flex';
-  count.textContent = graveyard.length + ' soul' + (graveyard.length !== 1 ? 's' : '');
-  list.innerHTML = graveyard.map(g => `
-    <div class="gcard">
-      <div class="gemoji">${g.emoji}</div>
-      <div class="gcard-info">
-        <div class="gcard-name">${g.name}</div>
-        ${g.species ? `<div class="gcard-species">${g.species}</div>` : ''}
-        ${g.diedOn ? `<div class="gcard-meta">Passed: ${g.diedOn}</div>` : ''}
-        ${g.cause ? `<div class="gcard-cause">${g.cause}</div>` : ''}
-        ${g.note ? `<div class="gcard-meta" style="font-style:italic;">"${g.note}"</div>` : ''}
-      </div>
-      <button class="restore-btn" onclick="restorePlant('${g.id}')">&#x1F331; Restore</button>
-    </div>`).join('');
+const btn = document.getElementById('graveyardToggle');
+const list = document.getElementById('graveyardList');
+const count = document.getElementById('graveyardCount');
+if (graveyard.length === 0) { btn.style.display = 'none'; return; }
+btn.style.display = 'flex';
+count.textContent = graveyard.length + ' soul' + (graveyard.length !== 1 ? 's' : '');
+list.innerHTML = graveyard.map(g => `
+   <div class="gcard">
+     <div class="gemoji">${g.emoji}</div>
+     <div class="gcard-info">
+       <div class="gcard-name">${g.name}</div>
+       ${g.species ? `<div class="gcard-species">${g.species}</div>` : ''}
+       ${g.diedOn ? `<div class="gcard-meta">Passed: ${g.diedOn}</div>` : ''}
+       ${g.cause ? `<div class="gcard-cause">${g.cause}</div>` : ''}
+       ${g.note ? `<div class="gcard-meta" style="font-style:italic;">"${g.note}"</div>` : ''}
+     </div>
+     <button class="restore-btn" onclick="restorePlant('${g.id}')">&#x1F331; Restore</button>
+   </div>`).join('');
 }
 
 
@@ -1193,51 +1158,51 @@ const sortCycles = ['az','za','recent','oldest'];
 const sortLabels = {'az':'A–Z','za':'Z–A','recent':'Recently Watered','oldest':'Least Watered'};
 
 function cycleSort() {
-  const idx = sortCycles.indexOf(currentSort);
-  currentSort = sortCycles[(idx + 1) % sortCycles.length];
-  document.getElementById('sortBtn').textContent = sortLabels[currentSort];
-  document.getElementById('sortBtn').classList.toggle('active', currentSort !== 'az');
-  applyFilters();
+const idx = sortCycles.indexOf(currentSort);
+currentSort = sortCycles[(idx + 1) % sortCycles.length];
+document.getElementById('sortBtn').textContent = sortLabels[currentSort];
+document.getElementById('sortBtn').classList.toggle('active', currentSort !== 'az');
+applyFilters();
 }
 
 function getLastWateredDate(p) {
-  const logs = waterLogs[p.id] || [];
-  return logs.length ? logs[0].date : '0000-00-00';
+const logs = waterLogs[p.id] || [];
+return logs.length ? logs[0].date : '0000-00-00';
 }
 
 function applyFilters() {
-  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
-  const list = document.getElementById('plantList');
+const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+const list = document.getElementById('plantList');
 
-  let filtered = [...plants];
+let filtered = [...plants];
 
-  // Search filter
-  if (q) {
-    filtered = filtered.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.species.toLowerCase().includes(q) ||
-      p.location.toLowerCase().includes(q) ||
-      p.containerType.toLowerCase().includes(q)
-    );
-  }
+// Search filter
+if (q) {
+filtered = filtered.filter(p =>
+p.name.toLowerCase().includes(q) ||
+p.species.toLowerCase().includes(q) ||
+p.location.toLowerCase().includes(q) ||
+p.containerType.toLowerCase().includes(q)
+);
+}
 
-  // Sort
-  filtered.sort((a, b) => {
-    if (currentSort === 'az') return a.name.localeCompare(b.name);
-    if (currentSort === 'za') return b.name.localeCompare(a.name);
-    if (currentSort === 'recent') return getLastWateredDate(b).localeCompare(getLastWateredDate(a));
-    if (currentSort === 'oldest') return getLastWateredDate(a).localeCompare(getLastWateredDate(b));
-    return 0;
-  });
+// Sort
+filtered.sort((a, b) => {
+if (currentSort === 'az') return a.name.localeCompare(b.name);
+if (currentSort === 'za') return b.name.localeCompare(a.name);
+if (currentSort === 'recent') return getLastWateredDate(b).localeCompare(getLastWateredDate(a));
+if (currentSort === 'oldest') return getLastWateredDate(a).localeCompare(getLastWateredDate(b));
+return 0;
+});
 
-  if (!filtered.length && plants.length) {
-    list.innerHTML = '<div class="no-results">No plants match "' + q + '"</div>';
-  } else {
-    list.innerHTML = filtered.map(plantCardHTML).join('');
-  }
+if (!filtered.length && plants.length) {
+list.innerHTML = '<div class="no-results">No plants match "' + q + '"</div>';
+} else {
+list.innerHTML = filtered.map(plantCardHTML).join('');
+}
 
-  // Hide empty state if we have plants (even if filtered to zero)
-  document.getElementById('emptyState').classList.toggle('hidden', plants.length > 0);
+// Hide empty state if we have plants (even if filtered to zero)
+document.getElementById('emptyState').classList.toggle('hidden', plants.length > 0);
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
@@ -1267,163 +1232,41 @@ async function migrateAdoptedDates() {
 }
 
 
-// --- Photos ------------------------------------------------------------
-function openPhotoModal(pid) {
-  const p = plants.find(x => x.id === pid); if (!p) return;
-  document.getElementById('photoPlantId').value = pid;
-  document.getElementById('photoModalTitle').textContent = '\u1F4F7 ' + p.name;
-  document.getElementById('photoModalSub').textContent = p.species || 'Add or view photos';
-  document.getElementById('photoFile').value = '';
-  document.getElementById('photoNote').value = '';
-  document.getElementById('photoUploadStatus').style.display = 'none';
-  document.getElementById('photoUploadBtn').textContent = '\uD83D\uDCF7 Upload Photo';
-  document.getElementById('photoUploadBtn').disabled = false;
-  renderPhotoHistory(p);
-  document.getElementById('photoModal').classList.add('open');
-}
-
-function renderPhotoHistory(p) {
-  const photos = p.photos || [];
-  const wrap = document.getElementById('photoHistoryWrap');
-  const list = document.getElementById('photoHistory');
-  if (!photos.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  const sorted = [...photos].reverse(); // newest first
-  list.innerHTML = sorted.map((ph, i) => `
-    <div class="photo-entry">
-      <img class="photo-thumb" src="${ph.thumb || ph.url}" onclick="openPhotoFull('${ph.url}')" alt="Plant photo">
-      <div class="photo-meta">
-        <div class="photo-date">${ph.date}</div>
-        ${ph.note ? `<div class="photo-note">${ph.note}</div>` : ''}
-      </div>
-    </div>`).join('');
-}
-
-function openPhotoFull(url) {
-  document.getElementById('photoFullImg').src = url;
-  document.getElementById('photoFull').style.display = 'flex';
-}
-function closePhotoFull() {
-  document.getElementById('photoFull').style.display = 'none';
-}
-
-async function uploadPhoto() {
-  const pid = document.getElementById('photoPlantId').value;
-  const file = document.getElementById('photoFile').files[0];
-  const note = document.getElementById('photoNote').value.trim();
-  if (!file) { toast('Please pick a photo first!'); return; }
-
-  const btn = document.getElementById('photoUploadBtn');
-  const status = document.getElementById('photoUploadStatus');
-  btn.disabled = true;
-  btn.textContent = 'Uploading...';
-  status.style.display = 'block';
-  status.textContent = 'Compressing image...';
-  setSyncStatus('pending');
-
-  try {
-    // Compress image before upload
-    const compressed = await compressImage(file, 800);
-    status.textContent = 'Uploading to ImgBB...';
-
-    const formData = new FormData();
-    formData.append('image', compressed.split(',')[1]); // base64 without header
-    formData.append('name', pid + '_' + Date.now());
-
-    const res = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {
-      method: 'POST', body: formData
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error('ImgBB upload failed');
-
-    const photoEntry = {
-      url: data.data.url,
-      thumb: data.data.thumb.url,
-      date: today(),
-      note
-    };
-
-    // Add to plant
-    const p = plants.find(x => x.id === pid);
-    if (!p) throw new Error('Plant not found');
-    if (!p.photos) p.photos = [];
-    p.photos.push(photoEntry);
-    localStorage.setItem('cgt_plants', JSON.stringify(plants));
-
-    // Sync to sheet
-    await syncPlantToSheet(p, false);
-
-    status.textContent = 'Done!';
-    btn.textContent = '\uD83D\uDCF7 Upload Another';
-    btn.disabled = false;
-    document.getElementById('photoFile').value = '';
-    document.getElementById('photoNote').value = '';
-    renderPhotoHistory(p);
-    render();
-    toast('\uD83D\uDCF7 Photo saved!');
-    setSyncStatus('synced');
-  } catch(e) {
-    console.error(e);
-    status.textContent = 'Upload failed — check connection and try again';
-    btn.textContent = '\uD83D\uDCF7 Upload Photo';
-    btn.disabled = false;
-    setSyncStatus('error');
-  }
-}
-
-function compressImage(file, maxWidth) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const scale = Math.min(1, maxWidth / img.width);
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.82));
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-
+// --- Sync Status -------------------------------------------------------
 function setSyncStatus(state) {
-  const el = document.getElementById('syncStatus');
-  const lbl = document.getElementById('syncLabel');
-  if (!el) return;
-  el.className = 'sync-status ' + state;
-  if (state === 'synced')  lbl.textContent = 'Synced';
-  if (state === 'pending') lbl.textContent = 'Saving...';
-  if (state === 'error')   lbl.textContent = 'Sync failed — data saved locally';
+  // state: 'synced' | 'pending' | 'error'
+const el = document.getElementById('syncStatus');
+const lbl = document.getElementById('syncLabel');
+if (!el) return;
+el.className = 'sync-status ' + state;
+if (state === 'synced')  lbl.textContent = 'Synced';
+if (state === 'pending') lbl.textContent = 'Saving...';
+if (state === 'error')   lbl.textContent = 'Sync failed — data saved locally';
 }
 
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let _tt;
 
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('show'), 2500);
+const el = document.getElementById('toast');
+el.textContent = msg;
+el.classList.add('show');
+clearTimeout(_tt);
+_tt = setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 // ─── Close modals on backdrop click ──────────────────────────────────────────
-['addModal','waterModal','buryModal','photoModal'].forEach(id => {
-  document.getElementById(id).addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal(id);
-  });
+['addModal','waterModal','buryModal'].forEach(id => {
+document.getElementById(id).addEventListener('click', e => {
+if (e.target === e.currentTarget) closeModal(id);
+});
 });
 
 // Close species dropdown on outside click
 document.addEventListener('click', e => {
-  if (!e.target.closest('.species-wrap')) {
-    document.getElementById('speciesResults').classList.remove('open');
-  }
+if (!e.target.closest('.species-wrap')) {
+document.getElementById('speciesResults').classList.remove('open');
+}
 });
 
 initAuth();
