@@ -269,6 +269,9 @@ a{color:inherit;text-decoration:none;}
       <h1 style="font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);">🌱 Plants</h1>
       <div class="sub">care tracker</div>
     </div>
+    <div class="sync-status synced" id="syncStatus">
+      <span class="sync-dot"></span><span id="syncLabel">Synced</span>
+    </div>
   </div>
   <div class="statbar">
     <div class="scard"><div class="slabel">Total</div><div class="sval dim" id="stTotal">0</div></div>
@@ -1008,6 +1011,7 @@ async function savePlant() {
   closeModal('addModal');
   render();
   toast(idx >= 0 ? '✅ Updated!' : entry.emoji + ' ' + name + ' added!');
+  setSyncStatus('pending');
 
   // Sync to Sheets in background
   syncPlantToSheet(entry, idx < 0);
@@ -1023,12 +1027,13 @@ async function syncPlantToSheet(entry, isNew) {
       const i = plants.findIndex(p => p.id === entry.id);
       if (i >= 0) { plants[i]._row = entry._row; plants[i]._unsynced = false; }
     } else {
-      await sheetsPut('Plants!A' + entry._row + ':M' + entry._row, [row]);
+      await sheetsPut('Plants!A' + entry._row + ':O' + entry._row, [row]);
       const i = plants.findIndex(p => p.id === entry.id);
       if (i >= 0) plants[i]._unsynced = false;
     }
     localStorage.setItem('cgt_plants', JSON.stringify(plants));
-  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); }
+    setSyncStatus('synced');
+  } catch(e) { console.warn('Sheet sync failed, will retry on next load:', e); setSyncStatus('error'); }
 }
 
 async function syncPending() {
@@ -1054,9 +1059,10 @@ async function saveWaterLog() {
   const wt = waterTypeLabel(type);
   toast(wt.label + ' logged!');
 
+  setSyncStatus('pending');
   // Sync in background
-  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); }
-  catch(e) { console.warn('Water log sync failed:', e); }
+  try { await sheetsAppend('WaterLog!A2:D', [[pid, date, type, note]]); setSyncStatus('synced'); }
+  catch(e) { console.warn('Water log sync failed:', e); setSyncStatus('error'); }
 }
 
 async function deletePlant(id) {
@@ -1130,10 +1136,12 @@ async function confirmBury() {
   render();
   toast(p.emoji + ' ' + p.name + ' has been laid to rest &#x26B0;&#xFE0F;');
 
+  setSyncStatus('pending');
   // Sync to sheet in background
   try {
     await sheetsAppend('Graveyard!A2:G', [[entry.id, entry.name, entry.emoji, entry.species, entry.diedOn, entry.cause, entry.note]]);
-  } catch(e) { console.warn('Graveyard sync failed:', e); }
+    setSyncStatus('synced');
+  } catch(e) { console.warn('Graveyard sync failed:', e); setSyncStatus('error'); }
 }
 
 async function restorePlant(id) {
