@@ -507,29 +507,25 @@ async function saveNewOrder(order) {
 }
 
 async function updateOrderInSheet(order) {
-  // Find the start row and clear old rows, then rewrite
-  // We use order._startRow if available, otherwise search
   try {
-    const allRows = await cxcGet(`${SHEET_NAME}!A2:M1000`);
+    const allRows = await cxcGet(`${SHEET_NAME}!A2:N1000`);
     let startRow = -1, rowCount = 0;
     for (let i = 0; i < allRows.length; i++) {
       if (allRows[i][0]?.trim() === order.id) {
         startRow = i + 2;
-        // count consecutive rows for this order
-        rowCount = 0;
-        for (let j = i; j < allRows.length; j++) {
-          if (j === i || !allRows[j][0]?.trim()) rowCount++;
+        rowCount = 1;
+        for (let j = i + 1; j < allRows.length; j++) {
+          if (!allRows[j][0]?.trim()) rowCount++;
           else break;
         }
         break;
       }
     }
     if (startRow < 0) { await saveNewOrder(order); return; }
-    // Clear old rows
-    await cxcClear(`${SHEET_NAME}!A${startRow}:M${startRow + rowCount - 1}`);
-    // Write new rows
     const newRows = ordersToRows([order]);
-    await cxcPut(`${SHEET_NAME}!A${startRow}:M${startRow + newRows.length - 1}`, newRows);
+    // Clear old rows then write new — use N to cover proc fee column
+    await cxcClear(`${SHEET_NAME}!A${startRow}:N${startRow + rowCount - 1}`);
+    await cxcPut(`${SHEET_NAME}!A${startRow}:N${startRow + newRows.length - 1}`, newRows);
   } catch(e) { console.error('update failed', e); throw e; }
 }
 
@@ -546,7 +542,7 @@ async function deleteOrderFromSheet(orderId) {
       break;
     }
   }
-  if (startRow > 0) await cxcClear(`${SHEET_NAME}!A${startRow}:M${startRow + rowCount - 1}`);
+  if (startRow > 0) await cxcClear(`${SHEET_NAME}!A${startRow}:N${startRow + rowCount - 1}`);
 }
 
 // ── Default seed data ─────────────────────────────────────────────────────────
