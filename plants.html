@@ -219,6 +219,23 @@ a{color:inherit;text-decoration:none;}
 .gemoji{width:44px;height:44px;border-radius:10px;background:rgba(196,103,63,0.08);border:1px solid rgba(196,103,63,.15);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;filter:grayscale(0.5);}
 .restore-btn{background:none;border:1px solid var(--border2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .restore-btn:active{opacity:.8;}
+
+/* Photo */
+.pemoji.has-photo{padding:0;overflow:hidden;background:none;border:none;}
+.pemoji.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:12px;display:block;}
+.photo-btn{background:var(--card2);border:1px solid var(--border2);color:var(--muted);font-size:13px;padding:5px 9px;border-radius:8px;cursor:pointer;line-height:1;}
+.photo-btn:active{opacity:.8;}
+
+/* Photo modal */
+.photo-history{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.photo-entry{display:flex;gap:10px;align-items:flex-start;}
+.photo-thumb{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer;}
+.photo-meta{flex:1;min-width:0;}
+.photo-date{font-size:11px;color:var(--muted2);}
+.photo-note{font-size:12px;color:var(--ink);margin-top:2px;}
+.photo-full{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:600;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.photo-full img{max-width:95vw;max-height:90dvh;object-fit:contain;border-radius:8px;}
+
 </style>
 </head>
 <body>
@@ -450,6 +467,40 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+
+<!-- Photo Modal -->
+<div class="modal-bg" id="photoModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="photoModalTitle">&#x1F4F7; Photos</div>
+    <div class="msub" id="photoModalSub"></div>
+
+    <div class="field">
+      <label>Add a Photo</label>
+      <input type="file" id="photoFile" accept="image/*" style="color:var(--muted);font-size:13px;">
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="photoNote" placeholder="e.g. new growth, just repotted">
+    </div>
+    <div id="photoUploadStatus" style="font-size:12px;color:var(--muted);margin-bottom:8px;display:none;"></div>
+    <button class="btn-full" onclick="uploadPhoto()" id="photoUploadBtn">&#x1F4F7; Upload Photo</button>
+
+    <div id="photoHistoryWrap" style="margin-top:16px;display:none;">
+      <div class="slbl">Photo History</div>
+      <div class="photo-history" id="photoHistory"></div>
+    </div>
+
+    <button class="btn-cancel" onclick="closeModal('photoModal')">Close</button>
+    <input type="hidden" id="photoPlantId">
+  </div>
+</div>
+
+<!-- Full size photo viewer -->
+<div class="photo-full" id="photoFull" style="display:none;" onclick="closePhotoFull()">
+  <img id="photoFullImg" src="" alt="Plant photo">
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -457,6 +508,7 @@ const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleuse
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const PLANTS_SID = '1m_zVkymi7Vl8GzkIahpqvXU1WG_B1rAVYvtplCin838';
 const PERENUAL_KEY = 'sk-5uQu69f80dd77ac5916967';
+const IMGBB_KEY = 'd5de8b93eccfe4785e2e7ff48d3d64b3';
 
 let accessToken = null;
 let plants = [];
@@ -532,7 +584,7 @@ async function ensureSheets() {
     const sheets = await getSheetTitles();
     if (!sheets.includes('Plants')) {
       await addSheetTab('Plants');
-      await sheetsPut('Plants!A1:N1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes','Adopted']]);
+      await sheetsPut('Plants!A1:O1', [['ID','Name','Emoji','Species','Location','ContainerType','PotSize','Sunlight','SoilType','Toxicity','Propagation','PerenualID','Notes','Adopted','Photos']]);
     }
     if (!sheets.includes('WaterLog')) {
       await addSheetTab('WaterLog');
@@ -543,13 +595,13 @@ async function ensureSheets() {
 
 async function loadPlants() {
   try {
-    const rows = await sheetsGet('Plants!A2:N1000');
+    const rows = await sheetsGet('Plants!A2:O1000');
     const fromSheet = rows.filter(r=>r[0]).map((r,i)=>({
       id:r[0]||'', name:r[1]||'', emoji:r[2]||'🌱',
       species:r[3]||'', location:r[4]||'', containerType:r[5]||'',
       potSize:r[6]||'', sunlight:r[7]||'', soilType:r[8]||'',
       toxicity:r[9]||'', propagation:r[10]||'', perenualId:r[11]||'',
-      notes:r[12]||'', adopted:r[13]||'', _row:i+2
+      notes:r[12]||'', adopted:r[13]||'', photos:r[14]?JSON.parse(r[14]):[], _row:i+2
     }));
     // Merge: keep any locally-saved plants that didn't make it to the sheet yet
     const local = JSON.parse(localStorage.getItem('cgt_plants')||'[]');
@@ -606,6 +658,8 @@ function plantCardHTML(p) {
   const logs = waterLogs[p.id] || [];
   const lastLog = logs[0];
   const avg = getAvgInterval(p.id);
+  const photos = p.photos || [];
+  const latestPhoto = photos.length ? photos[photos.length - 1] : null;
 
   // Pills
   let pills = '';
@@ -654,7 +708,11 @@ function plantCardHTML(p) {
 
   return `<div class="pcard">
     <div class="pcard-top">
-      <div class="pemoji">${p.emoji}</div>
+      <div class="pemoji ${latestPhoto ? 'has-photo' : ''}">
+        ${latestPhoto
+          ? `<img src="${latestPhoto.url}" alt="${p.name}" onclick="openPhotoModal('${p.id}')">`
+          : p.emoji}
+      </div>
       <div class="pinfo">
         <div class="pname">${p.name}</div>
         ${p.species ? `<div class="pspecies">${p.species}</div>` : ''}
@@ -939,6 +997,7 @@ async function savePlant() {
     perenualId: document.getElementById('perenualId').value,
     notes: document.getElementById('plantNotes').value.trim(),
     adopted: document.getElementById('plantAdopted').value.trim(),
+    photos: idx >= 0 ? (plants[idx].photos || []) : [],
     _row: idx >= 0 ? plants[idx]._row : null,
     _unsynced: idx < 0
   };
@@ -956,9 +1015,9 @@ async function savePlant() {
 
 async function syncPlantToSheet(entry, isNew) {
   try {
-    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes,entry.adopted||''];
+    const row = [entry.id,entry.name,entry.emoji,entry.species,entry.location,entry.containerType,entry.potSize,entry.sunlight,entry.soilType,entry.toxicity,entry.propagation,entry.perenualId,entry.notes,entry.adopted||'',entry.photos&&entry.photos.length?JSON.stringify(entry.photos):''];
     if (isNew) {
-      await sheetsAppend('Plants!A2:N', [row]);
+      await sheetsAppend('Plants!A2:O', [row]);
       const rows = await sheetsGet('Plants!A2:A1000');
       entry._row = rows.length + 1;
       const i = plants.findIndex(p => p.id === entry.id);
@@ -1200,6 +1259,132 @@ async function migrateAdoptedDates() {
 }
 
 
+// --- Photos ------------------------------------------------------------
+function openPhotoModal(pid) {
+  const p = plants.find(x => x.id === pid); if (!p) return;
+  document.getElementById('photoPlantId').value = pid;
+  document.getElementById('photoModalTitle').textContent = '\u1F4F7 ' + p.name;
+  document.getElementById('photoModalSub').textContent = p.species || 'Add or view photos';
+  document.getElementById('photoFile').value = '';
+  document.getElementById('photoNote').value = '';
+  document.getElementById('photoUploadStatus').style.display = 'none';
+  document.getElementById('photoUploadBtn').textContent = '\uD83D\uDCF7 Upload Photo';
+  document.getElementById('photoUploadBtn').disabled = false;
+  renderPhotoHistory(p);
+  document.getElementById('photoModal').classList.add('open');
+}
+
+function renderPhotoHistory(p) {
+  const photos = p.photos || [];
+  const wrap = document.getElementById('photoHistoryWrap');
+  const list = document.getElementById('photoHistory');
+  if (!photos.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  const sorted = [...photos].reverse(); // newest first
+  list.innerHTML = sorted.map((ph, i) => `
+    <div class="photo-entry">
+      <img class="photo-thumb" src="${ph.thumb || ph.url}" onclick="openPhotoFull('${ph.url}')" alt="Plant photo">
+      <div class="photo-meta">
+        <div class="photo-date">${ph.date}</div>
+        ${ph.note ? `<div class="photo-note">${ph.note}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function openPhotoFull(url) {
+  document.getElementById('photoFullImg').src = url;
+  document.getElementById('photoFull').style.display = 'flex';
+}
+function closePhotoFull() {
+  document.getElementById('photoFull').style.display = 'none';
+}
+
+async function uploadPhoto() {
+  const pid = document.getElementById('photoPlantId').value;
+  const file = document.getElementById('photoFile').files[0];
+  const note = document.getElementById('photoNote').value.trim();
+  if (!file) { toast('Please pick a photo first!'); return; }
+
+  const btn = document.getElementById('photoUploadBtn');
+  const status = document.getElementById('photoUploadStatus');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+  status.style.display = 'block';
+  status.textContent = 'Compressing image...';
+  setSyncStatus('pending');
+
+  try {
+    // Compress image before upload
+    const compressed = await compressImage(file, 800);
+    status.textContent = 'Uploading to ImgBB...';
+
+    const formData = new FormData();
+    formData.append('image', compressed.split(',')[1]); // base64 without header
+    formData.append('name', pid + '_' + Date.now());
+
+    const res = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error('ImgBB upload failed');
+
+    const photoEntry = {
+      url: data.data.url,
+      thumb: data.data.thumb.url,
+      date: today(),
+      note
+    };
+
+    // Add to plant
+    const p = plants.find(x => x.id === pid);
+    if (!p) throw new Error('Plant not found');
+    if (!p.photos) p.photos = [];
+    p.photos.push(photoEntry);
+    localStorage.setItem('cgt_plants', JSON.stringify(plants));
+
+    // Sync to sheet
+    await syncPlantToSheet(p, false);
+
+    status.textContent = 'Done!';
+    btn.textContent = '\uD83D\uDCF7 Upload Another';
+    btn.disabled = false;
+    document.getElementById('photoFile').value = '';
+    document.getElementById('photoNote').value = '';
+    renderPhotoHistory(p);
+    render();
+    toast('\uD83D\uDCF7 Photo saved!');
+    setSyncStatus('synced');
+  } catch(e) {
+    console.error(e);
+    status.textContent = 'Upload failed — check connection and try again';
+    btn.textContent = '\uD83D\uDCF7 Upload Photo';
+    btn.disabled = false;
+    setSyncStatus('error');
+  }
+}
+
+function compressImage(file, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+
 function setSyncStatus(state) {
   const el = document.getElementById('syncStatus');
   const lbl = document.getElementById('syncLabel');
@@ -1220,7 +1405,7 @@ function toast(msg) {
 }
 
 // ─── Close modals on backdrop click ──────────────────────────────────────────
-['addModal','waterModal','buryModal'].forEach(id => {
+['addModal','waterModal','buryModal','photoModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', e => {
     if (e.target === e.currentTarget) closeModal(id);
   });
