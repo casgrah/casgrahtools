@@ -120,7 +120,7 @@ a{color:inherit;text-decoration:none;}
 .sdot.busy{background:var(--warn);animation:pulse 1s infinite;}
 .sdot.err{background:var(--terra);}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.sbar5{grid-template-columns:repeat(5,1fr);}
+.sbar5{grid-template-columns:repeat(5,1fr);}.sbar6{grid-template-columns:repeat(6,1fr);}
 .filter-card{background:var(--card2) !important;border-color:var(--border2) !important;}
 .filter-select{width:100%;padding:4px 7px;border:1.5px solid var(--border2);border-radius:5px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink);background:var(--card2);outline:none;cursor:pointer;}
 .filter-select:focus{border-color:var(--teal);}
@@ -210,10 +210,11 @@ a{color:inherit;text-decoration:none;}
     </div>
   </div>
   <div class="sync-bar"><div class="sdot" id="sdot"></div><span id="smsg">Connecting...</span></div>
-  <div class="statbar sbar5" style="grid-template-columns:repeat(5,1fr);">
+  <div class="statbar sbar6" style="grid-template-columns:repeat(6,1fr);">
     <div class="scard"><div class="slabel">Revenue</div><div class="sval" id="totalRevenue">—</div></div>
     <div class="scard"><div class="slabel">Expenses</div><div class="sval terra" id="totalExpenses">—</div></div>
     <div class="scard"><div class="slabel">Profit</div><div class="sval success" id="totalProfit">—</div></div>
+    <div class="scard"><div class="slabel">Fees Paid</div><div class="sval warn" id="totalFees">—</div><div style="font-size:10px;color:var(--muted2);margin-top:2px;">Square processing</div></div>
     <div class="scard"><div class="slabel">Shipping P&amp;L</div><div class="sval dim" id="shippingPL">—</div><div style="font-size:10px;color:var(--muted2);margin-top:2px;" id="shippingPLsub"></div></div>
     <div class="scard filter-card">
       <div class="slabel" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span>Filter</span><button class="clr-f" onclick="clearFilters()">clear</button></div>
@@ -270,6 +271,7 @@ a{color:inherit;text-decoration:none;}
           </div>
           <hr style="border:none;border-top:1px solid var(--border);margin:2px 0;">
           <div class="field"><label>Notes</label><input type="text" id="notes" placeholder="Optional"></div>
+          <div class="field"><label>💳 Processing Fee ($) <span style="color:var(--muted);font-size:10px;font-weight:400;letter-spacing:0">Square, PayPal, etc.</span></label><input type="number" id="procFee" placeholder="e.g. 3.11" step="0.01" min="0"></div>
           <div class="frow">
             <div class="field"><label>Payment</label><select id="payStatus"><option value="paid">Paid</option><option value="pending">Pending</option></select></div>
             <div class="field"><label>Fulfillment</label><select id="fulfillStatus"><option value="complete">Complete</option><option value="pending">Pending</option></select></div>
@@ -372,7 +374,7 @@ let orders = [];
 let statusFilter = 'all';
 let editingIdx = null;
 let lineCount = 0;
-const ORDER_HEADERS = ['Order ID','Customer','Date','Delivery Method','Ship Charged','Ship Cost','Notes','Payment Status','Fulfillment Status','Item','Qty','Unit Price','Expense'];
+const ORDER_HEADERS = ['Order ID','Customer','Date','Delivery Method','Ship Charged','Ship Cost','Notes','Payment Status','Fulfillment Status','Item','Qty','Unit Price','Expense','Proc Fee'];
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -427,7 +429,8 @@ function ordersToRows(ords) {
         item.name||'',
         item.qty||1,
         item.unitPrice||0,
-        item.expense!=null ? item.expense : ''
+        item.expense!=null ? item.expense : '',
+        i===0 ? (o.procFee!=null ? o.procFee : '') : ''
       ]);
     }
   }
@@ -466,6 +469,7 @@ function rowsToOrders(rows) {
         notes: r[6]||'',
         payStatus: r[7]||'paid',
         fulfillStatus: r[8]||'complete',
+        procFee: r[13]!=='' && r[13]!=null ? parseFloat(r[13]) : null,
         items: [],
         _startRow: rows.indexOf(r) + 2
       };
@@ -560,9 +564,10 @@ function calcOrder(o) {
   let itemSale=0, itemExp=0;
   for (const i of o.items) { itemSale+=(i.qty||1)*(i.unitPrice||0); if(i.expense!=null) itemExp+=i.expense; }
   const sc=o.shipCharged||0, sk=o.shipCost||0;
-  const totalSale=itemSale+sc, totalExp=itemExp+sk;
+  const pf=o.procFee||0;
+  const totalSale=itemSale+sc, totalExp=itemExp+sk+pf;
   const profit=totalSale-totalExp;
-  return {itemSale,itemExp,totalSale,totalExp,profit,margin:totalSale>0?profit/totalSale:null,shipCharged:sc,shipCost:sk,shipNet:sc-sk};
+  return {itemSale,itemExp,totalSale,totalExp,profit,margin:totalSale>0?profit/totalSale:null,shipCharged:sc,shipCost:sk,shipNet:sc-sk,procFee:pf};
 }
 function fmt(v) { return (v===null||v===undefined||isNaN(v)) ? '—' : '$'+Number(v).toFixed(2); }
 function fmtSign(v) { if(v===null||isNaN(v))return'—'; return (v>=0?'+':'')+fmt(v); }
@@ -608,9 +613,11 @@ function render() {
   const filtered = getFiltered();
   let rev=0,exp=0,prof=0,sc=0,sk=0;
   for(const o of filtered) { const c=calcOrder(o); rev+=c.totalSale; exp+=c.totalExp; prof+=c.profit; sc+=c.shipCharged; sk+=c.shipCost; }
+  let fees=0; for(const o of filtered){fees+=(o.procFee||0);}
   document.getElementById('totalRevenue').textContent=fmt(rev);
   document.getElementById('totalExpenses').textContent=fmt(exp);
   document.getElementById('totalProfit').textContent=fmt(prof);
+  document.getElementById('totalFees').textContent=fees>0?fmt(fees):'—';
   const snet=sc-sk; const plEl=document.getElementById('shippingPL'); const plSub=document.getElementById('shippingPLsub');
   if(sc===0&&sk===0){plEl.textContent='—';plEl.className='sval dim';plSub.textContent='';}
   else{plEl.textContent=fmtSign(snet);plEl.className='sval '+(snet>=0?'success':'terra');plSub.textContent=fmt(sc)+' charged · '+fmt(sk)+' cost';}
@@ -646,6 +653,7 @@ function render() {
         ${itemRows}${shipRow}
         <div class="osub">
           ${order.notes?`<span class="onote">${order.notes}</span>`:''}
+          ${c.procFee>0?`<span class="si"><span class="sl">💳 Fee:</span><span class="sv" style="color:var(--warn)">${fmt(c.procFee)}</span></span>`:''}
           <span class="si"><span class="sl">Sale:</span><span class="sv">${fmt(c.totalSale)}</span></span>
           <span class="si"><span class="sl">Exp:</span><span class="sv" style="color:var(--terra)">${fmt(c.totalExp)}</span></span>
           <span class="si"><span class="sl">Profit:</span><span class="sv" style="color:var(--success)">${fmt(c.profit)}</span></span>
@@ -684,6 +692,7 @@ function startEdit(idx) {
   document.getElementById('customer').value=o.customer;
   document.getElementById('orderDate').value=o.date;
   document.getElementById('notes').value=o.notes||'';
+  document.getElementById('procFee').value=o.procFee!=null?o.procFee:'';
   document.getElementById('payStatus').value=o.payStatus||'paid';
   document.getElementById('fulfillStatus').value=o.fulfillStatus||'complete';
   document.getElementById('deliveryMethod').value=o.deliveryMethod||'tbd';
@@ -716,7 +725,7 @@ function removeLine(id){const el=document.getElementById(id);if(el)el.remove();}
 function resetForm(){
   document.getElementById('orderId').value=''; document.getElementById('customer').value='';
   document.getElementById('orderDate').value=new Date().toISOString().split('T')[0];
-  document.getElementById('notes').value=''; document.getElementById('payStatus').value='paid';
+  document.getElementById('notes').value=''; document.getElementById('procFee').value=''; document.getElementById('payStatus').value='paid';
   document.getElementById('fulfillStatus').value='complete'; document.getElementById('deliveryMethod').value='shipped';
   updateShipFields(); document.getElementById('lineItemsContainer').innerHTML=''; lineCount=0; addLineItem();
 }
@@ -742,6 +751,7 @@ async function submitOrder(){
     shipCharged:scEl&&scEl.value!==''?parseFloat(scEl.value):null,
     shipCost:skEl&&skEl.value!==''?parseFloat(skEl.value):null,
     notes:document.getElementById('notes').value,
+    procFee:document.getElementById('procFee').value!==''?parseFloat(document.getElementById('procFee').value):null,
     payStatus:document.getElementById('payStatus').value,
     fulfillStatus:document.getElementById('fulfillStatus').value
   };
@@ -757,14 +767,14 @@ async function submitOrder(){
 
 function exportCSV(){
   const filtered=getFiltered();
-  const rows=[['Order ID','Customer','Date','Delivery','Item','Qty','Unit Price','Item Sale','Item Expense','Ship Charged','Ship Cost','Ship Net','Total Sale','Total Expense','Profit','Margin','Notes','Pay','Fulfillment']];
+  const rows=[['Order ID','Customer','Date','Delivery','Item','Qty','Unit Price','Item Sale','Item Expense','Proc Fee','Ship Charged','Ship Cost','Ship Net','Total Sale','Total Expense','Profit','Margin','Notes','Pay','Fulfillment']];
   for(const o of filtered){
     const c=calcOrder(o);
     for(let i=0;i<o.items.length;i++){
       const item=o.items[i]; const sale=(item.qty||1)*(item.unitPrice||0);
       const exp=item.expense!=null?item.expense:''; const profit=exp!==''?sale-exp:'';
       const margin=exp!==''&&sale>0?((sale-exp)/sale*100).toFixed(1)+'%':'';
-      rows.push([o.id,o.customer,o.date,o.deliveryMethod||'',item.name,item.qty||1,item.unitPrice||0,sale,exp,i===0&&c.shipCharged?c.shipCharged:'',i===0&&c.shipCost?c.shipCost:'',i===0?(c.shipNet||''):'',i===0?c.totalSale:'',i===0?c.totalExp:'',i===0?c.profit:'',i===0?pct(c.margin):'',i===0?o.notes:'',i===0?o.payStatus:'',i===0?o.fulfillStatus:'']);
+      rows.push([o.id,o.customer,o.date,o.deliveryMethod||'',item.name,item.qty||1,item.unitPrice||0,sale,exp,i===0&&o.procFee!=null?o.procFee:'',i===0&&c.shipCharged?c.shipCharged:'',i===0&&c.shipCost?c.shipCost:'',i===0?(c.shipNet||''):'',i===0?c.totalSale:'',i===0?c.totalExp:'',i===0?c.profit:'',i===0?pct(c.margin):'',i===0?o.notes:'',i===0?o.payStatus:'',i===0?o.fulfillStatus:'']);
     }
   }
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
