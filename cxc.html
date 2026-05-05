@@ -443,12 +443,12 @@ async function ensureSheet() {
   const sheets = await cxcSheets();
   if (!sheets.includes(SHEET_NAME)) {
     await cxcAddSheet(SHEET_NAME);
-    await cxcPut(`${SHEET_NAME}!A1:M1`, [ORDER_HEADERS]);
+    await cxcPut(`${SHEET_NAME}!A1:N1`, [ORDER_HEADERS]);
     return;
   }
-  const header = await cxcGet(`${SHEET_NAME}!A1:M1`);
-  if (!header.length || !header[0].length) {
-    await cxcPut(`${SHEET_NAME}!A1:M1`, [ORDER_HEADERS]);
+  const header = await cxcGet(`${SHEET_NAME}!A1:N1`);
+  if (!header.length || !header[0].length || header[0].length < ORDER_HEADERS.length) {
+    await cxcPut(`${SHEET_NAME}!A1:N1`, [ORDER_HEADERS]);
   }
 }
 
@@ -492,7 +492,7 @@ function rowsToOrders(rows) {
 
 async function loadOrders() {
   try {
-    const rows = await cxcGet(`${SHEET_NAME}!A2:M1000`);
+    const rows = await cxcGet(`${SHEET_NAME}!A2:N1000`);
     orders = rowsToOrders(rows);
     setSyncStatus('synced', `Synced · ${orders.length} orders`);
   } catch(e) {
