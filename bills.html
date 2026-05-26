@@ -674,7 +674,8 @@ function renderStats(bills,income){
   const inc=income.reduce((s,r)=>s+(r.actual||0),0);
   const bal=inc-paid;
   document.getElementById('s-min-due').textContent=fmt(minDue);
-  document.getElementById('s-unpaid').textContent=fmt(Math.max(0,minDue-paid));
+  const unpaidBills = bills.filter(b => b.amtPaid == null).reduce((s,b) => s+(b.minPay||0), 0);
+document.getElementById('s-unpaid').textContent=fmt(unpaidBills);
   document.getElementById('s-paid').textContent=fmt(paid);
   document.getElementById('s-income').textContent=fmt(inc);
   document.getElementById('s-balance').textContent=fmt(bal);
