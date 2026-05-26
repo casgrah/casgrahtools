@@ -106,23 +106,40 @@ a{color:inherit;text-decoration:none;}
 #app.visible{display:flex;}
 .stego-wrap{width:72px;height:72px;border-radius:50%;background:var(--card);border:2px solid var(--teal-dim);display:flex;align-items:center;justify-content:center;}
 
-
 /* Bills-specific */
 .abar{border-bottom-color:var(--teal);}
-header{background:var(--navy);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
+header{background:var(--navy);padding:0 12px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
 .logo{font-family:'Caveat',cursive;font-size:20px;font-weight:700;color:var(--ink);}
-nav{display:flex;gap:2px;}
-nav button{background:none;border:none;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;}
-nav button:hover{color:var(--ink);background:rgba(255,255,255,.06);}
-nav button.active{color:var(--ink);background:rgba(255,255,255,.1);font-weight:500;}
-.hright{display:flex;align-items:center;gap:8px;}
-.mnav{display:flex;align-items:center;gap:6px;}
-.mnav button{background:rgba(255,255,255,.08);border:none;color:var(--ink);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+
+/* Header icon buttons (hamburger + kebab) */
+.hbtn{background:rgba(255,255,255,.08);border:none;color:var(--ink);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hbtn:hover{background:rgba(255,255,255,.15);}
+.hbtn:active{background:rgba(255,255,255,.2);}
+
+/* Kebab dropdown */
+.kebab-wrap{position:relative;}
+.kebab-menu{position:absolute;top:44px;right:0;background:var(--card2);border:1px solid var(--border2);border-radius:12px;min-width:170px;z-index:300;display:none;flex-direction:column;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.kebab-menu.open{display:flex;}
+.kebab-menu button{background:none;border:none;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;padding:13px 18px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;}
+.kebab-menu button:hover{background:var(--border);}
+.kebab-menu button:not(:last-child){border-bottom:1px solid var(--border);}
+
+/* Slide-in drawer */
+#drawer-bg{position:fixed;inset:0;background:rgba(5,10,12,.6);z-index:250;display:none;}
+#drawer-bg.open{display:block;}
+.drawer{position:fixed;top:0;left:-260px;width:240px;height:100dvh;background:var(--card);border-right:1px solid var(--border2);z-index:260;display:flex;flex-direction:column;padding:70px 12px 24px;gap:4px;transition:left .22s ease;}
+.drawer.open{left:0;}
+.drawer-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);padding:0 10px 10px;}
+.drawer-item{background:none;border:none;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 14px;border-radius:8px;text-align:left;cursor:pointer;width:100%;display:flex;align-items:center;gap:10px;}
+.drawer-item:hover{background:var(--border);}
+.drawer-item.active{background:var(--teal-pale);color:var(--teal);font-weight:500;}
+
+.hright{display:flex;align-items:center;gap:6px;}
+.mnav{display:flex;align-items:center;gap:4px;}
+.mnav button{background:rgba(255,255,255,.08);border:none;color:var(--ink);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
 .mnav button:hover{background:rgba(255,255,255,.15);}
-#cml{color:var(--ink);font-size:14px;font-weight:500;min-width:110px;text-align:center;}
-.rec-btn{background:var(--teal);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;border-radius:6px;cursor:pointer;}
-.rec-btn:hover{background:var(--teal-light);}
-.ubtn{background:rgba(255,255,255,.08);border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+#cml{color:var(--ink);font-size:13px;font-weight:500;min-width:96px;text-align:center;}
+
 main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-width:1200px;margin:0 auto;width:100%;}
 .summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
@@ -217,9 +234,7 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 @media(max-width:800px){
   .summary-row{grid-template-columns:repeat(2,1fr);}
   .cols{grid-template-columns:1fr;}
-  header{padding:0 12px;}
   main{padding:12px 12px calc(var(--nav-h) + var(--safe-b) + 12px);}
-  nav button{font-size:11px;padding:5px 8px;}
 }
 
 </style>
@@ -247,26 +262,38 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
   <p>Sign in with Google to sync your bills across devices</p>
   <button id="sign-in-btn"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google</button>
 </div>
+
 <div id="app">
   <header>
-    <div style="display:flex;align-items:center;gap:20px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="hbtn" id="hamburger-btn" onclick="toggleDrawer()" aria-label="Menu" style="font-size:18px;">☰</button>
       <div class="logo">🏠 bills</div>
-      <nav>
-        <button class="active" onclick="setView('monthly')">Monthly</button>
-        <button onclick="setView('annual')">Annual</button>
-        <button onclick="setView('master')">Bill master</button>
-      </nav>
     </div>
     <div class="hright">
       <div class="mnav" id="month-nav">
         <button onclick="changeMonth(-1)">&#8249;</button>
-        <span id="cml">April 2026</span>
+        <span id="cml">May 2026</span>
         <button onclick="changeMonth(1)">&#8250;</button>
       </div>
-      <button class="rec-btn" onclick="reconcileMonth()">&#10003; Reconcile</button>
-      <button class="ubtn" onclick="signOut('cgt_token')">Sign out</button>
+      <div class="kebab-wrap">
+        <button class="hbtn" id="kebab-btn" onclick="toggleKebab()" aria-label="More options" style="font-size:22px;font-weight:700;letter-spacing:1px;">⋮</button>
+        <div class="kebab-menu" id="kebab-menu">
+          <button onclick="reconcileMonth();closeKebab()">✓&nbsp; Reconcile month</button>
+          <button onclick="signOut('cgt_token');closeKebab()">↩&nbsp; Sign out</button>
+        </div>
+      </div>
     </div>
   </header>
+
+  <!-- Slide-in nav drawer -->
+  <div id="drawer-bg" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-title">Navigate</div>
+    <button class="drawer-item active" id="di-monthly" onclick="setView('monthly');closeDrawer()">📅&nbsp; Monthly</button>
+    <button class="drawer-item" id="di-annual" onclick="setView('annual');closeDrawer()">📊&nbsp; Annual</button>
+    <button class="drawer-item" id="di-master" onclick="setView('master');closeDrawer()">📋&nbsp; Bill master</button>
+  </div>
+
   <main>
     <div class="notif-strip hidden" id="notifStrip">
       🔔 Enable bill due-date reminders so you never miss a payment!
@@ -381,6 +408,7 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 
 <nav class="bnav"><a href="index.html" class=""><span class="ni">🏡</span><span class="nl">Home</span></a><a href="bills.html" class="active"><span class="ni">💰</span><span class="nl">Bills</span></a><a href="cxc.html" class=""><span class="ni">🦕</span><span class="nl">CXC</span></a><a href="books.html" class=""><span class="ni">🎧</span><span class="nl">Books</span></a><a href="plants.html" class=""><span class="ni">🌱</span><span class="nl">Plants</span></a></nav>
 <div id="toast"></div>
+
 <script>
 const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
@@ -479,7 +507,7 @@ let monthData    = {};
 let editingBill  = null;
 let addingAcct   = null;
 
-// ── Month persistence (fixes reconcile navigation bug) ────────────────────────
+// ── Month persistence ─────────────────────────────────────────────────────────
 function saveCurrentMonth() {
   localStorage.setItem('bt_month', JSON.stringify({m: currentMonth, y: currentYear}));
 }
@@ -489,12 +517,6 @@ function loadSavedMonth() {
     if (s) { const p = JSON.parse(s); currentMonth = p.m; currentYear = p.y; }
   } catch(e) {}
 }
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-
-// Refreshes token if close to expiry.
-
 
 async function showApp() {
   document.getElementById('auth-overlay').style.display='none';
@@ -611,7 +633,7 @@ async function renderMonthly(){
   document.getElementById('bills-panel-title').textContent=currentAcct==='house'?'House bills':'My bills';
   document.getElementById('income-panel-title').textContent=`Income — ${MONTHS[currentMonth]}`;
   document.getElementById('bal-acct-lbl').textContent=currentAcct==='house'?'House account':'My bills account';
-  document.getElementById('bills-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
+  document.getElementById('bills-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
   try{const data=await loadMonthData(currentAcct,y,m);renderBills(data.bills);renderIncome(data.income);renderStats(data.bills,data.income);}
   catch(e){console.error(e);toast('Error loading data');}
 }
@@ -621,7 +643,7 @@ function renderBills(bills){
   document.getElementById('bills-progress').style.width=pct+'%';
   document.getElementById('bills-progress-label').textContent=`${paid} / ${bills.length}`;
   const tbody=document.getElementById('bills-tbody');
-  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No bills this month</td></tr>';return;}
+  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No bills this month</td></tr>';return;}
   tbody.innerHTML=bills.map((b,i)=>{
     const isPaid=b.amtPaid!=null;
     const badge=isPaid?'<span class="badge paid">&#10003; Paid</span>':b.auto?'<span class="badge auto">Auto</span>':'<span class="badge unpaid">Unpaid</span>';
@@ -732,7 +754,7 @@ async function removeIncome(idx){
   catch(e){toast('Remove failed');}
 }
 
-// ── Reconcile (now saves month so page remembers where you are) ───────────────
+// ── Reconcile ─────────────────────────────────────────────────────────────────
 function reconcileMonth(){
   if(!confirm(`Mark ${MONTHS[currentMonth]} ${currentYear} as reconciled and move to next month?`))return;
   toast(`${MONTHS[currentMonth]} reconciled!`);
@@ -741,11 +763,12 @@ function reconcileMonth(){
 
 // ── Annual ────────────────────────────────────────────────────────────────────
 async function renderAnnual(){
-  document.getElementById('view-monthly').style.display='none';document.getElementById('view-master').style.display='none';document.getElementById('view-annual').style.display='block';document.getElementById('month-nav').style.visibility='hidden';
+  document.getElementById('view-monthly').style.display='none';document.getElementById('view-master').style.display='none';document.getElementById('view-annual').style.display='block';
+  document.getElementById('month-nav').style.visibility='hidden';
   document.getElementById('annual-title').textContent=`Annual overview — ${currentYear}`;
   document.getElementById('ann-hdr').innerHTML='<th>Category</th>'+MONTH_SHORT.map(m=>`<th>${m}</th>`).join('')+'<th>YTD</th>';
   const tbody=document.getElementById('ann-body');
-  tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--text-muted)">Loading...</td></tr>';
+  tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
   const allData={};
   for(let m=1;m<=12;m++){try{allData[m]={house:await loadMonthData('house',currentYear,m),my:await loadMonthData('my',currentYear,m)};}catch(e){allData[m]=null;}}
   const val=(acct,m,fn)=>{if(!allData[m])return null;const d=allData[m][acct];return d?fn(d):null;};
@@ -769,7 +792,8 @@ async function renderAnnual(){
 
 // ── Master ────────────────────────────────────────────────────────────────────
 function renderMasterView(){
-  document.getElementById('view-monthly').style.display='none';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='block';document.getElementById('month-nav').style.visibility='hidden';
+  document.getElementById('view-monthly').style.display='none';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='block';
+  document.getElementById('month-nav').style.visibility='hidden';
   renderMasterList('house',masterHouse,'master-house-list');renderMasterList('my',masterMy,'master-my-list');
 }
 function renderMasterList(acct,list,id){
@@ -777,7 +801,7 @@ function renderMasterList(acct,list,id){
     <div class="master-bill-item">
       <span class="mname">${b.name}</span><span class="mdue">${b.dueDay?'Day '+b.dueDay:'No date'}</span>
       <span class="mmin">${b.minPay!=null?fmt(b.minPay):'—'}</span>
-      <span style="font-size:11px;color:var(--text-muted);flex:1;margin-left:6px">${b.notes||''}</span>
+      <span style="font-size:11px;color:var(--muted);flex:1;margin-left:6px">${b.notes||''}</span>
       <button class="rm-btn" onclick="removeMaster('${acct}',${i})" title="Remove from master">&#215;</button>
     </div>`).join('');
 }
@@ -806,7 +830,11 @@ async function removeMaster(acct,idx){
 // ── Nav ───────────────────────────────────────────────────────────────────────
 function setView(v){
   currentView=v;
-  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',['monthly','annual','master'][i]===v));
+  // sync drawer active state
+  ['monthly','annual','master'].forEach(view=>{
+    const el=document.getElementById('di-'+view);
+    if(el) el.classList.toggle('active', view===v);
+  });
   document.getElementById('month-nav').style.visibility=v==='monthly'?'visible':'hidden';
   if(v==='monthly'){document.getElementById('view-monthly').style.display='';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='none';renderMonthly();}
   else if(v==='annual')renderAnnual();
@@ -825,6 +853,27 @@ function changeMonth(d){
   saveCurrentMonth();
   renderMonthly();
 }
+
+// ── Drawer & kebab ────────────────────────────────────────────────────────────
+function toggleDrawer(){
+  document.getElementById('drawer').classList.toggle('open');
+  document.getElementById('drawer-bg').classList.toggle('open');
+  closeKebab();
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-bg').classList.remove('open');
+}
+function toggleKebab(){
+  document.getElementById('kebab-menu').classList.toggle('open');
+  closeDrawer();
+}
+function closeKebab(){
+  document.getElementById('kebab-menu').classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if(!e.target.closest('#kebab-btn') && !e.target.closest('#kebab-menu')) closeKebab();
+});
 
 // ── One-time bill ─────────────────────────────────────────────────────────────
 function openAddBillThisMonth(){
@@ -849,8 +898,6 @@ let toastTimer;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 ['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal(id);}));
 
-
-
 // ── Bill due-date notifications ───────────────────────────────────────────────
 async function requestBillNotifs() {
   if(!('Notification'in window)){toast('Notifications not supported');return;}
@@ -862,14 +909,12 @@ async function requestBillNotifs() {
     scheduleBillCheck();
   } else toast('Notifications blocked — check browser settings');
 }
-
 function scheduleBillCheck() {
   checkBillsAndNotify();
   const now=new Date(), t=new Date(now);
   t.setHours(9,0,0,0); if(t<=now) t.setDate(t.getDate()+1);
   setTimeout(()=>{checkBillsAndNotify();setInterval(checkBillsAndNotify,864e5);}, t-now);
 }
-
 function checkBillsAndNotify() {
   if(Notification.permission!=='granted')return;
   const last=localStorage.getItem('bill_notif_date');
@@ -879,8 +924,8 @@ function checkBillsAndNotify() {
   const key=`house-${cy}-${cm}`;
   const data=monthData[key];
   if(!data)return;
-  const today=new Date().getDate();
-  const dueSoon=data.bills.filter(b=>b.amtPaid==null&&b.dueDay&&Math.abs(b.dueDay-today)<=3);
+  const todayD=new Date().getDate();
+  const dueSoon=data.bills.filter(b=>b.amtPaid==null&&b.dueDay&&Math.abs(b.dueDay-todayD)<=3);
   if(!dueSoon.length)return;
   localStorage.setItem('bill_notif_date',tod);
   const names=dueSoon.map(b=>`${b.name} (due ${cm}/${b.dueDay})`).join(', ');
@@ -895,4 +940,6 @@ if(Notification.permission==='granted')scheduleBillCheck();
 
 loadSavedMonth();
 initAuth('cgt_token');
-</script></body></html>
+</script>
+</body>
+</html>
