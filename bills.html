@@ -485,11 +485,10 @@ function buildIncomeTemplate(acct, year, month) {
     const entries = [];
     fridays.forEach(f => {
       if (isCaitlinPayday(f)) entries.push({date:toISO(f), desc:"My Check", expected:1334.00, actual:''});
-      entries.push({date:toISO(f), desc:"Ron's Check", expected:317.30, actual:''});
+      entries.push({date:toISO(f), desc:"Ron's Check", expected:338.00, actual:''});
     });
     entries.sort((a,b)=>a.date.localeCompare(b.date));
     rows.push(...entries);
-    rows.push({date:'', desc:'From Ron for groceries', expected:150.00, actual:''});
   } else {
     fridays.forEach(f => { if(isCaitlinPayday(f)) rows.push({date:toISO(f), desc:'Skypoint', expected:667.00, actual:''}); });
   }
