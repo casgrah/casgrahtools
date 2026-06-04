@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1416">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Debt Tracker · casgrahtools</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0a1416; --surface:#0f1e20; --card:#152224; --card2:#1a2b2e;
+  --border:#1e3538; --border2:#254043;
+  --ink:#ddeef0; --muted:#5a8a90; --muted2:#3d6a70;
+  --teal:#2d8a94; --teal-light:#3da8b5; --teal-dim:#1e5f66; --teal-pale:rgba(45,138,148,0.12);
+  --terra:#c4673f; --terra-light:#e07a4f; --terra-dim:#7a3820; --terra-pale:rgba(196,103,63,0.12);
+  --success:#2d9a5f; --success-pale:rgba(45,154,95,0.12);
+  --warn:#d4900a; --warn-pale:rgba(212,144,10,0.12);
+  --purple:#8b6fd4; --purple-pale:rgba(139,111,212,0.12);
+  --nav-h:64px; --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
+a{color:inherit;text-decoration:none;}
+
+/* Auth overlay */
+#auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px;padding:40px;}
+#auth-overlay h1{font-family:'Caveat',cursive;font-size:28px;color:var(--ink);font-weight:700;text-align:center;}
+#auth-overlay p{font-size:13px;color:var(--muted);text-align:center;max-width:280px;line-height:1.6;}
+#sign-in-btn{display:flex;align-items:center;gap:10px;background:white;color:#1e2e30;border:none;border-radius:12px;padding:14px 24px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+#sign-in-btn:active{transform:scale(0.97);}
+#sign-in-btn svg{width:20px;height:20px;flex-shrink:0;}
+#app{display:none;min-height:100dvh;flex-direction:column;}
+#app.visible{display:flex;}
+
+/* Bottom nav */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:var(--navy);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:10px;z-index:200;}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;}
+.bnav .ni{font-size:22px;line-height:1;}
+.bnav .nl{font-size:10px;font-weight:500;color:var(--muted2);letter-spacing:0.2px;}
+.bnav a.active .nl{color:var(--terra);}
+.bnav a.active .ni{filter:drop-shadow(0 0 6px rgba(196,103,63,0.6));}
+
+/* Scroll area */
+.scroll{padding:16px 16px calc(var(--nav-h) + var(--safe-b) + 20px);flex:1;}
+
+/* App bar */
+.abar{background:var(--navy);padding:48px 20px 14px;border-bottom:3px solid var(--terra);}
+.abar h1{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);font-weight:700;}
+.abar .sub{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.abar-row{display:flex;align-items:center;justify-content:space-between;}
+
+/* Tabs */
+.tabs-bar{background:var(--navy);display:flex;border-bottom:1px solid var(--border);padding:0 16px;gap:0;}
+.tab-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:10px 14px;cursor:pointer;background:none;border:none;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s;}
+.tab-btn.active{color:var(--terra);border-bottom-color:var(--terra);}
+
+/* Stat bar */
+.statbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;background:var(--navy);border-bottom:1px solid var(--border);}
+.statbar.four{grid-template-columns:1fr 1fr 1fr 1fr;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.slabel{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:3px;}
+.sval{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--teal);}
+.sval.terra{color:var(--terra);}
+.sval.success{color:var(--success);}
+.sval.warn{color:var(--warn);}
+.sval.dim{color:var(--ink);}
+
+/* Section label */
+.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:10px;margin-top:16px;}
+
+/* Debt cards */
+.debt-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px;}
+.debt-card.is-target{border-left:3px solid var(--terra);}
+.debt-card.is-promo{border-left:3px solid var(--teal);}
+.debt-card.is-fixed{border-left:3px solid var(--purple);}
+.debt-card.is-normal{border-left:3px solid var(--border2);}
+.debt-head{padding:14px 16px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.debt-left{flex:1;min-width:0;}
+.debt-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.debt-meta{display:flex;flex-wrap:wrap;gap:5px;}
+.debt-right{text-align:right;flex-shrink:0;}
+.debt-balance{font-family:'Caveat',cursive;font-size:24px;font-weight:700;color:var(--ink);}
+.debt-payment{font-size:11px;color:var(--muted);margin-top:1px;}
+.debt-note{font-size:11px;color:var(--muted);padding:0 16px 10px;line-height:1.4;}
+
+/* Progress bar */
+.prog-wrap{height:4px;background:var(--border);margin:0 16px 0;}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s;background:var(--muted2);}
+.is-target .prog-fill{background:var(--terra);}
+.is-promo .prog-fill{background:var(--teal);}
+.is-fixed .prog-fill{background:var(--purple);}
+.prog-label{font-size:10px;color:var(--muted2);padding:4px 16px 0;text-align:right;}
+
+/* Actions row */
+.debt-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:rgba(15,30,32,0.4);flex-wrap:wrap;}
+.act-group{display:flex;align-items:center;gap:6px;flex:1;min-width:150px;}
+.act-label{font-size:10px;color:var(--muted);white-space:nowrap;}
+.act-input{background:var(--card2);border:1.5px solid var(--border2);border-radius:8px;padding:7px 10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);width:90px;outline:none;}
+.act-input:focus{border-color:var(--teal);}
+.act-btn{padding:7px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;}
+.act-btn:active{opacity:.8;}
+.act-pay{background:var(--success);color:white;}
+.act-spend{background:var(--terra);color:white;}
+
+/* Log entries */
+.debt-log{padding:0 16px 12px;}
+.log-entry{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);}
+.log-entry:last-child{border-bottom:none;}
+.log-amt.pay{color:var(--success);}
+.log-amt.spend{color:var(--terra);}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.badge-terra{background:var(--terra-pale);color:var(--terra);}
+.badge-teal{background:var(--teal-pale);color:var(--teal);}
+.badge-purple{background:var(--purple-pale);color:var(--purple);}
+.badge-muted{background:rgba(90,138,144,0.1);color:var(--muted);}
+.badge-warn{background:var(--warn-pale);color:var(--warn);}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(5,10,12,0.85);display:flex;align-items:flex-end;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid var(--border2);padding:20px 20px calc(var(--safe-b) + 24px);width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .25s;}
+.modal-bg.open .modal{transform:translateY(0);}
+.mhandle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.mtitle{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);}
+.field select option{background:var(--card2);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn{padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
+.btn:active{opacity:.8;}
+.btn-terra{background:var(--terra);color:white;}
+.btn-ghost{background:var(--card2);border:1px solid var(--border2);color:var(--muted);}
+.btn-full{width:100%;padding:14px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;border-radius:12px;border:none;cursor:pointer;}
+.btn-cancel{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);right:20px;width:56px;height:56px;border-radius:50%;border:none;background:var(--terra);color:white;font-size:28px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(196,103,63,0.4);}
+.fab:active{transform:scale(0.92);}
+
+/* Toast */
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Sync button */
+.sync-btn{background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.sync-btn:active{opacity:.7;}
+.sync-btn.syncing{color:var(--teal);border-color:var(--teal);}
+
+/* Empty */
+.empty{text-align:center;padding:48px 20px;color:var(--muted);}
+
+/* Danger btn */
+.ibtn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;line-height:1;color:var(--muted2);}
+
+/* Delete row in modal */
+.delete-row{margin-top:12px;text-align:center;}
+.delete-row button{background:none;border:none;color:var(--muted2);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+/* Overall progress bar */
+.total-prog{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:4px;}
+.total-prog-bar{height:8px;background:var(--border);border-radius:4px;margin-top:8px;overflow:hidden;}
+.total-prog-fill{height:100%;background:linear-gradient(90deg,var(--terra),var(--warn));border-radius:4px;transition:width .5s;}
+.total-prog-labels{display:flex;justify-content:space-between;margin-top:5px;}
+.total-prog-labels span{font-size:10px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div style="width:72px;height:72px;border-radius:50%;background:var(--card);border:2px solid var(--terra-dim);display:flex;align-items:center;justify-content:center;font-size:32px;">💸</div>
+  <h1>Debt Tracker</h1>
+  <p>Sign in with Google to load your debts from Sheets.</p>
+  <button id="sign-in-btn" onclick="signIn()">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.3 30.2 0 24 0 14.7 0 6.7 5.5 2.7 13.5l7.8 6C12.4 13.2 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7C35.9 32 33.7 34.4 30.7 36l7.6 5.9C43.4 37.6 46.5 31.5 46.5 24.5z"/><path fill="#FBBC05" d="M10.5 28.5A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.1.8-4.5l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.8.9 7.4 2.5 10.5l8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.1-7.6 2.1-6.2 0-11.5-4.2-13.4-9.9l-8 6.2C6.6 42.5 14.6 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+    Sign in with Google
+  </button>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- App Bar -->
+  <div class="abar">
+    <div class="abar-row">
+      <div>
+        <h1>💸 Debt Tracker</h1>
+        <div class="sub">payoff progress</div>
+      </div>
+      <button class="sync-btn" id="sync-btn" onclick="syncAll()">⟳ sync</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" id="tab-joint-btn" onclick="switchTab('joint')">🏠 Joint</button>
+    <button class="tab-btn" id="tab-solo-btn" onclick="switchTab('solo')">👤 Solo</button>
+  </div>
+
+  <!-- Stats (joint) -->
+  <div id="stats-joint">
+    <div class="statbar four" id="statbar-joint"></div>
+    <div style="padding:0 16px 0;">
+      <div class="total-prog" id="progbar-joint"></div>
+    </div>
+  </div>
+
+  <!-- Stats (solo) -->
+  <div id="stats-solo" style="display:none;">
+    <div class="statbar four" id="statbar-solo"></div>
+    <div style="padding:0 16px 0;">
+      <div class="total-prog" id="progbar-solo"></div>
+    </div>
+  </div>
+
+  <!-- Scroll joint -->
+  <div class="scroll" id="view-joint">
+    <div id="cards-joint"></div>
+  </div>
+
+  <!-- Scroll solo -->
+  <div class="scroll" id="view-solo" style="display:none;">
+    <div id="cards-solo"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bnav">
+    <a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a>
+    <a href="bills.html"><span class="ni">💰</span><span class="nl">Bills</span></a>
+    <a href="debt.html" class="active"><span class="ni">💸</span><span class="nl">Debt</span></a>
+    <a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a>
+    <a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAddModal()">+</button>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal-debt">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="modal-title">Add Debt</div>
+    <div class="field"><label>Name</label><input type="text" id="f-name" placeholder="e.g. Amazon Chase"></div>
+    <div class="frow">
+      <div class="field"><label>Current Balance</label><input type="number" id="f-balance" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="field"><label>Original Balance</label><input type="number" id="f-orig" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>APR %</label><input type="number" id="f-apr" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="field"><label>Monthly Payment</label><input type="number" id="f-payment" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+    <div class="frow">
+      <div class="field">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="normal">Normal (min)</option>
+          <option value="target">Target (extra $)</option>
+          <option value="promo">0% Promo</option>
+          <option value="fixed">Fixed Plan</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Account</label>
+        <select id="f-tab">
+          <option value="joint">Joint</option>
+          <option value="solo">Solo</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Note</label><input type="text" id="f-note" placeholder="optional note"></div>
+    <input type="hidden" id="f-editing-id">
+    <button class="btn btn-full btn-terra" id="modal-save-btn" onclick="saveDebt()">Save Debt</button>
+    <button class="btn-cancel" onclick="closeModal('modal-debt')">Cancel</button>
+    <div class="delete-row" id="modal-delete-row" style="display:none;">
+      <button onclick="deleteDebt()">delete this debt</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// =====================================================================
+// CONFIG
+// =====================================================================
+const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
+const SHEET_ID  = '19JFv811aP8Eo-1_bTFGc4QGfUNEXaBZeJ0FH8ib47fA';
+const SCOPE     = 'https://www.googleapis.com/auth/spreadsheets';
+const SHEETS    = { joint: 'Joint', solo: 'Solo', log: 'Log' };
+
+// =====================================================================
+// STATE
+// =====================================================================
+let state = { joint: [], solo: [] };
+let activeTab = 'joint';
+
+// =====================================================================
+// AUTH
+// =====================================================================
+let tokenClient;
+function signIn() {
+  if (!tokenClient) {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPE,
+      callback: async (resp) => {
+        if (resp.error) { toast('sign-in error'); return; }
+        const tok = { access_token: resp.access_token, expires_at: Date.now() + (resp.expires_in - 60) * 1000 };
+        sessionStorage.setItem('debt_token', JSON.stringify(tok));
+        await initApp();
+      }
+    });
+  }
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+async function getToken() {
+  const raw = sessionStorage.getItem('debt_token');
+  if (!raw) return null;
+  const tok = JSON.parse(raw);
+  if (Date.now() > tok.expires_at) {
+    // validate / refresh
+    try {
+      const r = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${tok.access_token}`);
+      if (!r.ok) { sessionStorage.removeItem('debt_token'); return null; }
+    } catch { return null; }
+  }
+  return tok.access_token;
+}
+
+async function initApp() {
+  const tok = await getToken();
+  if (!tok) {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    document.getElementById('app').classList.remove('visible');
+    return;
+  }
+  document.getElementById('auth-overlay').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  await ensureSheets(tok);
+  await loadAll(tok);
+  renderAll();
+}
+
+// =====================================================================
+// SHEETS BOOTSTRAP
+// Columns for Joint/Solo: id | tab | name | balance | origBalance | apr | payment | type | note
+// Columns for Log:        id | tab | debtId | date | type | amount | balanceAfter
+// =====================================================================
+async function ensureSheets(tok) {
+  // Get existing sheet names
+  const meta = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, tok);
+  if (!meta) return;
+  const existing = meta.sheets.map(s => s.properties.title);
+  const toAdd = [];
+  if (!existing.includes(SHEETS.joint)) toAdd.push({ properties: { title: SHEETS.joint } });
+  if (!existing.includes(SHEETS.solo))  toAdd.push({ properties: { title: SHEETS.solo } });
+  if (!existing.includes(SHEETS.log))   toAdd.push({ properties: { title: SHEETS.log } });
+  if (toAdd.length === 0) return;
+  await apiPost(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, tok, {
+    requests: toAdd.map(s => ({ addSheet: s }))
+  });
+  // Seed headers
+  const headers = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
+  const logHeaders = [['id','tab','debtId','date','logType','amount','balanceAfter']];
+  for (const sh of [SHEETS.joint, SHEETS.solo]) {
+    if (!existing.includes(sh)) {
+      await apiPut(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A1')}?valueInputOption=RAW`, tok, { values: headers });
+    }
+  }
+  if (!existing.includes(SHEETS.log)) {
+    await apiPut(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A1')}?valueInputOption=RAW`, tok, { values: logHeaders });
+  }
+}
+
+// =====================================================================
+// LOAD
+// =====================================================================
+async function loadAll(tok) {
+  for (const tab of ['joint','solo']) {
+    const shName = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
+    const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(shName + '!A:I')}`, tok);
+    if (!data || !data.values || data.values.length < 2) { state[tab] = []; continue; }
+    const [hdr, ...rows] = data.values;
+    state[tab] = rows.map(r => ({
+      id:          r[0] || '',
+      tab:         r[1] || tab,
+      name:        r[2] || '',
+      balance:     parseFloat(r[3]) || 0,
+      origBalance: parseFloat(r[4]) || 0,
+      apr:         parseFloat(r[5]) || 0,
+      payment:     parseFloat(r[6]) || 0,
+      type:        r[7] || 'normal',
+      note:        r[8] || '',
+      log:         []
+    })).filter(d => d.id);
+  }
+  // Load log
+  const logData = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A:G')}`, tok);
+  if (logData && logData.values && logData.values.length > 1) {
+    const [, ...rows] = logData.values;
+    rows.forEach(r => {
+      const debtId = r[2];
+      const tabKey = r[1];
+      if (state[tabKey]) {
+        const debt = state[tabKey].find(d => d.id === debtId);
+        if (debt) debt.log.push({ date: r[3], type: r[4], amount: parseFloat(r[5]) || 0 });
+      }
+    });
+  }
+}
+
+// =====================================================================
+// SYNC (manual refresh)
+// =====================================================================
+async function syncAll() {
+  const btn = document.getElementById('sync-btn');
+  btn.classList.add('syncing');
+  btn.textContent = '⟳ syncing…';
+  const tok = await getToken();
+  if (!tok) { signIn(); return; }
+  await loadAll(tok);
+  renderAll();
+  btn.classList.remove('syncing');
+  btn.textContent = '⟳ sync';
+  toast('synced ✓');
+}
+
+// =====================================================================
+// RENDER
+// =====================================================================
+function renderAll() {
+  renderStats('joint');
+  renderStats('solo');
+  renderCards('joint');
+  renderCards('solo');
+}
+
+function renderStats(tab) {
+  const debts = state[tab];
+  const total   = debts.reduce((s, d) => s + d.balance, 0);
+  const monthly = debts.reduce((s, d) => s + d.payment, 0);
+  const origTotal = debts.reduce((s, d) => s + d.origBalance, 0);
+  const paid    = origTotal - total;
+  const pct     = origTotal > 0 ? Math.round((paid / origTotal) * 100) : 0;
+
+  document.getElementById('statbar-' + tab).innerHTML = `
+    <div class="scard"><div class="slabel">Total Owed</div><div class="sval terra">${fmt(total)}</div></div>
+    <div class="scard"><div class="slabel">Monthly</div><div class="sval dim">${fmt(monthly)}</div></div>
+    <div class="scard"><div class="slabel">Paid Down</div><div class="sval success">${fmt(paid)}</div></div>
+    <div class="scard"><div class="slabel">Progress</div><div class="sval warn">${pct}%</div></div>
+  `;
+  document.getElementById('progbar-' + tab).innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:11px;color:var(--muted2);font-weight:600;">Overall Payoff Progress</span>
+      <span style="font-family:'Caveat',cursive;font-size:18px;color:var(--warn);">${pct}%</span>
+    </div>
+    <div class="total-prog-bar"><div class="total-prog-fill" style="width:${pct}%"></div></div>
+    <div class="total-prog-labels"><span>${fmt(paid)} paid</span><span>${fmt(total)} remaining</span></div>
+  `;
+}
+
+function renderCards(tab) {
+  const container = document.getElementById('cards-' + tab);
+  const debts = state[tab];
+
+  if (!debts.length) {
+    container.innerHTML = `<div class="empty">No debts yet<br><span style="font-size:12px">Tap + to add one</span></div>`;
+    return;
+  }
+
+  // Sort: target first, then promo, then by balance desc
+  const order = { target: 0, promo: 1, fixed: 2, normal: 3 };
+  const sorted = [...debts].sort((a, b) => (order[a.type] ?? 3) - (order[b.type] ?? 3) || b.balance - a.balance);
+
+  container.innerHTML = sorted.map(d => {
+    const pct = d.origBalance > 0 ? Math.max(2, Math.round(((d.origBalance - d.balance) / d.origBalance) * 100)) : 0;
+    const typeBadge = d.type === 'target' ? '<span class="badge badge-terra">⚡ target</span>' :
+                      d.type === 'promo'  ? '<span class="badge badge-teal">0% promo</span>' :
+                      d.type === 'fixed'  ? '<span class="badge badge-purple">fixed plan</span>' : '';
+    const aprBadge  = d.apr > 0
+      ? `<span class="badge badge-muted">${d.apr}% APR</span>`
+      : '<span class="badge badge-teal">0% APR</span>';
+
+    const logHtml = d.log.slice(-3).reverse().map(e => `
+      <div class="log-entry">
+        <span>${e.date} · ${e.type === 'payment' ? 'payment' : 'charge'}</span>
+        <span class="log-amt ${e.type === 'payment' ? 'pay' : 'spend'}">${e.type === 'payment' ? '-' : '+'}${fmt(e.amount)}</span>
+      </div>`).join('');
+
+    return `
+      <div class="debt-card is-${d.type}" id="card-${tab}-${d.id}">
+        <div class="debt-head">
+          <div class="debt-left">
+            <div class="debt-name">${esc(d.name)}</div>
+            <div class="debt-meta">${typeBadge}${aprBadge}</div>
+          </div>
+          <div class="debt-right">
+            <div class="debt-balance">${fmt(d.balance)}</div>
+            <div class="debt-payment">${fmt(d.payment)}/mo</div>
+          </div>
+        </div>
+        ${d.note ? `<div class="debt-note">${esc(d.note)}</div>` : ''}
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="prog-label">${pct}% paid off · orig ${fmt(d.origBalance)}</div>
+        <div class="debt-actions">
+          <div class="act-group">
+            <span class="act-label">payment $</span>
+            <input class="act-input" type="number" id="pay-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
+            <button class="act-btn act-pay" data-tab="${tab}" data-id="${d.id}" onclick="logPayment('${tab}','${d.id}')">log</button>
+          </div>
+          <div class="act-group">
+            <span class="act-label">charge $</span>
+            <input class="act-input" type="number" id="spend-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
+            <button class="act-btn act-spend" data-tab="${tab}" data-id="${d.id}" onclick="logCharge('${tab}','${d.id}')">log</button>
+          </div>
+          <button class="ibtn" onclick="openEditModal('${tab}','${d.id}')" title="Edit">✏️</button>
+        </div>
+        ${logHtml ? `<div class="debt-log">${logHtml}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// =====================================================================
+// TAB SWITCH
+// =====================================================================
+function switchTab(tab) {
+  activeTab = tab;
+  ['joint','solo'].forEach(t => {
+    document.getElementById('view-' + t).style.display  = t === tab ? 'block' : 'none';
+    document.getElementById('stats-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-' + t + '-btn').classList.toggle('active', t === tab);
+  });
+}
+
+// =====================================================================
+// LOG PAYMENT / CHARGE
+// =====================================================================
+async function logPayment(tab, id) {
+  const input  = document.getElementById(`pay-${tab}-${id}`);
+  const amount = parseFloat(input.value);
+  if (!amount || amount <= 0) { toast('enter an amount'); return; }
+  const debt = state[tab].find(d => d.id === id);
+  debt.balance = Math.max(0, debt.balance - amount);
+  debt.log.push({ date: fmtDate(), type: 'payment', amount });
+  input.value = '';
+  const tok = await getToken();
+  if (tok) {
+    await updateDebtBalance(tok, tab, debt);
+    await appendLog(tok, tab, debt.id, 'payment', amount, debt.balance);
+  }
+  renderAll();
+  toast(`-${fmt(amount)} logged for ${debt.name}`);
+}
+
+async function logCharge(tab, id) {
+  const input  = document.getElementById(`spend-${tab}-${id}`);
+  const amount = parseFloat(input.value);
+  if (!amount || amount <= 0) { toast('enter an amount'); return; }
+  const debt = state[tab].find(d => d.id === id);
+  debt.balance += amount;
+  debt.log.push({ date: fmtDate(), type: 'spend', amount });
+  input.value = '';
+  const tok = await getToken();
+  if (tok) {
+    await updateDebtBalance(tok, tab, debt);
+    await appendLog(tok, tab, debt.id, 'spend', amount, debt.balance);
+  }
+  renderAll();
+  toast(`+${fmt(amount)} added to ${debt.name}`);
+}
+
+// =====================================================================
+// SAVE DEBT (add or edit)
+// =====================================================================
+function openAddModal() {
+  document.getElementById('modal-title').textContent = 'Add Debt';
+  document.getElementById('f-name').value    = '';
+  document.getElementById('f-balance').value = '';
+  document.getElementById('f-orig').value    = '';
+  document.getElementById('f-apr').value     = '';
+  document.getElementById('f-payment').value = '';
+  document.getElementById('f-type').value    = 'normal';
+  document.getElementById('f-tab').value     = activeTab;
+  document.getElementById('f-note').value    = '';
+  document.getElementById('f-editing-id').value = '';
+  document.getElementById('modal-delete-row').style.display = 'none';
+  document.getElementById('modal-debt').classList.add('open');
+}
+
+function openEditModal(tab, id) {
+  const debt = state[tab].find(d => d.id === id);
+  if (!debt) return;
+  document.getElementById('modal-title').textContent = 'Edit Debt';
+  document.getElementById('f-name').value    = debt.name;
+  document.getElementById('f-balance').value = debt.balance;
+  document.getElementById('f-orig').value    = debt.origBalance;
+  document.getElementById('f-apr').value     = debt.apr;
+  document.getElementById('f-payment').value = debt.payment;
+  document.getElementById('f-type').value    = debt.type;
+  document.getElementById('f-tab').value     = tab;
+  document.getElementById('f-note').value    = debt.note;
+  document.getElementById('f-editing-id').value = id;
+  document.getElementById('modal-delete-row').style.display = 'block';
+  document.getElementById('modal-debt').classList.add('open');
+}
+
+async function saveDebt() {
+  const name    = document.getElementById('f-name').value.trim();
+  const balance = parseFloat(document.getElementById('f-balance').value) || 0;
+  const orig    = parseFloat(document.getElementById('f-orig').value) || balance;
+  const apr     = parseFloat(document.getElementById('f-apr').value) || 0;
+  const payment = parseFloat(document.getElementById('f-payment').value) || 0;
+  const type    = document.getElementById('f-type').value;
+  const tab     = document.getElementById('f-tab').value;
+  const note    = document.getElementById('f-note').value.trim();
+  const editId  = document.getElementById('f-editing-id').value;
+
+  if (!name) { toast('name required'); return; }
+
+  const tok = await getToken();
+
+  if (editId) {
+    // Edit
+    const debt = state[tab].find(d => d.id === editId);
+    // check if tab changed
+    const oldTab = debt ? tab : (state.joint.find(d => d.id === editId) ? 'joint' : 'solo');
+    const oldDebt = state[oldTab]?.find(d => d.id === editId);
+    if (oldDebt) {
+      oldDebt.name = name; oldDebt.balance = balance; oldDebt.origBalance = orig;
+      oldDebt.apr = apr; oldDebt.payment = payment; oldDebt.type = type; oldDebt.note = note;
+      if (tok) await writeDebt(tok, oldTab, oldDebt);
+    }
+  } else {
+    // Add
+    const id = 'debt_' + Date.now();
+    const newDebt = { id, tab, name, balance, origBalance: orig, apr, payment, type, note, log: [] };
+    state[tab].push(newDebt);
+    if (tok) await appendDebt(tok, tab, newDebt);
+  }
+
+  closeModal('modal-debt');
+  renderAll();
+  switchTab(tab);
+  toast(editId ? 'debt updated' : 'debt added ✓');
+}
+
+async function deleteDebt() {
+  const editId = document.getElementById('f-editing-id').value;
+  if (!editId) return;
+  if (!confirm('Delete this debt?')) return;
+  const tok = await getToken();
+  for (const tab of ['joint','solo']) {
+    const idx = state[tab].findIndex(d => d.id === editId);
+    if (idx !== -1) {
+      state[tab].splice(idx, 1);
+      if (tok) await rewriteSheet(tok, tab);
+      break;
+    }
+  }
+  closeModal('modal-debt');
+  renderAll();
+  toast('debt deleted');
+}
+
+// =====================================================================
+// SHEETS API HELPERS
+// =====================================================================
+async function apiGet(url, tok) {
+  try {
+    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
+    if (r.status === 401) { sessionStorage.removeItem('debt_token'); signIn(); return null; }
+    if (!r.ok) return null;
+    return r.json();
+  } catch { return null; }
+}
+
+async function apiPost(url, tok, body) {
+  try {
+    const r = await fetch(url, {
+      method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+async function apiPut(url, tok, body) {
+  try {
+    const r = await fetch(url, {
+      method: 'PUT', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
+
+function debtRow(d) {
+  return [d.id, d.tab, d.name, d.balance, d.origBalance, d.apr, d.payment, d.type, d.note];
+}
+
+async function appendDebt(tok, tab, debt) {
+  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:I')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
+    method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [debtRow(debt)] })
+  });
+}
+
+async function rewriteSheet(tok, tab) {
+  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
+  const headers = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
+  const rows = state[tab].map(debtRow);
+  await apiPut(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:I')}?valueInputOption=USER_ENTERED`,
+    tok,
+    { values: [...headers, ...rows] }
+  );
+}
+
+async function updateDebtBalance(tok, tab, debt) {
+  // find row index
+  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
+  const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:A')}`, tok);
+  if (!data || !data.values) return;
+  const rowIdx = data.values.findIndex(r => r[0] === debt.id);
+  if (rowIdx < 1) return;
+  const rowNum = rowIdx + 1; // 1-based
+  await apiPut(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!D' + rowNum)}?valueInputOption=USER_ENTERED`,
+    tok,
+    { values: [[debt.balance]] }
+  );
+}
+
+async function writeDebt(tok, tab, debt) {
+  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
+  const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:A')}`, tok);
+  if (!data || !data.values) return;
+  const rowIdx = data.values.findIndex(r => r[0] === debt.id);
+  if (rowIdx < 1) return;
+  const rowNum = rowIdx + 1;
+  await apiPut(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A' + rowNum + ':I' + rowNum)}?valueInputOption=USER_ENTERED`,
+    tok,
+    { values: [debtRow(debt)] }
+  );
+}
+
+async function appendLog(tok, tab, debtId, logType, amount, balanceAfter) {
+  const id = 'log_' + Date.now();
+  const row = [id, tab, debtId, fmtDate(), logType, amount, balanceAfter];
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A:G')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
+    method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [row] })
+  });
+}
+
+// =====================================================================
+// UTILITIES
+// =====================================================================
+function fmt(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtDate() {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+// close modal on bg tap
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+let _tt;
+function toast(m) {
+  const el = document.getElementById('toast');
+  el.textContent = m;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+window.onload = () => initApp();
+</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+</body>
+</html>
