@@ -25,7 +25,7 @@
 body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100dvh;}
 a{color:inherit;text-decoration:none;}
 
-/* Auth overlay */
+/* Auth */
 #auth-overlay{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;gap:20px;padding:40px;}
 #auth-overlay h1{font-family:'Caveat',cursive;font-size:28px;color:var(--ink);font-weight:700;text-align:center;}
 #auth-overlay p{font-size:13px;color:var(--muted);text-align:center;max-width:280px;line-height:1.6;}
@@ -36,40 +36,43 @@ a{color:inherit;text-decoration:none;}
 #app.visible{display:flex;}
 
 /* Bottom nav */
-.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:var(--navy);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:10px;z-index:200;}
-.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;}
-.bnav .ni{font-size:22px;line-height:1;}
-.bnav .nl{font-size:10px;font-weight:500;color:var(--muted2);letter-spacing:0.2px;}
+.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--nav-h) + var(--safe-b));background:var(--navy);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:10px;z-index:200;overflow-x:auto;}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;min-width:52px;}
+.bnav .ni{font-size:20px;line-height:1;}
+.bnav .nl{font-size:9px;font-weight:500;color:var(--muted2);letter-spacing:0.2px;}
 .bnav a.active .nl{color:var(--terra);}
 .bnav a.active .ni{filter:drop-shadow(0 0 6px rgba(196,103,63,0.6));}
 
-/* Scroll area */
-.scroll{padding:16px 16px calc(var(--nav-h) + var(--safe-b) + 20px);flex:1;}
-
 /* App bar */
 .abar{background:var(--navy);padding:48px 20px 14px;border-bottom:3px solid var(--terra);}
+.abar-row{display:flex;align-items:center;justify-content:space-between;}
 .abar h1{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);font-weight:700;}
 .abar .sub{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
-.abar-row{display:flex;align-items:center;justify-content:space-between;}
 
 /* Tabs */
-.tabs-bar{background:var(--navy);display:flex;border-bottom:1px solid var(--border);padding:0 16px;gap:0;}
+.tabs-bar{background:var(--navy);display:flex;border-bottom:1px solid var(--border);padding:0 16px;}
 .tab-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:10px 14px;cursor:pointer;background:none;border:none;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s;}
 .tab-btn.active{color:var(--terra);border-bottom-color:var(--terra);}
 
 /* Stat bar */
-.statbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;background:var(--navy);border-bottom:1px solid var(--border);}
-.statbar.four{grid-template-columns:1fr 1fr 1fr 1fr;}
+.statbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;padding:12px 16px;background:var(--navy);border-bottom:1px solid var(--border);}
 .scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
 .slabel{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:3px;}
-.sval{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--teal);}
-.sval.terra{color:var(--terra);}
-.sval.success{color:var(--success);}
-.sval.warn{color:var(--warn);}
-.sval.dim{color:var(--ink);}
+.sval{font-family:'Caveat',cursive;font-size:20px;font-weight:700;color:var(--teal);}
+.sval.terra{color:var(--terra);} .sval.success{color:var(--success);} .sval.warn{color:var(--warn);} .sval.dim{color:var(--ink);}
+
+/* Progress */
+.total-prog{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:12px 16px 0;}
+.total-prog-bar{height:8px;background:var(--border);border-radius:4px;margin-top:8px;overflow:hidden;}
+.total-prog-fill{height:100%;background:linear-gradient(90deg,var(--terra),var(--warn));border-radius:4px;transition:width .5s;}
+.total-prog-labels{display:flex;justify-content:space-between;margin-top:5px;}
+.total-prog-labels span{font-size:10px;color:var(--muted);}
+
+/* Scroll */
+.scroll{padding:12px 16px calc(var(--nav-h) + var(--safe-b) + 20px);flex:1;}
 
 /* Section label */
-.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:10px;margin-top:16px;}
+.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:10px;margin-top:8px;}
 
 /* Debt cards */
 .debt-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px;}
@@ -85,16 +88,12 @@ a{color:inherit;text-decoration:none;}
 .debt-balance{font-family:'Caveat',cursive;font-size:24px;font-weight:700;color:var(--ink);}
 .debt-payment{font-size:11px;color:var(--muted);margin-top:1px;}
 .debt-note{font-size:11px;color:var(--muted);padding:0 16px 10px;line-height:1.4;}
-
-/* Progress bar */
-.prog-wrap{height:4px;background:var(--border);margin:0 16px 0;}
+.prog-wrap{height:4px;background:var(--border);margin:0 16px;}
 .prog-fill{height:100%;border-radius:2px;transition:width .4s;background:var(--muted2);}
 .is-target .prog-fill{background:var(--terra);}
 .is-promo .prog-fill{background:var(--teal);}
 .is-fixed .prog-fill{background:var(--purple);}
 .prog-label{font-size:10px;color:var(--muted2);padding:4px 16px 0;text-align:right;}
-
-/* Actions row */
 .debt-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:rgba(15,30,32,0.4);flex-wrap:wrap;}
 .act-group{display:flex;align-items:center;gap:6px;flex:1;min-width:150px;}
 .act-label{font-size:10px;color:var(--muted);white-space:nowrap;}
@@ -104,13 +103,11 @@ a{color:inherit;text-decoration:none;}
 .act-btn:active{opacity:.8;}
 .act-pay{background:var(--success);color:white;}
 .act-spend{background:var(--terra);color:white;}
-
-/* Log entries */
 .debt-log{padding:0 16px 12px;}
 .log-entry{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);}
 .log-entry:last-child{border-bottom:none;}
-.log-amt.pay{color:var(--success);}
-.log-amt.spend{color:var(--terra);}
+.log-amt.pay{color:var(--success);} .log-amt.spend{color:var(--terra);}
+.ibtn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;line-height:1;color:var(--muted2);}
 
 /* Badges */
 .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;}
@@ -118,7 +115,6 @@ a{color:inherit;text-decoration:none;}
 .badge-teal{background:var(--teal-pale);color:var(--teal);}
 .badge-purple{background:var(--purple-pale);color:var(--purple);}
 .badge-muted{background:rgba(90,138,144,0.1);color:var(--muted);}
-.badge-warn{background:var(--warn-pale);color:var(--warn);}
 
 /* Modal */
 .modal-bg{position:fixed;inset:0;background:rgba(5,10,12,0.85);display:flex;align-items:flex-end;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
@@ -129,46 +125,29 @@ a{color:inherit;text-decoration:none;}
 .mtitle{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--ink);margin-bottom:16px;}
 .field{margin-bottom:12px;}
 .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
-.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;transition:border-color .15s;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);}
+.field input,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--border2);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card2);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus{border-color:var(--teal);}
 .field select option{background:var(--card2);}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.btn{padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
-.btn:active{opacity:.8;}
-.btn-terra{background:var(--terra);color:white;}
-.btn-ghost{background:var(--card2);border:1px solid var(--border2);color:var(--muted);}
-.btn-full{width:100%;padding:14px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;border-radius:12px;border:none;cursor:pointer;}
+.btn-full{width:100%;padding:14px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;border-radius:12px;border:none;cursor:pointer;background:var(--terra);color:white;margin-top:4px;}
+.btn-full:active{opacity:.8;}
 .btn-cancel{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;}
+.delete-row{margin-top:12px;text-align:center;}
+.delete-row button{background:none;border:none;color:var(--muted2);font-size:12px;cursor:pointer;text-decoration:underline;}
 
 /* FAB */
 .fab{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);right:20px;width:56px;height:56px;border-radius:50%;border:none;background:var(--terra);color:white;font-size:28px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(196,103,63,0.4);}
 .fab:active{transform:scale(0.92);}
 
+/* Sync btn */
+.sync-btn{background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.sync-btn.syncing{color:var(--teal);border-color:var(--teal);}
+
 /* Toast */
 #toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* Sync button */
-.sync-btn{background:none;border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
-.sync-btn:active{opacity:.7;}
-.sync-btn.syncing{color:var(--teal);border-color:var(--teal);}
-
-/* Empty */
 .empty{text-align:center;padding:48px 20px;color:var(--muted);}
-
-/* Danger btn */
-.ibtn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;line-height:1;color:var(--muted2);}
-
-/* Delete row in modal */
-.delete-row{margin-top:12px;text-align:center;}
-.delete-row button{background:none;border:none;color:var(--muted2);font-size:12px;cursor:pointer;text-decoration:underline;}
-
-/* Overall progress bar */
-.total-prog{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:4px;}
-.total-prog-bar{height:8px;background:var(--border);border-radius:4px;margin-top:8px;overflow:hidden;}
-.total-prog-fill{height:100%;background:linear-gradient(90deg,var(--terra),var(--warn));border-radius:4px;transition:width .5s;}
-.total-prog-labels{display:flex;justify-content:space-between;margin-top:5px;}
-.total-prog-labels span{font-size:10px;color:var(--muted);}
 </style>
 </head>
 <body>
@@ -177,59 +156,39 @@ a{color:inherit;text-decoration:none;}
 <div id="auth-overlay">
   <div style="width:72px;height:72px;border-radius:50%;background:var(--card);border:2px solid var(--terra-dim);display:flex;align-items:center;justify-content:center;font-size:32px;">💸</div>
   <h1>Debt Tracker</h1>
-  <p>Sign in with Google to load your debts from Sheets.</p>
-  <button id="sign-in-btn" onclick="signIn()">
-    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.3 30.2 0 24 0 14.7 0 6.7 5.5 2.7 13.5l7.8 6C12.4 13.2 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7C35.9 32 33.7 34.4 30.7 36l7.6 5.9C43.4 37.6 46.5 31.5 46.5 24.5z"/><path fill="#FBBC05" d="M10.5 28.5A14.6 14.6 0 0 1 9.5 24c0-1.6.3-3.1.8-4.5l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.8.9 7.4 2.5 10.5l8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2 1.4-4.6 2.1-7.6 2.1-6.2 0-11.5-4.2-13.4-9.9l-8 6.2C6.6 42.5 14.6 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+  <p>Sign in with Google to sync your debts across devices</p>
+  <button id="sign-in-btn">
+    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
     Sign in with Google
   </button>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <!-- App Bar -->
   <div class="abar">
     <div class="abar-row">
-      <div>
-        <h1>💸 Debt Tracker</h1>
-        <div class="sub">payoff progress</div>
-      </div>
+      <div><h1>💸 Debt Tracker</h1><div class="sub">payoff progress</div></div>
       <button class="sync-btn" id="sync-btn" onclick="syncAll()">⟳ sync</button>
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs-bar">
     <button class="tab-btn active" id="tab-joint-btn" onclick="switchTab('joint')">🏠 Joint</button>
     <button class="tab-btn" id="tab-solo-btn" onclick="switchTab('solo')">👤 Solo</button>
   </div>
 
-  <!-- Stats (joint) -->
   <div id="stats-joint">
-    <div class="statbar four" id="statbar-joint"></div>
-    <div style="padding:0 16px 0;">
-      <div class="total-prog" id="progbar-joint"></div>
-    </div>
+    <div class="statbar" id="statbar-joint"></div>
+    <div class="total-prog" id="progbar-joint"></div>
+  </div>
+  <div id="stats-solo" style="display:none">
+    <div class="statbar" id="statbar-solo"></div>
+    <div class="total-prog" id="progbar-solo"></div>
   </div>
 
-  <!-- Stats (solo) -->
-  <div id="stats-solo" style="display:none;">
-    <div class="statbar four" id="statbar-solo"></div>
-    <div style="padding:0 16px 0;">
-      <div class="total-prog" id="progbar-solo"></div>
-    </div>
-  </div>
+  <div class="scroll" id="view-joint"><div id="cards-joint"></div></div>
+  <div class="scroll" id="view-solo" style="display:none"><div id="cards-solo"></div></div>
 
-  <!-- Scroll joint -->
-  <div class="scroll" id="view-joint">
-    <div id="cards-joint"></div>
-  </div>
-
-  <!-- Scroll solo -->
-  <div class="scroll" id="view-solo" style="display:none;">
-    <div id="cards-solo"></div>
-  </div>
-
-  <!-- Bottom nav -->
   <nav class="bnav">
     <a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a>
     <a href="bills.html"><span class="ni">💰</span><span class="nl">Bills</span></a>
@@ -237,8 +196,6 @@ a{color:inherit;text-decoration:none;}
     <a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a>
     <a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a>
   </nav>
-
-  <!-- FAB -->
   <button class="fab" onclick="openAddModal()">+</button>
 </div>
 
@@ -276,9 +233,9 @@ a{color:inherit;text-decoration:none;}
     </div>
     <div class="field"><label>Note</label><input type="text" id="f-note" placeholder="optional note"></div>
     <input type="hidden" id="f-editing-id">
-    <button class="btn btn-full btn-terra" id="modal-save-btn" onclick="saveDebt()">Save Debt</button>
+    <button class="btn-full" onclick="saveDebt()">Save Debt</button>
     <button class="btn-cancel" onclick="closeModal('modal-debt')">Cancel</button>
-    <div class="delete-row" id="modal-delete-row" style="display:none;">
+    <div class="delete-row" id="modal-delete-row" style="display:none">
       <button onclick="deleteDebt()">delete this debt</button>
     </div>
   </div>
@@ -287,263 +244,305 @@ a{color:inherit;text-decoration:none;}
 <div id="toast"></div>
 
 <script>
-// =====================================================================
-// CONFIG
-// =====================================================================
+// ── CONFIG ────────────────────────────────────────────────────────────────────
 const CLIENT_ID = '1049044356656-ecjtelk23gknpf1hc7kp3jt2kue56mlg.apps.googleusercontent.com';
+const SCOPES    = 'https://www.googleapis.com/auth/spreadsheets';
 const SHEET_ID  = '19JFv811aP8Eo-1_bTFGc4QGfUNEXaBZeJ0FH8ib47fA';
-const SCOPE     = 'https://www.googleapis.com/auth/spreadsheets';
 const SHEETS    = { joint: 'Joint', solo: 'Solo', log: 'Log' };
 
-// =====================================================================
-// STATE
-// =====================================================================
+// Seed data — your starting balances from the original tracker
+const SEED = {
+  joint: [
+    { id:'rtg',   name:'Rooms to Go',        balance:1712.65, origBalance:1712.65, apr:0,     payment:150,    type:'promo',  note:'0% promo — due Jun/Aug 2027' },
+    { id:'lowes', name:"Lowe's",              balance:4500.00, origBalance:4500.00, apr:31.99, payment:381,    type:'target', note:'target — dump extra here' },
+    { id:'amex',  name:'Amex Delta SkyMiles', balance:4000.85, origBalance:4000.85, apr:28.24, payment:140,    type:'normal', note:'min only' },
+    { id:'sams',  name:"Sam's Club",          balance:2912.81, origBalance:2912.81, apr:28.15, payment:83,     type:'normal', note:'min only' },
+    { id:'wf',    name:'WF Home Projects',    balance:4363.06, origBalance:4363.06, apr:8.99,  payment:96,     type:'normal', note:'min only — lowest rate' },
+  ],
+  solo: [
+    { id:'cc-reg', name:'CareCredit (regular)',    balance:961.90,  origBalance:961.90,  apr:32.99, payment:368,    type:'target', note:'target — highest rate, done ~Sep 2026' },
+    { id:'cc-fix', name:'CareCredit (fixed plan)', balance:6427.36, origBalance:6427.36, apr:20.90, payment:114.37, type:'fixed',  note:'mandatory fixed payment — auto' },
+    { id:'amazon', name:'Amazon Chase',            balance:3782.13, origBalance:3782.13, apr:29.99, payment:118,    type:'normal', note:'min only — stop new charges!' },
+    { id:'paypal', name:'PayPal Credit',           balance:2170.39, origBalance:2170.39, apr:29.24, payment:75,     type:'normal', note:'min only' },
+    { id:'vacu',   name:'VACU Mastercard',         balance:1037.30, origBalance:1037.30, apr:13.49, payment:200,    type:'normal', note:'bump to $300 as Affirm plans end' },
+  ]
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let accessToken = null;
 let state = { joint: [], solo: [] };
 let activeTab = 'joint';
 
-// =====================================================================
-// AUTH
-// =====================================================================
-let tokenClient;
-function signIn() {
-  if (!tokenClient) {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPE,
-      callback: async (resp) => {
-        if (resp.error) { toast('sign-in error'); return; }
-        const tok = { access_token: resp.access_token, expires_at: Date.now() + (resp.expires_in - 60) * 1000 };
-        sessionStorage.setItem('debt_token', JSON.stringify(tok));
-        await initApp();
+// ── AUTH — same pattern as bills.html / plants.html ───────────────────────────
+async function initAuth() {
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  document.head.appendChild(s);
+  await new Promise(r => s.onload = r);
+
+  const stored = localStorage.getItem('cgt_token');
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: r => {
+      if (r.access_token) {
+        accessToken = r.access_token;
+        localStorage.setItem('cgt_token', r.access_token);
+        showApp();
       }
-    });
-  }
-  tokenClient.requestAccessToken({ prompt: 'consent' });
-}
+    }
+  });
 
-async function getToken() {
-  const raw = sessionStorage.getItem('debt_token');
-  if (!raw) return null;
-  const tok = JSON.parse(raw);
-  if (Date.now() > tok.expires_at) {
-    // validate / refresh
+  if (stored) {
     try {
-      const r = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${tok.access_token}`);
-      if (!r.ok) { sessionStorage.removeItem('debt_token'); return null; }
-    } catch { return null; }
-  }
-  return tok.access_token;
-}
-
-async function initApp() {
-  const tok = await getToken();
-  if (!tok) {
-    document.getElementById('auth-overlay').style.display = 'flex';
-    document.getElementById('app').classList.remove('visible');
+      const res = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${stored}`);
+      const info = await res.json();
+      if (info.expires_in && info.expires_in > 60) {
+        accessToken = stored;
+        showApp();
+        return;
+      }
+    } catch(e) {}
+    // Token stale — silent refresh
+    client.requestAccessToken({ prompt: '' });
     return;
   }
+
+  document.getElementById('sign-in-btn').onclick = () => client.requestAccessToken({ prompt: '' });
+}
+
+function signOut() {
+  accessToken = null;
+  localStorage.removeItem('cgt_token');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('auth-overlay').style.display = 'flex';
+}
+
+// ── SHEETS API ────────────────────────────────────────────────────────────────
+async function apiGet(path) {
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`, {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  if (r.status === 401) { signOut(); toast('Session expired — please sign in again'); return null; }
+  if (!r.ok) return null;
+  return r.json();
+}
+
+async function apiPost(path, body) {
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (r.status === 401) { signOut(); return null; }
+  return r.ok ? r.json() : null;
+}
+
+async function apiPut(path, body) {
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (r.status === 401) { signOut(); return null; }
+  return r.ok ? r.json() : null;
+}
+
+// ── INIT APP ──────────────────────────────────────────────────────────────────
+async function showApp() {
   document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('app').classList.add('visible');
-  await ensureSheets(tok);
-  await loadAll(tok);
+  await ensureSheets();
+  await loadAll();
   renderAll();
 }
 
-// =====================================================================
-// SHEETS BOOTSTRAP
-// Columns for Joint/Solo: id | tab | name | balance | origBalance | apr | payment | type | note
-// Columns for Log:        id | tab | debtId | date | type | amount | balanceAfter
-// =====================================================================
-async function ensureSheets(tok) {
-  // Get existing sheet names
-  const meta = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`, tok);
+async function ensureSheets() {
+  const meta = await apiGet('');
   if (!meta) return;
   const existing = meta.sheets.map(s => s.properties.title);
   const toAdd = [];
   if (!existing.includes(SHEETS.joint)) toAdd.push({ properties: { title: SHEETS.joint } });
   if (!existing.includes(SHEETS.solo))  toAdd.push({ properties: { title: SHEETS.solo } });
   if (!existing.includes(SHEETS.log))   toAdd.push({ properties: { title: SHEETS.log } });
-  if (toAdd.length === 0) return;
-  await apiPost(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`, tok, {
-    requests: toAdd.map(s => ({ addSheet: s }))
-  });
-  // Seed headers
-  const headers = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
-  const logHeaders = [['id','tab','debtId','date','logType','amount','balanceAfter']];
+  if (toAdd.length) {
+    await apiPost(':batchUpdate', { requests: toAdd.map(s => ({ addSheet: s })) });
+  }
+  // Seed headers for any newly created sheets
+  const debtHdr = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
+  const logHdr  = [['id','tab','debtId','date','logType','amount','balanceAfter']];
   for (const sh of [SHEETS.joint, SHEETS.solo]) {
     if (!existing.includes(sh)) {
-      await apiPut(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A1')}?valueInputOption=RAW`, tok, { values: headers });
+      await apiPut(`/values/${encodeURIComponent(sh + '!A1:I1')}?valueInputOption=RAW`, { values: debtHdr });
     }
   }
   if (!existing.includes(SHEETS.log)) {
-    await apiPut(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A1')}?valueInputOption=RAW`, tok, { values: logHeaders });
+    await apiPut(`/values/${encodeURIComponent(SHEETS.log + '!A1:G1')}?valueInputOption=RAW`, { values: logHdr });
   }
 }
 
-// =====================================================================
-// LOAD
-// =====================================================================
-async function loadAll(tok) {
-  for (const tab of ['joint','solo']) {
-    const shName = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
-    const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(shName + '!A:I')}`, tok);
-    if (!data || !data.values || data.values.length < 2) { state[tab] = []; continue; }
-    const [hdr, ...rows] = data.values;
-    state[tab] = rows.map(r => ({
-      id:          r[0] || '',
-      tab:         r[1] || tab,
-      name:        r[2] || '',
-      balance:     parseFloat(r[3]) || 0,
-      origBalance: parseFloat(r[4]) || 0,
-      apr:         parseFloat(r[5]) || 0,
-      payment:     parseFloat(r[6]) || 0,
-      type:        r[7] || 'normal',
-      note:        r[8] || '',
-      log:         []
-    })).filter(d => d.id);
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function loadAll() {
+  for (const tab of ['joint', 'solo']) {
+    const sh = SHEETS[tab];
+    const data = await apiGet(`/values/${encodeURIComponent(sh + '!A:I')}`);
+    const rows = data?.values || [];
+
+    // Check whether we have a header row (sheet initialized) but no data rows
+    const hasHeader = rows.length > 0 && rows[0][0] === 'id';
+    const dataRows  = hasHeader ? rows.slice(1).filter(r => r[0]) : rows.filter(r => r[0] && r[0] !== 'id');
+
+    if (!dataRows.length) {
+      // Sheet is empty — seed with starting data
+      state[tab] = SEED[tab].map(d => ({ ...d, log: [] }));
+      await seedTab(tab);
+    } else {
+      state[tab] = dataRows.map(r => ({
+        id:          r[0] || '',
+        tab:         r[1] || tab,
+        name:        r[2] || '',
+        balance:     parseFloat(r[3]) || 0,
+        origBalance: parseFloat(r[4]) || 0,
+        apr:         parseFloat(r[5]) || 0,
+        payment:     parseFloat(r[6]) || 0,
+        type:        r[7] || 'normal',
+        note:        r[8] || '',
+        log:         []
+      })).filter(d => d.id);
+    }
   }
-  // Load log
-  const logData = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A:G')}`, tok);
-  if (logData && logData.values && logData.values.length > 1) {
-    const [, ...rows] = logData.values;
-    rows.forEach(r => {
-      const debtId = r[2];
-      const tabKey = r[1];
-      if (state[tabKey]) {
-        const debt = state[tabKey].find(d => d.id === debtId);
-        if (debt) debt.log.push({ date: r[3], type: r[4], amount: parseFloat(r[5]) || 0 });
-      }
-    });
-  }
+
+  // Load log and attach to debts
+  const logData = await apiGet(`/values/${encodeURIComponent(SHEETS.log + '!A:G')}`);
+  const logRows = logData?.values?.slice(1) || [];
+  logRows.forEach(r => {
+    if (!r[1] || !r[2]) return;
+    const tabKey  = r[1];
+    const debtId  = r[2];
+    if (state[tabKey]) {
+      const debt = state[tabKey].find(d => d.id === debtId);
+      if (debt) debt.log.push({ date: r[3], type: r[4], amount: parseFloat(r[5]) || 0 });
+    }
+  });
 }
 
-// =====================================================================
-// SYNC (manual refresh)
-// =====================================================================
+async function seedTab(tab) {
+  const sh = SHEETS[tab];
+  const rows = SEED[tab].map(d => [d.id, tab, d.name, d.balance, d.origBalance, d.apr, d.payment, d.type, d.note]);
+  await apiPost(
+    `/values/${encodeURIComponent(sh + '!A2:I')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    { values: rows }
+  );
+}
+
+// ── SYNC ──────────────────────────────────────────────────────────────────────
 async function syncAll() {
   const btn = document.getElementById('sync-btn');
   btn.classList.add('syncing');
   btn.textContent = '⟳ syncing…';
-  const tok = await getToken();
-  if (!tok) { signIn(); return; }
-  await loadAll(tok);
+  await loadAll();
   renderAll();
   btn.classList.remove('syncing');
   btn.textContent = '⟳ sync';
   toast('synced ✓');
 }
 
-// =====================================================================
-// RENDER
-// =====================================================================
+// ── RENDER ────────────────────────────────────────────────────────────────────
 function renderAll() {
-  renderStats('joint');
-  renderStats('solo');
-  renderCards('joint');
-  renderCards('solo');
+  renderStats('joint'); renderStats('solo');
+  renderCards('joint'); renderCards('solo');
 }
 
 function renderStats(tab) {
-  const debts = state[tab];
-  const total   = debts.reduce((s, d) => s + d.balance, 0);
-  const monthly = debts.reduce((s, d) => s + d.payment, 0);
-  const origTotal = debts.reduce((s, d) => s + d.origBalance, 0);
-  const paid    = origTotal - total;
-  const pct     = origTotal > 0 ? Math.round((paid / origTotal) * 100) : 0;
+  const debts    = state[tab];
+  const total    = debts.reduce((s, d) => s + d.balance, 0);
+  const monthly  = debts.reduce((s, d) => s + d.payment, 0);
+  const origTotal= debts.reduce((s, d) => s + d.origBalance, 0);
+  const paid     = origTotal - total;
+  const pct      = origTotal > 0 ? Math.round((paid / origTotal) * 100) : 0;
 
   document.getElementById('statbar-' + tab).innerHTML = `
     <div class="scard"><div class="slabel">Total Owed</div><div class="sval terra">${fmt(total)}</div></div>
     <div class="scard"><div class="slabel">Monthly</div><div class="sval dim">${fmt(monthly)}</div></div>
     <div class="scard"><div class="slabel">Paid Down</div><div class="sval success">${fmt(paid)}</div></div>
-    <div class="scard"><div class="slabel">Progress</div><div class="sval warn">${pct}%</div></div>
-  `;
+    <div class="scard"><div class="slabel">Progress</div><div class="sval warn">${pct}%</div></div>`;
+
   document.getElementById('progbar-' + tab).innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:11px;color:var(--muted2);font-weight:600;">Overall Payoff Progress</span>
       <span style="font-family:'Caveat',cursive;font-size:18px;color:var(--warn);">${pct}%</span>
     </div>
     <div class="total-prog-bar"><div class="total-prog-fill" style="width:${pct}%"></div></div>
-    <div class="total-prog-labels"><span>${fmt(paid)} paid</span><span>${fmt(total)} remaining</span></div>
-  `;
+    <div class="total-prog-labels"><span>${fmt(paid)} paid</span><span>${fmt(total)} remaining</span></div>`;
 }
 
 function renderCards(tab) {
   const container = document.getElementById('cards-' + tab);
   const debts = state[tab];
-
   if (!debts.length) {
-    container.innerHTML = `<div class="empty">No debts yet<br><span style="font-size:12px">Tap + to add one</span></div>`;
+    container.innerHTML = '<div class="empty">No debts yet<br><span style="font-size:12px">Tap + to add one</span></div>';
     return;
   }
-
-  // Sort: target first, then promo, then by balance desc
-  const order = { target: 0, promo: 1, fixed: 2, normal: 3 };
-  const sorted = [...debts].sort((a, b) => (order[a.type] ?? 3) - (order[b.type] ?? 3) || b.balance - a.balance);
+  const order = { target:0, promo:1, fixed:2, normal:3 };
+  const sorted = [...debts].sort((a, b) => (order[a.type]??3) - (order[b.type]??3) || b.balance - a.balance);
 
   container.innerHTML = sorted.map(d => {
     const pct = d.origBalance > 0 ? Math.max(2, Math.round(((d.origBalance - d.balance) / d.origBalance) * 100)) : 0;
-    const typeBadge = d.type === 'target' ? '<span class="badge badge-terra">⚡ target</span>' :
-                      d.type === 'promo'  ? '<span class="badge badge-teal">0% promo</span>' :
-                      d.type === 'fixed'  ? '<span class="badge badge-purple">fixed plan</span>' : '';
-    const aprBadge  = d.apr > 0
+    const typeBadge = d.type==='target' ? '<span class="badge badge-terra">⚡ target</span>' :
+                      d.type==='promo'  ? '<span class="badge badge-teal">0% promo</span>'  :
+                      d.type==='fixed'  ? '<span class="badge badge-purple">fixed plan</span>' : '';
+    const aprBadge = d.apr > 0
       ? `<span class="badge badge-muted">${d.apr}% APR</span>`
       : '<span class="badge badge-teal">0% APR</span>';
-
     const logHtml = d.log.slice(-3).reverse().map(e => `
       <div class="log-entry">
-        <span>${e.date} · ${e.type === 'payment' ? 'payment' : 'charge'}</span>
-        <span class="log-amt ${e.type === 'payment' ? 'pay' : 'spend'}">${e.type === 'payment' ? '-' : '+'}${fmt(e.amount)}</span>
+        <span>${e.date} · ${e.type==='payment'?'payment':'charge'}</span>
+        <span class="log-amt ${e.type==='payment'?'pay':'spend'}">${e.type==='payment'?'-':'+'}${fmt(e.amount)}</span>
       </div>`).join('');
 
-    return `
-      <div class="debt-card is-${d.type}" id="card-${tab}-${d.id}">
-        <div class="debt-head">
-          <div class="debt-left">
-            <div class="debt-name">${esc(d.name)}</div>
-            <div class="debt-meta">${typeBadge}${aprBadge}</div>
-          </div>
-          <div class="debt-right">
-            <div class="debt-balance">${fmt(d.balance)}</div>
-            <div class="debt-payment">${fmt(d.payment)}/mo</div>
-          </div>
+    return `<div class="debt-card is-${d.type}" id="card-${tab}-${d.id}">
+      <div class="debt-head">
+        <div class="debt-left">
+          <div class="debt-name">${esc(d.name)}</div>
+          <div class="debt-meta">${typeBadge}${aprBadge}</div>
         </div>
-        ${d.note ? `<div class="debt-note">${esc(d.note)}</div>` : ''}
-        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
-        <div class="prog-label">${pct}% paid off · orig ${fmt(d.origBalance)}</div>
-        <div class="debt-actions">
-          <div class="act-group">
-            <span class="act-label">payment $</span>
-            <input class="act-input" type="number" id="pay-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
-            <button class="act-btn act-pay" data-tab="${tab}" data-id="${d.id}" onclick="logPayment('${tab}','${d.id}')">log</button>
-          </div>
-          <div class="act-group">
-            <span class="act-label">charge $</span>
-            <input class="act-input" type="number" id="spend-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
-            <button class="act-btn act-spend" data-tab="${tab}" data-id="${d.id}" onclick="logCharge('${tab}','${d.id}')">log</button>
-          </div>
-          <button class="ibtn" onclick="openEditModal('${tab}','${d.id}')" title="Edit">✏️</button>
+        <div class="debt-right">
+          <div class="debt-balance">${fmt(d.balance)}</div>
+          <div class="debt-payment">${fmt(d.payment)}/mo</div>
         </div>
-        ${logHtml ? `<div class="debt-log">${logHtml}</div>` : ''}
       </div>
-    `;
+      ${d.note ? `<div class="debt-note">${esc(d.note)}</div>` : ''}
+      <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-label">${pct}% paid off · orig ${fmt(d.origBalance)}</div>
+      <div class="debt-actions">
+        <div class="act-group">
+          <span class="act-label">payment $</span>
+          <input class="act-input" type="number" id="pay-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
+          <button class="act-btn act-pay" onclick="logPayment('${tab}','${d.id}')">log</button>
+        </div>
+        <div class="act-group">
+          <span class="act-label">charge $</span>
+          <input class="act-input" type="number" id="spend-${tab}-${d.id}" placeholder="0.00" step="0.01" min="0">
+          <button class="act-btn act-spend" onclick="logCharge('${tab}','${d.id}')">log</button>
+        </div>
+        <button class="ibtn" onclick="openEditModal('${tab}','${d.id}')" title="Edit">✏️</button>
+      </div>
+      ${logHtml ? `<div class="debt-log">${logHtml}</div>` : ''}
+    </div>`;
   }).join('');
 }
 
-// =====================================================================
-// TAB SWITCH
-// =====================================================================
+// ── TAB SWITCH ────────────────────────────────────────────────────────────────
 function switchTab(tab) {
   activeTab = tab;
   ['joint','solo'].forEach(t => {
-    document.getElementById('view-' + t).style.display  = t === tab ? 'block' : 'none';
-    document.getElementById('stats-' + t).style.display = t === tab ? 'block' : 'none';
-    document.getElementById('tab-' + t + '-btn').classList.toggle('active', t === tab);
+    document.getElementById('view-'  + t).style.display  = t===tab ? 'block' : 'none';
+    document.getElementById('stats-' + t).style.display  = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'   + t + '-btn').classList.toggle('active', t===tab);
   });
 }
 
-// =====================================================================
-// LOG PAYMENT / CHARGE
-// =====================================================================
+// ── LOG PAYMENT / CHARGE ──────────────────────────────────────────────────────
 async function logPayment(tab, id) {
   const input  = document.getElementById(`pay-${tab}-${id}`);
   const amount = parseFloat(input.value);
@@ -552,13 +551,10 @@ async function logPayment(tab, id) {
   debt.balance = Math.max(0, debt.balance - amount);
   debt.log.push({ date: fmtDate(), type: 'payment', amount });
   input.value = '';
-  const tok = await getToken();
-  if (tok) {
-    await updateDebtBalance(tok, tab, debt);
-    await appendLog(tok, tab, debt.id, 'payment', amount, debt.balance);
-  }
   renderAll();
   toast(`-${fmt(amount)} logged for ${debt.name}`);
+  await updateDebtInSheet(tab, debt);
+  await appendLog(tab, debt.id, 'payment', amount, debt.balance);
 }
 
 async function logCharge(tab, id) {
@@ -569,36 +565,25 @@ async function logCharge(tab, id) {
   debt.balance += amount;
   debt.log.push({ date: fmtDate(), type: 'spend', amount });
   input.value = '';
-  const tok = await getToken();
-  if (tok) {
-    await updateDebtBalance(tok, tab, debt);
-    await appendLog(tok, tab, debt.id, 'spend', amount, debt.balance);
-  }
   renderAll();
   toast(`+${fmt(amount)} added to ${debt.name}`);
+  await updateDebtInSheet(tab, debt);
+  await appendLog(tab, debt.id, 'spend', amount, debt.balance);
 }
 
-// =====================================================================
-// SAVE DEBT (add or edit)
-// =====================================================================
+// ── MODAL: ADD / EDIT / DELETE ────────────────────────────────────────────────
 function openAddModal() {
   document.getElementById('modal-title').textContent = 'Add Debt';
-  document.getElementById('f-name').value    = '';
-  document.getElementById('f-balance').value = '';
-  document.getElementById('f-orig').value    = '';
-  document.getElementById('f-apr').value     = '';
-  document.getElementById('f-payment').value = '';
-  document.getElementById('f-type').value    = 'normal';
-  document.getElementById('f-tab').value     = activeTab;
-  document.getElementById('f-note').value    = '';
+  ['f-name','f-balance','f-orig','f-apr','f-payment','f-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-type').value = 'normal';
+  document.getElementById('f-tab').value  = activeTab;
   document.getElementById('f-editing-id').value = '';
   document.getElementById('modal-delete-row').style.display = 'none';
   document.getElementById('modal-debt').classList.add('open');
 }
 
 function openEditModal(tab, id) {
-  const debt = state[tab].find(d => d.id === id);
-  if (!debt) return;
+  const debt = state[tab].find(d => d.id === id); if (!debt) return;
   document.getElementById('modal-title').textContent = 'Edit Debt';
   document.getElementById('f-name').value    = debt.name;
   document.getElementById('f-balance').value = debt.balance;
@@ -623,30 +608,20 @@ async function saveDebt() {
   const tab     = document.getElementById('f-tab').value;
   const note    = document.getElementById('f-note').value.trim();
   const editId  = document.getElementById('f-editing-id').value;
-
   if (!name) { toast('name required'); return; }
 
-  const tok = await getToken();
-
   if (editId) {
-    // Edit
     const debt = state[tab].find(d => d.id === editId);
-    // check if tab changed
-    const oldTab = debt ? tab : (state.joint.find(d => d.id === editId) ? 'joint' : 'solo');
-    const oldDebt = state[oldTab]?.find(d => d.id === editId);
-    if (oldDebt) {
-      oldDebt.name = name; oldDebt.balance = balance; oldDebt.origBalance = orig;
-      oldDebt.apr = apr; oldDebt.payment = payment; oldDebt.type = type; oldDebt.note = note;
-      if (tok) await writeDebt(tok, oldTab, oldDebt);
+    if (debt) {
+      Object.assign(debt, { name, balance, origBalance:orig, apr, payment, type, note });
+      await writeDebtRow(tab, debt);
     }
   } else {
-    // Add
     const id = 'debt_' + Date.now();
-    const newDebt = { id, tab, name, balance, origBalance: orig, apr, payment, type, note, log: [] };
+    const newDebt = { id, tab, name, balance, origBalance:orig, apr, payment, type, note, log:[] };
     state[tab].push(newDebt);
-    if (tok) await appendDebt(tok, tab, newDebt);
+    await appendDebtRow(tab, newDebt);
   }
-
   closeModal('modal-debt');
   renderAll();
   switchTab(tab);
@@ -654,15 +629,13 @@ async function saveDebt() {
 }
 
 async function deleteDebt() {
-  const editId = document.getElementById('f-editing-id').value;
-  if (!editId) return;
+  const editId = document.getElementById('f-editing-id').value; if (!editId) return;
   if (!confirm('Delete this debt?')) return;
-  const tok = await getToken();
   for (const tab of ['joint','solo']) {
     const idx = state[tab].findIndex(d => d.id === editId);
     if (idx !== -1) {
       state[tab].splice(idx, 1);
-      if (tok) await rewriteSheet(tok, tab);
+      await rewriteSheet(tab);
       break;
     }
   }
@@ -671,133 +644,76 @@ async function deleteDebt() {
   toast('debt deleted');
 }
 
-// =====================================================================
-// SHEETS API HELPERS
-// =====================================================================
-async function apiGet(url, tok) {
-  try {
-    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
-    if (r.status === 401) { sessionStorage.removeItem('debt_token'); signIn(); return null; }
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
+// ── SHEET WRITE HELPERS ───────────────────────────────────────────────────────
+function debtRow(d, tab) {
+  return [d.id, tab, d.name, d.balance, d.origBalance, d.apr, d.payment, d.type, d.note];
 }
 
-async function apiPost(url, tok, body) {
-  try {
-    const r = await fetch(url, {
-      method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    return r.ok ? r.json() : null;
-  } catch { return null; }
-}
-
-async function apiPut(url, tok, body) {
-  try {
-    const r = await fetch(url, {
-      method: 'PUT', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    return r.ok ? r.json() : null;
-  } catch { return null; }
-}
-
-function debtRow(d) {
-  return [d.id, d.tab, d.name, d.balance, d.origBalance, d.apr, d.payment, d.type, d.note];
-}
-
-async function appendDebt(tok, tab, debt) {
-  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
-  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:I')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
-    method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ values: [debtRow(debt)] })
-  });
-}
-
-async function rewriteSheet(tok, tab) {
-  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
-  const headers = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
-  const rows = state[tab].map(debtRow);
-  await apiPut(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:I')}?valueInputOption=USER_ENTERED`,
-    tok,
-    { values: [...headers, ...rows] }
+async function appendDebtRow(tab, debt) {
+  const sh = SHEETS[tab];
+  await apiPost(
+    `/values/${encodeURIComponent(sh + '!A:I')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    { values: [debtRow(debt, tab)] }
   );
 }
 
-async function updateDebtBalance(tok, tab, debt) {
-  // find row index
-  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
-  const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:A')}`, tok);
-  if (!data || !data.values) return;
-  const rowIdx = data.values.findIndex(r => r[0] === debt.id);
-  if (rowIdx < 1) return;
-  const rowNum = rowIdx + 1; // 1-based
+async function rewriteSheet(tab) {
+  const sh  = SHEETS[tab];
+  const hdr = [['id','tab','name','balance','origBalance','apr','payment','type','note']];
+  const rows = state[tab].map(d => debtRow(d, tab));
   await apiPut(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!D' + rowNum)}?valueInputOption=USER_ENTERED`,
-    tok,
-    { values: [[debt.balance]] }
+    `/values/${encodeURIComponent(sh + '!A1:I' + (rows.length + 1))}?valueInputOption=USER_ENTERED`,
+    { values: [...hdr, ...rows] }
   );
 }
 
-async function writeDebt(tok, tab, debt) {
-  const sh = tab === 'joint' ? SHEETS.joint : SHEETS.solo;
-  const data = await apiGet(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A:A')}`, tok);
-  if (!data || !data.values) return;
+async function updateDebtInSheet(tab, debt) {
+  // Find the row by scanning column A for the debt id
+  const sh   = SHEETS[tab];
+  const data = await apiGet(`/values/${encodeURIComponent(sh + '!A:A')}`);
+  if (!data?.values) return;
   const rowIdx = data.values.findIndex(r => r[0] === debt.id);
   if (rowIdx < 1) return;
   const rowNum = rowIdx + 1;
   await apiPut(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sh + '!A' + rowNum + ':I' + rowNum)}?valueInputOption=USER_ENTERED`,
-    tok,
-    { values: [debtRow(debt)] }
+    `/values/${encodeURIComponent(sh + '!D' + rowNum)}?valueInputOption=USER_ENTERED`,
+    { values: [[debt.balance]] }
   );
 }
 
-async function appendLog(tok, tab, debtId, logType, amount, balanceAfter) {
-  const id = 'log_' + Date.now();
+async function writeDebtRow(tab, debt) {
+  const sh   = SHEETS[tab];
+  const data = await apiGet(`/values/${encodeURIComponent(sh + '!A:A')}`);
+  if (!data?.values) return;
+  const rowIdx = data.values.findIndex(r => r[0] === debt.id);
+  if (rowIdx < 1) return;
+  const rowNum = rowIdx + 1;
+  await apiPut(
+    `/values/${encodeURIComponent(sh + '!A' + rowNum + ':I' + rowNum)}?valueInputOption=USER_ENTERED`,
+    { values: [debtRow(debt, tab)] }
+  );
+}
+
+async function appendLog(tab, debtId, logType, amount, balanceAfter) {
+  const id  = 'log_' + Date.now();
   const row = [id, tab, debtId, fmtDate(), logType, amount, balanceAfter];
-  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEETS.log + '!A:G')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
-    method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ values: [row] })
-  });
+  await apiPost(
+    `/values/${encodeURIComponent(SHEETS.log + '!A:G')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    { values: [row] }
+  );
 }
 
-// =====================================================================
-// UTILITIES
-// =====================================================================
-function fmt(n) {
-  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtDate() {
-  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-// close modal on bg tap
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
-});
-
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function fmt(n) { return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtDate() { return new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); }));
 let _tt;
-function toast(m) {
-  const el = document.getElementById('toast');
-  el.textContent = m;
-  el.classList.add('show');
-  clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('show'), 2500);
-}
+function toast(m) { const el=document.getElementById('toast'); el.textContent=m; el.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2500); }
 
-// =====================================================================
-// INIT
-// =====================================================================
-window.onload = () => initApp();
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+initAuth();
 </script>
-<script src="https://accounts.google.com/gsi/client" async></script>
 </body>
 </html>
