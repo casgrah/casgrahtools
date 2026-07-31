@@ -516,7 +516,6 @@ const isn = (a,y,m) => `Inc${a==='house'?'House':'My'} ${y}-${String(m).padStart
 async function ensureSheetsExist(){
   const existing=await getSheetsList();
   const needed=['BillMaster'];
-  for(let i=0;i<3;i++){let m=currentMonth+1+i,y=currentYear;if(m>12){m-=12;y++;}needed.push(sn('house',y,m),sn('my',y,m),isn('house',y,m),isn('my',y,m));}
   for(const name of needed){
     if(!existing.includes(name)){
       await addSheet(name);
