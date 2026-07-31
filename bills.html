@@ -563,6 +563,8 @@ async function loadMonthData(acct,y,m){
   if(monthData[key])return monthData[key];
   const bs=sn(acct,y,m),is=isn(acct,y,m);
   let bills=[],income=[];
+    // Small delay to let newly created sheets settle
+  await new Promise(r=>setTimeout(r,500));
   try{
     const r=await sheetsGet(`${bs}!A2:F1000`);
     bills=r.map((row,i)=>({rowIdx:i+2,sheet:bs,name:row[0]||'',dueDay:row[1]?parseInt(row[1]):null,minPay:row[2]?parseFloat(row[2]):null,notes:row[3]||'',datePaid:row[4]||'',amtPaid:row[5]?parseFloat(row[5]):null,auto:(row[3]||'').toLowerCase().includes('auto')})).filter(b=>b.name);
