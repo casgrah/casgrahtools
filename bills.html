@@ -453,6 +453,10 @@ function buildIncomeTemplate(acct, year, month) {
     rows.push(...entries);
   } else {
     fridays.forEach(f => { if(isCaitlinPayday(f)) rows.push({date:toISO(f), desc:'Skypoint', expected:667.00, actual:''}); });
+    const d = new Date(year, month - 1, 15);
+rows.push({date:toISO(d), desc:'Headway', expected:0, actual:''});
+const last = new Date(year, month, 0);
+rows.push({date:toISO(last), desc:'Headway', expected:0, actual:''});
   }
   return rows;
 }
