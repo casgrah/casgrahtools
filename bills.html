@@ -563,6 +563,12 @@ async function loadMonthData(acct,y,m){
   if(monthData[key])return monthData[key];
   const bs=sn(acct,y,m),is=isn(acct,y,m);
   let bills=[],income=[];
+
+    // Create sheets for this month if they don't exist
+  const existing = await getSheetsList();
+  if (!existing.includes(bs)) await addSheet(bs);
+  if (!existing.includes(is)) await addSheet(is);
+  
     // Small delay to let newly created sheets settle
   await new Promise(r=>setTimeout(r,500));
   try{
