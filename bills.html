@@ -11,7 +11,6 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-
 :root {
   --navy:#0a1416; --surface:#0f1e20; --card:#152224; --card2:#1a2b2e;
   --border:#1e3538; --border2:#254043;
@@ -35,28 +34,9 @@ a{color:inherit;text-decoration:none;}
 .bnav a.active .ni{filter:drop-shadow(0 0 6px rgba(45,138,148,0.6));}
 .scroll{padding:16px 16px calc(var(--nav-h) + var(--safe-b) + 20px);}
 .abar{background:var(--navy);padding:48px 20px 14px;border-bottom:3px solid var(--teal);}
-.abar.terra{border-bottom-color:var(--terra);}
-.abar.purple{border-bottom-color:var(--purple);}
-.abar.success{border-bottom-color:var(--success);}
 .abar h1{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);font-weight:700;}
 .abar .sub{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
-.abar-row{display:flex;align-items:center;justify-content:space-between;}
-.statbar{display:grid;gap:10px;padding:12px 16px;background:var(--navy);border-bottom:1px solid var(--border);}
-.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
-.slabel{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted2);margin-bottom:3px;}
-.sval{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--teal);}
-.sval.terra{color:var(--terra);} .sval.success{color:var(--success);} .sval.warn{color:var(--warn);} .sval.dim{color:var(--ink);}
-.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted2);margin-bottom:10px;}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;}
-.btn{padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s;}
-.btn:active{opacity:.8;}
-.btn-teal{background:var(--teal);color:white;}
-.btn-terra{background:var(--terra);color:white;}
-.btn-success{background:var(--success);color:white;}
-.btn-purple{background:var(--purple);color:white;}
-.btn-ghost{background:var(--card2);border:1px solid var(--border2);color:var(--muted);}
-.btn-full{width:100%;padding:14px;font-family:'Caveat',cursive;font-size:20px;font-weight:700;border-radius:12px;border:none;cursor:pointer;}
-.btn-cancel{width:100%;padding:12px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;}
 .fab{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);right:20px;width:56px;height:56px;border-radius:50%;border:none;color:white;font-size:28px;cursor:pointer;z-index:90;display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
 .fab:active{transform:scale(0.92);}
 #toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 12px);left:50%;transform:translateX(-50%) translateY(16px);background:var(--card2);color:var(--ink);border:1px solid var(--border2);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
@@ -78,8 +58,6 @@ a{color:inherit;text-decoration:none;}
 #app{display:none;min-height:100dvh;flex-direction:column;}
 #app.visible{display:flex;}
 .stego-wrap{width:72px;height:72px;border-radius:50%;background:var(--card);border:2px solid var(--teal-dim);display:flex;align-items:center;justify-content:center;}
-
-.abar{border-bottom-color:var(--teal);}
 header{background:var(--navy);padding:0 12px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
 .logo{font-family:'Caveat',cursive;font-size:20px;font-weight:700;color:var(--ink);}
 .hbtn{background:rgba(255,255,255,.08);border:none;color:var(--ink);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -131,8 +109,6 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 .bill-table td{padding:9px 16px;font-size:13px;vertical-align:middle;}
 .bill-table td.right{text-align:right;}
 .bill-table td.clk{cursor:pointer;}
-.bname{font-weight:500;color:var(--ink);}
-.bdue{color:var(--muted);font-size:12px;}
 .mono{font-family:'DM Mono',monospace;font-size:12px;}
 .badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;}
 .badge.paid{background:var(--success-pale);color:var(--success);}
@@ -157,7 +133,6 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 .balance-display .bl{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .balance-display .bv{font-size:28px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-1px;}
 .balance-display .bs{font-size:11px;color:var(--muted2);margin-top:4px;}
-/* Modals */
 .modal-bg{position:fixed;inset:0;background:rgba(5,10,12,.8);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-bg.open{opacity:1;pointer-events:all;}
 .modal{background:var(--card);border-radius:16px;padding:24px;width:400px;max-width:90vw;border:1px solid var(--border2);}
@@ -173,10 +148,6 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 .mbtn-p:hover{background:var(--teal-light);}
 .mbtn-s{background:var(--card2);color:var(--muted);border:1px solid var(--border2);}
 .mbtn-d{background:var(--terra-pale);color:var(--terra);border:1px solid rgba(196,103,63,0.3);margin-left:auto;}
-.master-item{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
-.mi-name{flex:1;font-weight:500;font-size:13px;}
-.mi-due{font-size:12px;color:var(--muted);min-width:55px;}
-.mi-min{font-family:'DM Mono',monospace;font-size:12px;min-width:65px;text-align:right;}
 .add-bill-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border2);border-radius:10px;padding:9px 14px;width:100%;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;margin-top:6px;}
 .add-bill-btn:hover{border-color:var(--teal);color:var(--teal);}
 .rm-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:15px;padding:0 3px;}
@@ -193,15 +164,19 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
 .notif-strip{background:var(--warn-pale);border:1px solid rgba(212,144,10,0.3);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:var(--warn);}
 .notif-strip button{background:var(--warn);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}
 .notif-strip.hidden{display:none;}
+.master-bill-item{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
+.mname{flex:1;font-weight:500;font-size:13px;}
+.mdue{font-size:12px;color:var(--muted);min-width:55px;}
+.mmin{font-family:'DM Mono',monospace;font-size:12px;min-width:65px;text-align:right;}
 @media(max-width:800px){
   .summary-row{grid-template-columns:repeat(2,1fr);}
   .cols{grid-template-columns:1fr;}
   main{padding:12px 12px calc(var(--nav-h) + var(--safe-b) + 12px);}
 }
-
 </style>
 </head>
 <body>
+
 <div id="auth-overlay">
   <div class="stego-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="44" height="30">
   <polygon points="38,38 42,18 46,38" fill="#2d8a94"/>
@@ -219,7 +194,7 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
   <rect x="64" y="64" width="8" height="12" rx="3" fill="#2d8a94"/>
   <rect x="77" y="62" width="8" height="14" rx="3" fill="#2d8a94"/>
   <path d="M92,50 Q105,45 112,52 Q105,55 92,54 Z" fill="#2d8a94"/>
-</svg></div>
+  </svg></div>
   <h1>Bills Tracker</h1>
   <p>Sign in with Google to sync your bills across devices</p>
   <button id="sign-in-btn"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google</button>
@@ -305,8 +280,10 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
       </div>
     </div>
     <div id="view-annual" style="display:none">
-      <div class="panel"><div class="panel-header"><h2 id="annual-title">Annual overview — 2026</h2></div>
-      <div class="ann-grid"><table class="ann-table"><thead><tr id="ann-hdr"></tr></thead><tbody id="ann-body"></tbody></table></div></div>
+      <div class="panel">
+        <div class="panel-header"><h2 id="annual-title">Annual overview — 2026</h2></div>
+        <div class="ann-grid"><table class="ann-table"><thead><tr id="ann-hdr"></tr></thead><tbody id="ann-body"></tbody></table></div>
+      </div>
     </div>
     <div id="view-master" style="display:none">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
@@ -367,8 +344,14 @@ main{flex:1;padding:20px 20px calc(var(--nav-h) + var(--safe-b) + 20px);max-widt
   </div>
 </div>
 
-<nav class="bnav"><a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a><a href="bills.html" class="active"><span class="ni">💰</span><span class="nl">Bills</span></a><a href="debt.html"><span class="ni">💸</span><span class="nl">Debt</span></a><a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a><a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a><a href="plants.html"><span class="ni">🌱</span><span class="nl">Plants</span></a></nav>
-
+<nav class="bnav">
+  <a href="index.html"><span class="ni">🏡</span><span class="nl">Home</span></a>
+  <a href="bills.html" class="active"><span class="ni">💰</span><span class="nl">Bills</span></a>
+  <a href="debt.html"><span class="ni">💸</span><span class="nl">Debt</span></a>
+  <a href="cxc.html"><span class="ni">🦕</span><span class="nl">CXC</span></a>
+  <a href="books.html"><span class="ni">🎧</span><span class="nl">Books</span></a>
+  <a href="plants.html"><span class="ni">🌱</span><span class="nl">Plants</span></a>
+</nav>
 <div id="toast"></div>
 
 <script>
@@ -409,13 +392,12 @@ function signOut(tokenKey) {
   accessToken = null;
   localStorage.removeItem(tokenKey);
   document.getElementById('app').classList.remove('visible');
-  document.getElementById('auth-overlay').style.display='flex';
+  document.getElementById('auth-overlay').style.display = 'flex';
 }
 
-const SHEET_ID = '1sDhXuYD9udlmzXi4UzGfqJ2QDFihCcJMRXBne2bFZpI';
-const MONTHS      = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
+const SHEET_ID   = '1sDhXuYD9udlmzXi4UzGfqJ2QDFihCcJMRXBne2bFZpI';
+const MONTHS     = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT= ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CAITLIN_ANCHOR = new Date('2026-04-10T00:00:00');
 
 function getFridaysInMonth(year, month) {
@@ -431,14 +413,31 @@ function isCaitlinPayday(date) {
 }
 function toISO(d) { return d.toISOString().slice(0,10); }
 function parseAnyDate(str) {
-  if (!str) return null; str = str.trim();
+  if (!str) return null;
+  str = str.trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return new Date(str + 'T00:00:00');
   const p = str.split('/');
-  if (p.length >= 2) { const mo=parseInt(p[0]),dy=parseInt(p[1]); let yr=p[2]?parseInt(p[2]):new Date().getFullYear(); if(yr<100)yr+=2000; if(!isNaN(mo)&&!isNaN(dy)&&!isNaN(yr))return new Date(yr,mo-1,dy); }
-  const d = new Date(str); return isNaN(d) ? null : d;
+  if (p.length >= 2) {
+    const mo=parseInt(p[0]), dy=parseInt(p[1]);
+    let yr = p[2] ? parseInt(p[2]) : new Date().getFullYear();
+    if (yr < 100) yr += 2000;
+    if (!isNaN(mo) && !isNaN(dy) && !isNaN(yr)) return new Date(yr, mo-1, dy);
+  }
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
 }
-function normalizeDate(str) { if(!str)return''; const d=parseAnyDate(str); if(!d)return str; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmtDisp(str) { if(!str)return'—'; const d=parseAnyDate(str); if(!d||isNaN(d))return str; return(d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(-2); }
+function normalizeDate(str) {
+  if (!str) return '';
+  const d = parseAnyDate(str);
+  if (!d) return str;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDisp(str) {
+  if (!str) return '—';
+  const d = parseAnyDate(str);
+  if (!d || isNaN(d)) return str;
+  return (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(-2);
+}
 
 function buildIncomeTemplate(acct, year, month) {
   const rows = [{date:'', desc:'Previous month balance', expected:'', actual:''}];
@@ -446,17 +445,19 @@ function buildIncomeTemplate(acct, year, month) {
   if (acct === 'house') {
     const entries = [];
     fridays.forEach(f => {
-      if (isCaitlinPayday(f)) entries.push({date:toISO(f), desc:"My Check", expected:1334.00, actual:''});
+      if (isCaitlinPayday(f)) entries.push({date:toISO(f), desc:'My Check', expected:1334.00, actual:''});
       entries.push({date:toISO(f), desc:"Ron's Check", expected:338.00, actual:''});
     });
-    entries.sort((a,b)=>a.date.localeCompare(b.date));
+    entries.sort((a,b) => a.date.localeCompare(b.date));
     rows.push(...entries);
   } else {
-    fridays.forEach(f => { if(isCaitlinPayday(f)) rows.push({date:toISO(f), desc:'Skypoint', expected:667.00, actual:''}); });
-    const d = new Date(year, month - 1, 15);
-rows.push({date:toISO(d), desc:'Headway', expected:0, actual:''});
-const last = new Date(year, month, 0);
-rows.push({date:toISO(last), desc:'Headway', expected:0, actual:''});
+    fridays.forEach(f => {
+      if (isCaitlinPayday(f)) rows.push({date:toISO(f), desc:'Skypoint', expected:667.00, actual:''});
+    });
+    const d15 = new Date(year, month - 1, 15);
+    rows.push({date:toISO(d15), desc:'Headway', expected:0, actual:''});
+    const dLast = new Date(year, month, 0);
+    rows.push({date:toISO(dLast), desc:'Headway', expected:0, actual:''});
   }
   return rows;
 }
@@ -472,7 +473,6 @@ let monthData    = {};
 let editingBill  = null;
 let addingAcct   = null;
 
-// ── Month persistence ─────────────────────────────────────────────────────────
 function saveCurrentMonth() {
   localStorage.setItem('bt_month', JSON.stringify({m: currentMonth, y: currentYear}));
 }
@@ -484,7 +484,7 @@ function loadSavedMonth() {
 }
 
 async function showApp() {
-  document.getElementById('auth-overlay').style.display='none';
+  document.getElementById('auth-overlay').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   await ensureSheetsExist();
   await loadMasterList();
@@ -492,46 +492,79 @@ async function showApp() {
 }
 
 // ── Sheets API ────────────────────────────────────────────────────────────────
-async function api(path,method='GET',body=null){
-  const opts={headers:{Authorization:`Bearer ${accessToken}`}};
-  if(body){opts.method=method;opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body);}
-  else opts.method=method;
-  const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`,opts);
-  if(r.status===401){
-    accessToken=null;localStorage.removeItem('cgt_token');
+// KEY FIX: encode only the sheet name portion (before !), not the whole range.
+// The ! and cell refs (A1:F1) must NOT be encoded.
+function encodeRange(range) {
+  // Split on the first ! to separate sheet name from cell range
+  const idx = range.indexOf('!');
+  if (idx === -1) return encodeURIComponent(range);
+  const sheetName = range.slice(0, idx);
+  const cellRange = range.slice(idx); // includes the !
+  return encodeURIComponent(sheetName) + cellRange;
+}
+
+async function api(path, method='GET', body=null) {
+  const opts = {headers: {Authorization: `Bearer ${accessToken}`}};
+  if (body) {
+    opts.method = method;
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  } else {
+    opts.method = method;
+  }
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}${path}`, opts);
+  if (r.status === 401) {
+    accessToken = null;
+    localStorage.removeItem('cgt_token');
     document.getElementById('app').classList.remove('visible');
-    document.getElementById('auth-overlay').style.display='flex';
+    document.getElementById('auth-overlay').style.display = 'flex';
     toast('Session expired — please sign in again');
     return null;
   }
-  if(!r.ok)throw new Error(`${method} ${path}: ${r.status}`);
+  if (!r.ok) throw new Error(`${method} ${path}: ${r.status}`);
   return r.json();
 }
-async function sheetsGet(range){const d=await api(`/values/${encodeURIComponent(range)}`);if(!d)return[];return d.values||[];}
-async function sheetsUpdate(range,values){return api(`/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,'PUT',{range,majorDimension:'ROWS',values});}
-async function sheetsAppend(range,values){return api(`/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,'POST',{range,majorDimension:'ROWS',values});}
-async function sheetsClear(range){return api(`/values/${encodeURIComponent(range)}:clear`,'POST');}
-async function getSheetsList(){const d=await api('');if(!d)return[];return(d.sheets||[]).map(s=>s.properties.title);}
-async function addSheet(title){return api(':batchUpdate','POST',{requests:[{addSheet:{properties:{title}}}]});}
+
+async function sheetsGet(range) {
+  const d = await api(`/values/${encodeRange(range)}`);
+  if (!d) return [];
+  return d.values || [];
+}
+async function sheetsUpdate(range, values) {
+  return api(`/values/${encodeRange(range)}?valueInputOption=USER_ENTERED`, 'PUT', {range, majorDimension:'ROWS', values});
+}
+async function sheetsAppend(range, values) {
+  return api(`/values/${encodeRange(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, 'POST', {range, majorDimension:'ROWS', values});
+}
+async function sheetsClear(range) {
+  return api(`/values/${encodeRange(range)}:clear`, 'POST');
+}
+async function getSheetsList() {
+  const d = await api('');
+  if (!d) return [];
+  return (d.sheets || []).map(s => s.properties.title);
+}
+async function addSheet(title) {
+  return api(':batchUpdate', 'POST', {requests: [{addSheet: {properties: {title}}}]});
+}
 
 const sn  = (a,y,m) => `${a==='house'?'House':'MyBills'} ${y}-${String(m).padStart(2,'0')}`;
 const isn = (a,y,m) => `Inc${a==='house'?'House':'My'} ${y}-${String(m).padStart(2,'0')}`;
 
-async function ensureSheetsExist(){
-  const existing=await getSheetsList();
-  const needed=['BillMaster'];
-  for(const name of needed){
-    if(!existing.includes(name)){
-      await addSheet(name);
-      if(name==='BillMaster'){await sheetsUpdate('BillMaster!A1:G1',[['Account','Name','DueDay','MinPayment','Notes','Active','FullBalance']]);await seedMaster();}
-    }
+async function ensureSheetsExist() {
+  const existing = await getSheetsList();
+  if (!existing.includes('BillMaster')) {
+    await addSheet('BillMaster');
+    await sheetsUpdate('BillMaster!A1:G1', [['Account','Name','DueDay','MinPayment','Notes','Active','FullBalance']]);
+    await seedMaster();
   }
 }
-async function seedMaster(){
-  const rows=[
+
+async function seedMaster() {
+  const rows = [
     ['house','Carrington Mortgage',1,2507.34,'',true,''],['house','Essex Mortgage 2',1,125.25,'',true,''],
     ['house','Xfinity - Internet',2,95.74,'auto',true,''],['house','ADT',2,68.38,'auto',true,''],
-    ['house','Dominion',2,197.94,'auto',true,''],["house","Sam's Club CC",2,200,'',true,428.88],
+    ['house','Dominion',2,197.94,'auto',true,''],['house',"Sam's Club CC",2,200,'',true,428.88],
     ['house','Aqua Finance',6,310.65,'',true,''],['house','Amex',6,200,'',true,1302.59],
     ['house','Lowes',7,100,'',true,624.52],['house','Wells Fargo',8,100,'',true,4822.95],
     ['house','Waste',9,44.44,'',true,''],['house','Water',14,22.59,'',true,''],
@@ -545,82 +578,142 @@ async function seedMaster(){
     ['my','Best Buy',null,'','',true,''],['my','Capital One',null,'','',true,''],
     ['my','Stitch Fix',null,20,'',true,''],
   ];
-  await sheetsAppend('BillMaster!A2:G',rows);
+  await sheetsAppend('BillMaster!A2:G', rows);
 }
-async function loadMasterList(){
-  try{
-    const rows=await sheetsGet('BillMaster!A2:G1000');
-    const pm=r=>({account:r[0]||'',name:r[1]||'',dueDay:r[2]?parseInt(r[2]):null,minPay:r[3]?parseFloat(r[3]):null,notes:r[4]||'',active:r[5]!=='false',fullBal:r[6]?parseFloat(r[6]):null});
-    masterHouse=rows.filter(r=>r[0]==='house').map(pm);
-    masterMy=rows.filter(r=>r[0]==='my').map(pm);
-  }catch(e){console.error(e);}
+
+async function loadMasterList() {
+  try {
+    const rows = await sheetsGet('BillMaster!A2:G1000');
+    const pm = r => ({account:r[0]||'', name:r[1]||'', dueDay:r[2]?parseInt(r[2]):null, minPay:r[3]?parseFloat(r[3]):null, notes:r[4]||'', active:r[5]!=='false', fullBal:r[6]?parseFloat(r[6]):null});
+    masterHouse = rows.filter(r => r[0]==='house').map(pm);
+    masterMy    = rows.filter(r => r[0]==='my').map(pm);
+  } catch(e) { console.error('loadMasterList error:', e); }
 }
 
 // ── Month data ────────────────────────────────────────────────────────────────
-function mKey(a,y,m){return`${a}-${y}-${m}`;}
-async function loadMonthData(acct,y,m){
-  const key=mKey(acct,y,m);
-  if(monthData[key])return monthData[key];
-  const bs=sn(acct,y,m),is=isn(acct,y,m);
-  let bills=[],income=[];
+function mKey(a,y,m) { return `${a}-${y}-${m}`; }
 
-    // Create sheets for this month if they don't exist
+async function loadMonthData(acct, y, m) {
+  const key = mKey(acct, y, m);
+  if (monthData[key]) return monthData[key];
+
+  const bs = sn(acct, y, m);
+  const is = isn(acct, y, m);
+  let bills = [], income = [];
+
+  // Create sheets for this month if they don't exist
   const existing = await getSheetsList();
   if (!existing.includes(bs)) await addSheet(bs);
   if (!existing.includes(is)) await addSheet(is);
-  
-    // Small delay to let newly created sheets settle
-  await new Promise(r=>setTimeout(r,500));
-  try{
-    const r=await sheetsGet(`${bs}!A2:F1000`);
-    bills=r.map((row,i)=>({rowIdx:i+2,sheet:bs,name:row[0]||'',dueDay:row[1]?parseInt(row[1]):null,minPay:row[2]?parseFloat(row[2]):null,notes:row[3]||'',datePaid:row[4]||'',amtPaid:row[5]?parseFloat(row[5]):null,auto:(row[3]||'').toLowerCase().includes('auto')})).filter(b=>b.name);
-  }catch(e){}
-  if(!bills.length){
-    let seeded=false;
-    try{const hdr=await sheetsGet(`${bs}!A1:F1`);seeded=hdr.length>0&&hdr[0][0]==='Name';}catch(e){}
-    if(!seeded){
-      const master=acct==='house'?masterHouse:masterMy;
-      bills=master.filter(b=>b.active).map((b,i)=>({rowIdx:i+2,sheet:bs,name:b.name,dueDay:b.dueDay,minPay:b.minPay,notes:b.notes,datePaid:'',amtPaid:null,auto:(b.notes||'').toLowerCase().includes('auto')}));
-      if(bills.length){await sheetsUpdate(`${bs}!A1:F1`,[['Name','DueDay','MinPayment','Notes','DatePaid','AmountPaid']]);await sheetsUpdate(`${bs}!A2:F${bills.length+1}`,bills.map(b=>[b.name,b.dueDay||'',b.minPay||'',b.notes,'','']));}
+  // Give Sheets API a moment to register new tabs
+  await new Promise(r => setTimeout(r, 600));
+
+  // Load bills
+  try {
+    const r = await sheetsGet(`${bs}!A2:F1000`);
+    bills = r.map((row,i) => ({
+      rowIdx: i+2, sheet: bs,
+      name: row[0]||'',
+      dueDay: row[1] ? parseInt(row[1]) : null,
+      minPay: row[2] ? parseFloat(row[2]) : null,
+      notes: row[3]||'',
+      datePaid: row[4]||'',
+      amtPaid: row[5] ? parseFloat(row[5]) : null,
+      auto: (row[3]||'').toLowerCase().includes('auto')
+    })).filter(b => b.name);
+  } catch(e) { console.warn('bills read error:', e); }
+
+  // Seed bills if empty
+  if (!bills.length) {
+    let seeded = false;
+    try {
+      const hdr = await sheetsGet(`${bs}!A1:F1`);
+      seeded = hdr.length > 0 && hdr[0][0] === 'Name';
+    } catch(e) {}
+    if (!seeded) {
+      const master = acct === 'house' ? masterHouse : masterMy;
+      bills = master.filter(b => b.active).map((b,i) => ({
+        rowIdx: i+2, sheet: bs,
+        name: b.name, dueDay: b.dueDay, minPay: b.minPay, notes: b.notes,
+        datePaid: '', amtPaid: null,
+        auto: (b.notes||'').toLowerCase().includes('auto')
+      }));
+      if (bills.length) {
+        await sheetsUpdate(`${bs}!A1:F1`, [['Name','DueDay','MinPayment','Notes','DatePaid','AmountPaid']]);
+        await sheetsUpdate(`${bs}!A2:F${bills.length+1}`, bills.map(b => [b.name, b.dueDay||'', b.minPay||'', b.notes, '', '']));
+      }
     }
   }
-  let incomeSeeded=false;
-  try{const hdr=await sheetsGet(`${is}!A1:D1`);incomeSeeded=hdr.length>0&&hdr[0][0]==='Date';}catch(e){}
-  if(incomeSeeded){
-    try{const r=await sheetsGet(`${is}!A2:D1000`);income=r.map((row,i)=>({rowIdx:i+2,sheet:is,date:row[0]||'',desc:row[1]||'',expected:row[2]?parseFloat(row[2]):null,actual:row[3]?parseFloat(row[3]):null})).filter(r=>r.desc);}catch(e){}
-  }else{
-    const tmpl=buildIncomeTemplate(acct,y,m);
-    await sheetsUpdate(`${is}!A1:D1`,[['Date','Description','Expected','Actual']]);
-    if(tmpl.length)await sheetsUpdate(`${is}!A2:D${tmpl.length+1}`,tmpl.map(r=>[r.date||'',r.desc,r.expected||'',r.actual||'']));
-    income=tmpl.map((r,i)=>({rowIdx:i+2,sheet:is,date:r.date||'',desc:r.desc,expected:r.expected||null,actual:r.actual||null}));
+
+  // Load income
+  let incomeSeeded = false;
+  try {
+    const hdr = await sheetsGet(`${is}!A1:D1`);
+    incomeSeeded = hdr.length > 0 && hdr[0][0] === 'Date';
+  } catch(e) {}
+
+  if (incomeSeeded) {
+    try {
+      const r = await sheetsGet(`${is}!A2:D1000`);
+      income = r.map((row,i) => ({
+        rowIdx: i+2, sheet: is,
+        date: row[0]||'', desc: row[1]||'',
+        expected: row[2] ? parseFloat(row[2]) : null,
+        actual: row[3] ? parseFloat(row[3]) : null
+      })).filter(r => r.desc);
+    } catch(e) { console.warn('income read error:', e); }
+  } else {
+    const tmpl = buildIncomeTemplate(acct, y, m);
+    await sheetsUpdate(`${is}!A1:D1`, [['Date','Description','Expected','Actual']]);
+    if (tmpl.length) {
+      await sheetsUpdate(`${is}!A2:D${tmpl.length+1}`, tmpl.map(r => [r.date||'', r.desc, r.expected||'', r.actual||'']));
+    }
+    income = tmpl.map((r,i) => ({
+      rowIdx: i+2, sheet: is,
+      date: r.date||'', desc: r.desc,
+      expected: r.expected || null,
+      actual: r.actual || null
+    }));
   }
-  monthData[key]={bills,income};
+
+  monthData[key] = {bills, income};
   return monthData[key];
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-async function renderMonthly(){
-  const m=currentMonth+1,y=currentYear;
-  document.getElementById('cml').textContent=`${MONTHS[currentMonth]} ${y}`;
-  document.getElementById('bills-panel-title').textContent=currentAcct==='house'?'House bills':'My bills';
-  document.getElementById('income-panel-title').textContent=`Income — ${MONTHS[currentMonth]}`;
-  document.getElementById('bal-acct-lbl').textContent=currentAcct==='house'?'House account':'My bills account';
-  document.getElementById('bills-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
-  try{const data=await loadMonthData(currentAcct,y,m);renderBills(data.bills);renderIncome(data.income);renderStats(data.bills,data.income);}
-  catch(e){console.error(e);toast('Error loading data');}
+async function renderMonthly() {
+  const m = currentMonth+1, y = currentYear;
+  document.getElementById('cml').textContent = `${MONTHS[currentMonth]} ${y}`;
+  document.getElementById('bills-panel-title').textContent = currentAcct==='house' ? 'House bills' : 'My bills';
+  document.getElementById('income-panel-title').textContent = `Income — ${MONTHS[currentMonth]}`;
+  document.getElementById('bal-acct-lbl').textContent = currentAcct==='house' ? 'House account' : 'My bills account';
+  document.getElementById('bills-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const data = await loadMonthData(currentAcct, y, m);
+    renderBills(data.bills);
+    renderIncome(data.income);
+    renderStats(data.bills, data.income);
+  } catch(e) {
+    console.error('renderMonthly error:', e);
+    toast('Error loading data');
+  }
 }
-function renderBills(bills){
-  const paid=bills.filter(b=>b.amtPaid!=null).length;
-  const pct=bills.length?Math.round(paid/bills.length*100):0;
-  document.getElementById('bills-progress').style.width=pct+'%';
-  document.getElementById('bills-progress-label').textContent=`${paid} / ${bills.length}`;
-  const tbody=document.getElementById('bills-tbody');
-  if(!bills.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No bills this month</td></tr>';return;}
-  tbody.innerHTML=bills.map((b,i)=>{
-    const isPaid=b.amtPaid!=null;
-    const badge=isPaid?'<span class="badge paid">&#10003; Paid</span>':b.auto?'<span class="badge auto">Auto</span>':'<span class="badge unpaid">Unpaid</span>';
-    return`<tr class="${isPaid?'paid-row':''}">
-      <td class="clk" onclick="openPay(${i})"><div class="bill-name-cell">${b.name}</div><div class="bill-due-cell">Due ${b.dueDay?`${currentMonth+1}/${b.dueDay}`:'—'}${b.notes?' · '+b.notes:''}</div></td>
+
+function renderBills(bills) {
+  const paid = bills.filter(b => b.amtPaid != null).length;
+  const pct  = bills.length ? Math.round(paid/bills.length*100) : 0;
+  document.getElementById('bills-progress').style.width = pct+'%';
+  document.getElementById('bills-progress-label').textContent = `${paid} / ${bills.length}`;
+  const tbody = document.getElementById('bills-tbody');
+  if (!bills.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No bills this month</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bills.map((b,i) => {
+    const isPaid = b.amtPaid != null;
+    const badge  = isPaid ? '<span class="badge paid">&#10003; Paid</span>' : b.auto ? '<span class="badge auto">Auto</span>' : '<span class="badge unpaid">Unpaid</span>';
+    return `<tr class="${isPaid?'paid-row':''}">
+      <td class="clk" onclick="openPay(${i})"><div>${b.name}</div><div style="font-size:11px;color:var(--muted)">Due ${b.dueDay?`${currentMonth+1}/${b.dueDay}`:'—'}${b.notes?' · '+b.notes:''}</div></td>
       <td class="right mono clk" onclick="openPay(${i})">${b.minPay!=null?fmt(b.minPay):'—'}</td>
       <td class="right mono clk" onclick="openPay(${i})">${b.datePaid||'—'}</td>
       <td class="right mono clk" onclick="openPay(${i})">${b.amtPaid!=null?fmt(b.amtPaid):'—'}</td>
@@ -629,314 +722,422 @@ function renderBills(bills){
     </tr>`;
   }).join('');
 }
-function renderIncome(income){
-  const tbody=document.getElementById('income-tbody');
-  tbody.innerHTML=income.map((r,i)=>`<tr>
+
+function renderIncome(income) {
+  const tbody = document.getElementById('income-tbody');
+  tbody.innerHTML = income.map((r,i) => `<tr>
     <td><span class="editable" onclick="editInc(${i},'date')">${fmtDisp(r.date)}</span></td>
     <td><span class="editable" onclick="editInc(${i},'desc')">${r.desc}</span></td>
     <td class="right">${r.expected!=null?`<span class="editable" onclick="editInc(${i},'expected')">${fmt(r.expected)}</span>`:`<span class="empty-val" onclick="editInc(${i},'expected')">add</span>`}</td>
     <td class="right">${r.actual!=null?`<span class="editable" onclick="editInc(${i},'actual')">${fmt(r.actual)}</span>`:`<span class="empty-val" onclick="editInc(${i},'actual')">tap to enter</span>`}</td>
     <td><button class="del-btn" onclick="removeIncome(${i})" title="Remove line">&#215;</button></td>
   </tr>`).join('');
-  document.getElementById('income-total').textContent=fmt(income.reduce((s,r)=>s+(r.actual||0),0));
+  document.getElementById('income-total').textContent = fmt(income.reduce((s,r) => s+(r.actual||0), 0));
 }
-function renderStats(bills,income){
-  const minDue=bills.reduce((s,b)=>s+(b.minPay||0),0);
-  const paid=bills.reduce((s,b)=>s+(b.amtPaid||0),0);
-  const inc=income.reduce((s,r)=>s+(r.actual||0),0);
-  const bal=inc-paid;
-  document.getElementById('s-min-due').textContent=fmt(minDue);
-  const unpaidBills=bills.filter(b=>b.amtPaid==null).reduce((s,b)=>s+(b.minPay||0),0);
-  document.getElementById('s-unpaid').textContent=fmt(unpaidBills);
-  document.getElementById('s-paid').textContent=fmt(paid);
-  document.getElementById('s-income').textContent=fmt(inc);
-  document.getElementById('s-balance').textContent=fmt(bal);
-  document.getElementById('balance-value').textContent=fmt(bal);
-  document.getElementById('balance-sub').textContent=`${MONTHS[currentMonth]} ${currentYear} · ${currentAcct==='house'?'House':'My bills'}`;
+
+function renderStats(bills, income) {
+  const minDue = bills.reduce((s,b) => s+(b.minPay||0), 0);
+  const paid   = bills.reduce((s,b) => s+(b.amtPaid||0), 0);
+  const inc    = income.reduce((s,r) => s+(r.actual||0), 0);
+  const bal    = inc - paid;
+  const unpaid = bills.filter(b => b.amtPaid == null).reduce((s,b) => s+(b.minPay||0), 0);
+  document.getElementById('s-min-due').textContent  = fmt(minDue);
+  document.getElementById('s-unpaid').textContent   = fmt(unpaid);
+  document.getElementById('s-paid').textContent     = fmt(paid);
+  document.getElementById('s-income').textContent   = fmt(inc);
+  document.getElementById('s-balance').textContent  = fmt(bal);
+  document.getElementById('balance-value').textContent = fmt(bal);
+  document.getElementById('balance-sub').textContent = `${MONTHS[currentMonth]} ${currentYear} · ${currentAcct==='house'?'House':'My bills'}`;
 }
 
 // ── Pay modal ─────────────────────────────────────────────────────────────────
-function openPay(idx){
-  const key=mKey(currentAcct,currentYear,currentMonth+1),b=monthData[key].bills[idx];
-  editingBill={idx,key};
-  document.getElementById('modal-bill-name').textContent=b.name;
-  document.getElementById('modal-bill-sub').textContent=`Min. payment: ${b.minPay!=null?fmt(b.minPay):'—'}`;
-  document.getElementById('modal-date').value=b.datePaid||today();
-  document.getElementById('modal-amount').value=b.amtPaid||b.minPay||'';
+function openPay(idx) {
+  const key = mKey(currentAcct, currentYear, currentMonth+1);
+  const b   = monthData[key].bills[idx];
+  editingBill = {idx, key};
+  document.getElementById('modal-bill-name').textContent = b.name;
+  document.getElementById('modal-bill-sub').textContent  = `Min. payment: ${b.minPay!=null?fmt(b.minPay):'—'}`;
+  document.getElementById('modal-date').value   = b.datePaid || today();
+  document.getElementById('modal-amount').value = b.amtPaid || b.minPay || '';
   document.getElementById('pay-modal').classList.add('open');
 }
-async function savePay(){
-  // Capture and clear editingBill right away so any stray bubbled clicks can't interfere
-  if(!editingBill)return;
-  const{idx,key}=editingBill;
-  editingBill=null;
 
-  const data=monthData[key],b=data.bills[idx];
-  const date=document.getElementById('modal-date').value,amt=parseFloat(document.getElementById('modal-amount').value);
-  if(!date||isNaN(amt)){toast('Enter a date and amount');return;}
-  const normDate=normalizeDate(date);
-  b.datePaid=normDate;
-  b.amtPaid=amt;
-  try{
-    await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`,[[normDate,amt]]);
+async function savePay() {
+  if (!editingBill) return;
+  const {idx, key} = editingBill;
+  editingBill = null;
+  const data = monthData[key], b = data.bills[idx];
+  const date = document.getElementById('modal-date').value;
+  const amt  = parseFloat(document.getElementById('modal-amount').value);
+  if (!date || isNaN(amt)) { toast('Enter a date and amount'); return; }
+  const normDate = normalizeDate(date);
+  b.datePaid = normDate;
+  b.amtPaid  = amt;
+  try {
+    await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`, [[normDate, amt]]);
     toast(`${b.name} marked paid`);
     closeModal('pay-modal');
     renderBills(data.bills);
-    renderStats(data.bills,data.income);
-  }catch(e){toast('Save failed');}
+    renderStats(data.bills, data.income);
+  } catch(e) { toast('Save failed'); }
 }
-async function clearPay(){
-  if(!editingBill)return;
-  const{idx,key}=editingBill;
-  editingBill=null;
 
-  const data=monthData[key],b=data.bills[idx];
-  b.datePaid='';
-  b.amtPaid=null;
-  try{
-    await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`,[['','']]);
+async function clearPay() {
+  if (!editingBill) return;
+  const {idx, key} = editingBill;
+  editingBill = null;
+  const data = monthData[key], b = data.bills[idx];
+  b.datePaid = '';
+  b.amtPaid  = null;
+  try {
+    await sheetsUpdate(`${b.sheet}!E${b.rowIdx}:F${b.rowIdx}`, [['', '']]);
     toast('Payment cleared');
     closeModal('pay-modal');
     renderBills(data.bills);
-    renderStats(data.bills,data.income);
-  }catch(e){toast('Clear failed');}
+    renderStats(data.bills, data.income);
+  } catch(e) { toast('Clear failed'); }
 }
-async function removeBill(idx){
-  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],b=data.bills[idx];
-  if(!confirm(`Remove "${b.name}" from ${MONTHS[currentMonth]} only?\n\nThis does not affect other months or the master list.`))return;
-  try{await sheetsClear(`${b.sheet}!A${b.rowIdx}:F${b.rowIdx}`);data.bills.splice(idx,1);data.bills.forEach((b,i)=>b.rowIdx=i+2);renderBills(data.bills);renderStats(data.bills,data.income);toast(`${b.name} removed from ${MONTHS[currentMonth]}`);}
-  catch(e){toast('Remove failed');}
+
+async function removeBill(idx) {
+  const key  = mKey(currentAcct, currentYear, currentMonth+1);
+  const data = monthData[key], b = data.bills[idx];
+  if (!confirm(`Remove "${b.name}" from ${MONTHS[currentMonth]} only?\n\nThis does not affect other months or the master list.`)) return;
+  try {
+    await sheetsClear(`${b.sheet}!A${b.rowIdx}:F${b.rowIdx}`);
+    data.bills.splice(idx, 1);
+    data.bills.forEach((b,i) => b.rowIdx = i+2);
+    renderBills(data.bills);
+    renderStats(data.bills, data.income);
+    toast(`${b.name} removed from ${MONTHS[currentMonth]}`);
+  } catch(e) { toast('Remove failed'); }
 }
 
 // ── Income editing ────────────────────────────────────────────────────────────
-async function editInc(idx,field){
-  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],r=data.income[idx];
-  const labels={date:'Date (YYYY-MM-DD):',desc:'Description:',expected:'Expected amount:',actual:'Actual amount:'};
-  const current={date:r.date,desc:r.desc,expected:r.expected!=null?r.expected:'',actual:r.actual!=null?r.actual:''};
-  const val=window.prompt(labels[field],current[field]);
-  if(val===null)return;
-  const colMap={date:'A',desc:'B',expected:'C',actual:'D'};
-  let storeVal=val;
-  if(field==='expected'||field==='actual'){const n=parseFloat(val);r[field]=val?n:null;storeVal=val;}
-  else if(field==='date'){storeVal=normalizeDate(val);r[field]=storeVal;}
-  else r[field]=val;
-  try{await sheetsUpdate(`${r.sheet}!${colMap[field]}${r.rowIdx}`,[[storeVal]]);renderIncome(data.income);renderStats(data.bills,data.income);toast('Updated');}
-  catch(e){toast('Save failed');}
+async function editInc(idx, field) {
+  const key  = mKey(currentAcct, currentYear, currentMonth+1);
+  const data = monthData[key], r = data.income[idx];
+  const labels  = {date:'Date (YYYY-MM-DD):', desc:'Description:', expected:'Expected amount:', actual:'Actual amount:'};
+  const current = {date:r.date, desc:r.desc, expected:r.expected!=null?r.expected:'', actual:r.actual!=null?r.actual:''};
+  const val = window.prompt(labels[field], current[field]);
+  if (val === null) return;
+  const colMap = {date:'A', desc:'B', expected:'C', actual:'D'};
+  let storeVal = val;
+  if (field === 'expected' || field === 'actual') {
+    r[field] = val ? parseFloat(val) : null;
+    storeVal = val;
+  } else if (field === 'date') {
+    storeVal = normalizeDate(val);
+    r[field] = storeVal;
+  } else {
+    r[field] = val;
+  }
+  try {
+    await sheetsUpdate(`${r.sheet}!${colMap[field]}${r.rowIdx}`, [[storeVal]]);
+    renderIncome(data.income);
+    renderStats(data.bills, data.income);
+    toast('Updated');
+  } catch(e) { toast('Save failed'); }
 }
-function openAddIncome(){
-  ['inc-date','inc-desc','inc-expected','inc-actual'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('income-modal-title').textContent='Add income line';
+
+function openAddIncome() {
+  ['inc-date','inc-desc','inc-expected','inc-actual'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('income-modal-title').textContent = 'Add income line';
   document.getElementById('income-modal').classList.add('open');
 }
-async function saveIncomeLine(){
-  const date=document.getElementById('inc-date').value,desc=document.getElementById('inc-desc').value.trim(),exp=document.getElementById('inc-expected').value,act=document.getElementById('inc-actual').value;
-  if(!desc){toast('Enter a description');return;}
-  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],is=isn(currentAcct,currentYear,currentMonth+1);
-  try{
-    const normIncDate=normalizeDate(date);
-    const res=await sheetsAppend(`${is}!A2:D`,[[normIncDate||'',desc,exp||'',act||'']]);
-    const m=res.updates&&res.updates.updatedRange&&res.updates.updatedRange.match(/(\d+)$/);
-    const newRow={rowIdx:m?parseInt(m[1]):data.income.length+2,sheet:is,date:date||'',desc,expected:exp?parseFloat(exp):null,actual:act?parseFloat(act):null};
-    data.income.push(newRow);closeModal('income-modal');renderIncome(data.income);renderStats(data.bills,data.income);toast('Income line added');
-  }catch(e){toast('Save failed');}
+
+async function saveIncomeLine() {
+  const date = document.getElementById('inc-date').value;
+  const desc = document.getElementById('inc-desc').value.trim();
+  const exp  = document.getElementById('inc-expected').value;
+  const act  = document.getElementById('inc-actual').value;
+  if (!desc) { toast('Enter a description'); return; }
+  const key  = mKey(currentAcct, currentYear, currentMonth+1);
+  const data = monthData[key];
+  const is   = isn(currentAcct, currentYear, currentMonth+1);
+  try {
+    const normDate = normalizeDate(date);
+    const res = await sheetsAppend(`${is}!A2:D`, [[normDate||'', desc, exp||'', act||'']]);
+    const match = res.updates && res.updates.updatedRange && res.updates.updatedRange.match(/(\d+)$/);
+    const newRow = {
+      rowIdx: match ? parseInt(match[1]) : data.income.length+2,
+      sheet: is, date: date||'', desc,
+      expected: exp ? parseFloat(exp) : null,
+      actual:   act ? parseFloat(act) : null
+    };
+    data.income.push(newRow);
+    closeModal('income-modal');
+    renderIncome(data.income);
+    renderStats(data.bills, data.income);
+    toast('Income line added');
+  } catch(e) { toast('Save failed'); }
 }
-async function removeIncome(idx){
-  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],r=data.income[idx];
-  if(!confirm(`Remove "${r.desc}" income line?`))return;
-  try{await sheetsClear(`${r.sheet}!A${r.rowIdx}:D${r.rowIdx}`);data.income.splice(idx,1);renderIncome(data.income);renderStats(data.bills,data.income);toast('Income line removed');}
-  catch(e){toast('Remove failed');}
+
+async function removeIncome(idx) {
+  const key  = mKey(currentAcct, currentYear, currentMonth+1);
+  const data = monthData[key], r = data.income[idx];
+  if (!confirm(`Remove "${r.desc}" income line?`)) return;
+  try {
+    await sheetsClear(`${r.sheet}!A${r.rowIdx}:D${r.rowIdx}`);
+    data.income.splice(idx, 1);
+    renderIncome(data.income);
+    renderStats(data.bills, data.income);
+    toast('Income line removed');
+  } catch(e) { toast('Remove failed'); }
 }
 
 // ── Reconcile ─────────────────────────────────────────────────────────────────
-function reconcileMonth(){
-  if(!confirm(`Mark ${MONTHS[currentMonth]} ${currentYear} as reconciled and move to next month?`))return;
+function reconcileMonth() {
+  if (!confirm(`Mark ${MONTHS[currentMonth]} ${currentYear} as reconciled and move to next month?`)) return;
   toast(`${MONTHS[currentMonth]} reconciled!`);
   changeMonth(1);
 }
 
 // ── Annual ────────────────────────────────────────────────────────────────────
-async function renderAnnual(){
-  document.getElementById('view-monthly').style.display='none';document.getElementById('view-master').style.display='none';document.getElementById('view-annual').style.display='block';
-  document.getElementById('month-nav').style.visibility='hidden';
-  document.getElementById('annual-title').textContent=`Annual overview — ${currentYear}`;
-  document.getElementById('ann-hdr').innerHTML='<th>Category</th>'+MONTH_SHORT.map(m=>`<th>${m}</th>`).join('')+'<th>YTD</th>';
-  const tbody=document.getElementById('ann-body');
-  tbody.innerHTML='<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
-  const allData={};
-  for(let m=1;m<=12;m++){try{allData[m]={house:await loadMonthData('house',currentYear,m),my:await loadMonthData('my',currentYear,m)};}catch(e){allData[m]=null;}}
-  const val=(acct,m,fn)=>{if(!allData[m])return null;const d=allData[m][acct];return d?fn(d):null;};
-  const row=(label,fn,isTot)=>{
-    const cells=MONTH_SHORT.map((_,i)=>{const v=fn(i+1);return v!=null?`<td>${fmt(v)}</td>`:`<td class="dim">—</td>`;});
-    const ytd=[1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m)=>s+(fn(m)||0),0);
-    return`<tr${isTot?' class="total-row"':''}><td>${label}</td>${cells.join('')}<td>${fmt(ytd)}</td></tr>`;
+async function renderAnnual() {
+  document.getElementById('view-monthly').style.display = 'none';
+  document.getElementById('view-master').style.display  = 'none';
+  document.getElementById('view-annual').style.display  = 'block';
+  document.getElementById('month-nav').style.visibility = 'hidden';
+  document.getElementById('annual-title').textContent   = `Annual overview — ${currentYear}`;
+  document.getElementById('ann-hdr').innerHTML = '<th>Category</th>' + MONTH_SHORT.map(m => `<th>${m}</th>`).join('') + '<th>YTD</th>';
+  const tbody = document.getElementById('ann-body');
+  tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  const allData = {};
+  for (let m=1; m<=12; m++) {
+    try { allData[m] = {house: await loadMonthData('house', currentYear, m), my: await loadMonthData('my', currentYear, m)}; }
+    catch(e) { allData[m] = null; }
+  }
+  const val = (acct, m, fn) => { if (!allData[m]) return null; const d = allData[m][acct]; return d ? fn(d) : null; };
+  const row = (label, fn, isTot) => {
+    const cells = MONTH_SHORT.map((_,i) => { const v = fn(i+1); return v!=null ? `<td>${fmt(v)}</td>` : `<td class="dim">—</td>`; });
+    const ytd   = [1,2,3,4,5,6,7,8,9,10,11,12].reduce((s,m) => s+(fn(m)||0), 0);
+    return `<tr${isTot?' class="tot-row"':''}><td>${label}</td>${cells.join('')}<td>${fmt(ytd)}</td></tr>`;
   };
-  tbody.innerHTML=`
-    <tr class="section-header"><td colspan="14">House account</td></tr>
-    ${row('Min. due',m=>val('house',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
-    ${row('Total paid',m=>val('house',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
-    ${row('Income',m=>val('house',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
-    ${row('Balance',m=>{const d=allData[m]&&allData[m].house;if(!d)return null;return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);},true)}
-    <tr class="section-header"><td colspan="14">My bills account</td></tr>
-    ${row('Min. due',m=>val('my',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
-    ${row('Total paid',m=>val('my',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
-    ${row('Income',m=>val('my',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
-    ${row('Balance',m=>{const d=allData[m]&&allData[m].my;if(!d)return null;return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0);},true)}`;
+  tbody.innerHTML = `
+    <tr class="sec-hdr"><td colspan="14">House account</td></tr>
+    ${row('Min. due',   m => val('house',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid', m => val('house',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',     m => val('house',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',    m => { const d=allData[m]&&allData[m].house; if(!d)return null; return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0); }, true)}
+    <tr class="sec-hdr"><td colspan="14">My bills account</td></tr>
+    ${row('Min. due',   m => val('my',m,d=>d.bills.reduce((s,b)=>s+(b.minPay||0),0)))}
+    ${row('Total paid', m => val('my',m,d=>d.bills.reduce((s,b)=>s+(b.amtPaid||0),0)))}
+    ${row('Income',     m => val('my',m,d=>d.income.reduce((s,r)=>s+(r.actual||0),0)))}
+    ${row('Balance',    m => { const d=allData[m]&&allData[m].my; if(!d)return null; return d.income.reduce((s,r)=>s+(r.actual||0),0)-d.bills.reduce((s,b)=>s+(b.amtPaid||0),0); }, true)}`;
 }
 
 // ── Master ────────────────────────────────────────────────────────────────────
-function renderMasterView(){
-  document.getElementById('view-monthly').style.display='none';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='block';
-  document.getElementById('month-nav').style.visibility='hidden';
-  renderMasterList('house',masterHouse,'master-house-list');renderMasterList('my',masterMy,'master-my-list');
+function renderMasterView() {
+  document.getElementById('view-monthly').style.display = 'none';
+  document.getElementById('view-annual').style.display  = 'none';
+  document.getElementById('view-master').style.display  = 'block';
+  document.getElementById('month-nav').style.visibility = 'hidden';
+  renderMasterList('house', masterHouse, 'master-house-list');
+  renderMasterList('my',    masterMy,    'master-my-list');
 }
-function renderMasterList(acct,list,id){
-  document.getElementById(id).innerHTML=list.map((b,i)=>`
+function renderMasterList(acct, list, id) {
+  document.getElementById(id).innerHTML = list.map((b,i) => `
     <div class="master-bill-item">
-      <span class="mname">${b.name}</span><span class="mdue">${b.dueDay?'Day '+b.dueDay:'No date'}</span>
+      <span class="mname">${b.name}</span>
+      <span class="mdue">${b.dueDay?'Day '+b.dueDay:'No date'}</span>
       <span class="mmin">${b.minPay!=null?fmt(b.minPay):'—'}</span>
       <span style="font-size:11px;color:var(--muted);flex:1;margin-left:6px">${b.notes||''}</span>
       <button class="rm-btn" onclick="removeMaster('${acct}',${i})" title="Remove from master">&#215;</button>
     </div>`).join('');
 }
-function openAddBill(acct){addingAcct=acct;['add-name','add-due','add-min','add-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('add-modal').classList.add('open');}
-async function saveNewBill(){
-  const name=document.getElementById('add-name').value.trim(),due=document.getElementById('add-due').value,min=document.getElementById('add-min').value,notes=document.getElementById('add-notes').value.trim();
-  if(!name){toast('Enter a bill name');return;}
-  try{
-    await sheetsAppend('BillMaster!A2:G',[[addingAcct,name,due||'',min||'',notes,true,'']]);
-    const nb={account:addingAcct,name,dueDay:due?parseInt(due):null,minPay:min?parseFloat(min):null,notes,active:true,fullBal:null};
-    if(addingAcct==='house')masterHouse.push(nb);else masterMy.push(nb);
-    closeModal('add-modal');renderMasterList(addingAcct,addingAcct==='house'?masterHouse:masterMy,`master-${addingAcct==='house'?'house':'my'}-list`);monthData={};toast(`${name} added to master list`);
-  }catch(e){toast('Save failed');}
+function openAddBill(acct) {
+  addingAcct = acct;
+  ['add-name','add-due','add-min','add-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-modal').classList.add('open');
 }
-async function removeMaster(acct,idx){
-  const list=acct==='house'?masterHouse:masterMy,bill=list[idx];
-  if(!confirm(`Remove "${bill.name}" from master list?\n\nWon't appear in new months going forward. Existing months unchanged.`))return;
-  try{
-    const rows=await sheetsGet('BillMaster!A2:G1000');let sheetRow=-1,acctCount=0;
-    for(let i=0;i<rows.length;i++){if(rows[i][0]===acct){if(acctCount===idx){sheetRow=i+2;break;}acctCount++;}}
-    if(sheetRow>0)await sheetsClear(`BillMaster!A${sheetRow}:G${sheetRow}`);
-    list.splice(idx,1);renderMasterList(acct,list,`master-${acct==='house'?'house':'my'}-list`);monthData={};toast(`${bill.name} removed from master`);
-  }catch(e){toast('Remove failed');}
+async function saveNewBill() {
+  const name  = document.getElementById('add-name').value.trim();
+  const due   = document.getElementById('add-due').value;
+  const min   = document.getElementById('add-min').value;
+  const notes = document.getElementById('add-notes').value.trim();
+  if (!name) { toast('Enter a bill name'); return; }
+  try {
+    await sheetsAppend('BillMaster!A2:G', [[addingAcct, name, due||'', min||'', notes, true, '']]);
+    const nb = {account:addingAcct, name, dueDay:due?parseInt(due):null, minPay:min?parseFloat(min):null, notes, active:true, fullBal:null};
+    if (addingAcct === 'house') masterHouse.push(nb); else masterMy.push(nb);
+    closeModal('add-modal');
+    renderMasterList(addingAcct, addingAcct==='house'?masterHouse:masterMy, `master-${addingAcct==='house'?'house':'my'}-list`);
+    monthData = {};
+    toast(`${name} added to master list`);
+  } catch(e) { toast('Save failed'); }
+}
+async function removeMaster(acct, idx) {
+  const list = acct==='house' ? masterHouse : masterMy;
+  const bill = list[idx];
+  if (!confirm(`Remove "${bill.name}" from master list?\n\nWon't appear in new months going forward. Existing months unchanged.`)) return;
+  try {
+    const rows = await sheetsGet('BillMaster!A2:G1000');
+    let sheetRow = -1, acctCount = 0;
+    for (let i=0; i<rows.length; i++) {
+      if (rows[i][0] === acct) {
+        if (acctCount === idx) { sheetRow = i+2; break; }
+        acctCount++;
+      }
+    }
+    if (sheetRow > 0) await sheetsClear(`BillMaster!A${sheetRow}:G${sheetRow}`);
+    list.splice(idx, 1);
+    renderMasterList(acct, list, `master-${acct==='house'?'house':'my'}-list`);
+    monthData = {};
+    toast(`${bill.name} removed from master`);
+  } catch(e) { toast('Remove failed'); }
 }
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
-function setView(v){
-  currentView=v;
-  ['monthly','annual','master'].forEach(view=>{
-    const el=document.getElementById('di-'+view);
-    if(el) el.classList.toggle('active', view===v);
+function setView(v) {
+  currentView = v;
+  ['monthly','annual','master'].forEach(view => {
+    const el = document.getElementById('di-'+view);
+    if (el) el.classList.toggle('active', view===v);
   });
-  document.getElementById('month-nav').style.visibility=v==='monthly'?'visible':'hidden';
-  if(v==='monthly'){document.getElementById('view-monthly').style.display='';document.getElementById('view-annual').style.display='none';document.getElementById('view-master').style.display='none';renderMonthly();}
-  else if(v==='annual')renderAnnual();
-  else renderMasterView();
+  document.getElementById('month-nav').style.visibility = v==='monthly' ? 'visible' : 'hidden';
+  if (v === 'monthly') {
+    document.getElementById('view-monthly').style.display = '';
+    document.getElementById('view-annual').style.display  = 'none';
+    document.getElementById('view-master').style.display  = 'none';
+    renderMonthly();
+  } else if (v === 'annual') {
+    renderAnnual();
+  } else {
+    renderMasterView();
+  }
 }
-function setAccount(a){
-  currentAcct=a;
-  document.getElementById('tab-house').className='mbtn '+(a==='house'?'mbtn-p':'mbtn-s');
-  document.getElementById('tab-my').className='mbtn '+(a==='my'?'mbtn-p':'mbtn-s');
+function setAccount(a) {
+  currentAcct = a;
+  document.getElementById('tab-house').className = 'mbtn '+(a==='house'?'mbtn-p':'mbtn-s');
+  document.getElementById('tab-my').className    = 'mbtn '+(a==='my'?'mbtn-p':'mbtn-s');
   renderMonthly();
 }
-function changeMonth(d){
-  currentMonth+=d;
-  if(currentMonth>11){currentMonth=0;currentYear++;}
-  if(currentMonth<0){currentMonth=11;currentYear--;}
+function changeMonth(d) {
+  currentMonth += d;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
   saveCurrentMonth();
   renderMonthly();
 }
 
 // ── Drawer & kebab ────────────────────────────────────────────────────────────
-function toggleDrawer(){
+function toggleDrawer() {
   document.getElementById('drawer').classList.toggle('open');
   document.getElementById('drawer-bg').classList.toggle('open');
   closeKebab();
 }
-function closeDrawer(){
+function closeDrawer() {
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('drawer-bg').classList.remove('open');
 }
-function toggleKebab(){
+function toggleKebab() {
   document.getElementById('kebab-menu').classList.toggle('open');
   closeDrawer();
 }
-function closeKebab(){
+function closeKebab() {
   document.getElementById('kebab-menu').classList.remove('open');
 }
 document.addEventListener('click', e => {
-  if(!e.target.closest('#kebab-btn') && !e.target.closest('#kebab-menu')) closeKebab();
+  if (!e.target.closest('#kebab-btn') && !e.target.closest('#kebab-menu')) closeKebab();
 });
 
 // ── One-time bill ─────────────────────────────────────────────────────────────
-function openAddBillThisMonth(){
-  ['ot-name','ot-due','ot-min','ot-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('onetime-sub').textContent=`Adds to ${MONTHS[currentMonth]} ${currentYear} only — not the master list`;
+function openAddBillThisMonth() {
+  ['ot-name','ot-due','ot-min','ot-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('onetime-sub').textContent = `Adds to ${MONTHS[currentMonth]} ${currentYear} only — not the master list`;
   document.getElementById('onetime-modal').classList.add('open');
 }
-async function saveOnetimeBill(){
-  const name=document.getElementById('ot-name').value.trim(),due=document.getElementById('ot-due').value,min=document.getElementById('ot-min').value,notes=document.getElementById('ot-notes').value.trim();
-  if(!name){toast('Enter a bill name');return;}
-  const key=mKey(currentAcct,currentYear,currentMonth+1),data=monthData[key],bs=sn(currentAcct,currentYear,currentMonth+1);
-  const newBill={rowIdx:data.bills.length+2,sheet:bs,name,dueDay:due?parseInt(due):null,minPay:min?parseFloat(min):null,notes,datePaid:'',amtPaid:null,auto:notes.toLowerCase().includes('auto')};
-  try{await sheetsAppend(`${bs}!A2:F`,[[name,due||'',min||'',notes,'','']]);data.bills.push(newBill);closeModal('onetime-modal');renderBills(data.bills);renderStats(data.bills,data.income);toast(`${name} added to ${MONTHS[currentMonth]}`);}
-  catch(e){toast('Save failed');}
+async function saveOnetimeBill() {
+  const name  = document.getElementById('ot-name').value.trim();
+  const due   = document.getElementById('ot-due').value;
+  const min   = document.getElementById('ot-min').value;
+  const notes = document.getElementById('ot-notes').value.trim();
+  if (!name) { toast('Enter a bill name'); return; }
+  const key  = mKey(currentAcct, currentYear, currentMonth+1);
+  const data = monthData[key];
+  const bs   = sn(currentAcct, currentYear, currentMonth+1);
+  const newBill = {
+    rowIdx: data.bills.length+2, sheet: bs, name,
+    dueDay: due ? parseInt(due) : null,
+    minPay: min ? parseFloat(min) : null,
+    notes, datePaid: '', amtPaid: null,
+    auto: notes.toLowerCase().includes('auto')
+  };
+  try {
+    await sheetsAppend(`${bs}!A2:F`, [[name, due||'', min||'', notes, '', '']]);
+    data.bills.push(newBill);
+    closeModal('onetime-modal');
+    renderBills(data.bills);
+    renderStats(data.bills, data.income);
+    toast(`${name} added to ${MONTHS[currentMonth]}`);
+  } catch(e) { toast('Save failed'); }
 }
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
-function fmt(n){if(n==null||isNaN(n))return'—';const neg=n<0;return(neg?'-':'')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function today(){return new Date().toISOString().slice(0,10);}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+function fmt(n) {
+  if (n==null || isNaN(n)) return '—';
+  const neg = n < 0;
+  return (neg?'-':'') + '$' + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function today() { return new Date().toISOString().slice(0,10); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 let toastTimer;
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
 
-// ── Modal backdrop: click outside to close, but stop clicks inside the card ──
-['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id=>{
-  const bg=document.getElementById(id);
-  const inner=bg.querySelector('.modal');
-  // Clicks inside the card stay inside — don't bubble to the backdrop
-  inner.addEventListener('click',e=>e.stopPropagation());
-  // Clicking the dark backdrop closes the modal
-  bg.addEventListener('click',()=>closeModal(id));
+// Modal: click inside card = stay, click backdrop = close
+['pay-modal','income-modal','add-modal','onetime-modal'].forEach(id => {
+  const bg    = document.getElementById(id);
+  const inner = bg.querySelector('.modal');
+  inner.addEventListener('click', e => e.stopPropagation());
+  bg.addEventListener('click', () => closeModal(id));
 });
 
-// ── Bill due-date notifications ───────────────────────────────────────────────
+// ── Notifications ─────────────────────────────────────────────────────────────
 async function requestBillNotifs() {
-  if(!('Notification'in window)){toast('Notifications not supported');return;}
+  if (!('Notification' in window)) { toast('Notifications not supported'); return; }
   const p = await Notification.requestPermission();
-  if(p==='granted'){
-    localStorage.setItem('bill_notif','1');
+  if (p === 'granted') {
+    localStorage.setItem('bill_notif', '1');
     document.getElementById('notifStrip').classList.add('hidden');
     toast('🔔 Bill reminders enabled!');
     scheduleBillCheck();
-  } else toast('Notifications blocked — check browser settings');
+  } else {
+    toast('Notifications blocked — check browser settings');
+  }
 }
 function scheduleBillCheck() {
   checkBillsAndNotify();
-  const now=new Date(), t=new Date(now);
-  t.setHours(9,0,0,0); if(t<=now) t.setDate(t.getDate()+1);
-  setTimeout(()=>{checkBillsAndNotify();setInterval(checkBillsAndNotify,864e5);}, t-now);
+  const now = new Date(), t = new Date(now);
+  t.setHours(9,0,0,0);
+  if (t <= now) t.setDate(t.getDate()+1);
+  setTimeout(() => { checkBillsAndNotify(); setInterval(checkBillsAndNotify, 864e5); }, t-now);
 }
 function checkBillsAndNotify() {
-  if(Notification.permission!=='granted')return;
-  const last=localStorage.getItem('bill_notif_date');
-  const tod=new Date().toISOString().split('T')[0];
-  if(last===tod)return;
-  const cm=currentMonth+1,cy=currentYear;
-  const key=`house-${cy}-${cm}`;
-  const data=monthData[key];
-  if(!data)return;
-  const todayD=new Date().getDate();
-  const dueSoon=data.bills.filter(b=>b.amtPaid==null&&b.dueDay&&Math.abs(b.dueDay-todayD)<=3);
-  if(!dueSoon.length)return;
-  localStorage.setItem('bill_notif_date',tod);
-  const names=dueSoon.map(b=>`${b.name} (due ${cm}/${b.dueDay})`).join(', ');
-  new Notification('💰 Bills due soon!',{body:names,icon:'/casgrahtools/icon.svg',tag:'bill-reminder',data:{url:'/casgrahtools/bills.html'}});
+  if (Notification.permission !== 'granted') return;
+  const last = localStorage.getItem('bill_notif_date');
+  const tod  = new Date().toISOString().split('T')[0];
+  if (last === tod) return;
+  const key  = `house-${currentYear}-${currentMonth+1}`;
+  const data = monthData[key];
+  if (!data) return;
+  const todayD  = new Date().getDate();
+  const dueSoon = data.bills.filter(b => b.amtPaid==null && b.dueDay && Math.abs(b.dueDay-todayD)<=3);
+  if (!dueSoon.length) return;
+  localStorage.setItem('bill_notif_date', tod);
+  const names = dueSoon.map(b => `${b.name} (due ${currentMonth+1}/${b.dueDay})`).join(', ');
+  new Notification('💰 Bills due soon!', {body:names, icon:'/casgrahtools/icon.svg', tag:'bill-reminder'});
 }
 
-if(Notification.permission!=='granted'&&!localStorage.getItem('bill_notif_dismissed')){
+if (Notification.permission !== 'granted' && !localStorage.getItem('bill_notif_dismissed')) {
   document.getElementById('notifStrip').classList.remove('hidden');
 }
-if(Notification.permission==='granted')scheduleBillCheck();
+if (Notification.permission === 'granted') scheduleBillCheck();
 
 loadSavedMonth();
 initAuth('cgt_token');
